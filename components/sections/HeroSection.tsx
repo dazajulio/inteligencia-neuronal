@@ -82,17 +82,17 @@ export function HeroSection() {
           {/* Tag Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50/90 backdrop-blur-sm border border-sky-200 text-xs font-bold text-[#0284c7] shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse" />
-            <span>ARQUITECTURA TECNOLÓGICA & AGENTES IA</span>
+            <span>ARQUITECTURA TECNOLÓGICA & DASHBOARDS</span>
           </div>
 
           {/* H1 Exact Headline */}
           <h1 className="text-3xl sm:text-4xl lg:text-[2.85rem] font-black tracking-tight text-slate-900 leading-[1.12]">
-            INTELIGENCIA OPERATIVA Y AUTOMATIZACION GASTRONOMICA
+            AGENTES DE IA PARA LA AUTOMATIZACION GASTRONÓMICA
           </h1>
 
           {/* H2 Subtitle */}
           <h2 className="text-lg sm:text-xl text-slate-800 font-bold leading-snug">
-            Estandarizo y automatizo tus operaciones criticas.
+            Estandarizo y automatizo tus operaciones críticas.
           </h2>
 
           {/* Paragraph Description */}
