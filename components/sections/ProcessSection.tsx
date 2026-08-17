@@ -110,14 +110,14 @@ export function ProcessSection() {
                   onClick={() => setActivePhaseIndex(index)}
                   className={`p-5 rounded-2xl border cursor-pointer transition-all duration-200 flex items-start gap-4 ${
                     isActive
-                      ? "bg-white border-[#0284c7] shadow-md ring-2 ring-[#0284c7]/20"
+                      ? "bg-white border-zinc-900 shadow-md ring-2 ring-zinc-900/20"
                       : "bg-slate-50/70 border-slate-200 hover:border-slate-300 hover:bg-white"
                   }`}
                 >
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm shrink-0 transition-colors ${
                       isActive
-                        ? "bg-[#0284c7] text-white shadow-sm"
+                        ? "bg-zinc-900 text-white shadow-sm"
                         : "bg-slate-200 text-slate-600"
                     }`}
                   >
@@ -142,7 +142,7 @@ export function ProcessSection() {
             
             {/* Header info */}
             <div className="space-y-2 pb-6 border-b border-slate-200">
-              <div className="flex items-center justify-between text-xs font-mono text-[#0284c7] font-bold">
+              <div className="flex items-center justify-between text-xs font-mono text-zinc-900 font-bold">
                 <span>FASE {currentPhase.number} &bull; {currentPhase.timeline}</span>
                 <span className="text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">
                   {currentPhase.tagline}
@@ -161,7 +161,7 @@ export function ProcessSection() {
             {/* Deliverables Grid */}
             <div className="space-y-3">
               <div className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#0284c7]" />
+                <Layers className="w-4 h-4 text-zinc-900" />
                 <span>Entregables Técnicos Clave</span>
               </div>
 
@@ -171,7 +171,7 @@ export function ProcessSection() {
                     key={idx}
                     className="p-3.5 bg-white rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700 font-medium shadow-sm"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-[#0284c7] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-zinc-900 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -181,7 +181,7 @@ export function ProcessSection() {
             {/* Target Metric Box */}
             <div className="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
               <div className="space-y-0.5">
-                <div className="text-[11px] font-mono uppercase text-[#0284c7] font-bold">
+                <div className="text-[11px] font-mono uppercase text-zinc-900 font-bold">
                   Objetivo de Impacto:
                 </div>
                 <div className="text-sm font-bold text-slate-900">

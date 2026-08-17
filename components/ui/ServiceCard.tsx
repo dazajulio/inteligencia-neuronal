@@ -96,8 +96,7 @@ export function ServiceCard({
       <div className="pt-6 mt-4 border-t border-black/5 w-full flex justify-center">
         <button
           onClick={openModal}
-          className="text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer group/btn"
-          style={{ color: accentColor }}
+          className="text-xs font-bold flex items-center gap-1.5 cursor-pointer group/btn bg-[#3c3c3c] hover:bg-[#2a2a2a] text-white px-5 py-2.5 rounded-full shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
         >
           <span>Solicitar Diagnóstico</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />

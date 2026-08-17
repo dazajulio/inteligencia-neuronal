@@ -80,25 +80,20 @@ export function HeroSection() {
         <div className="max-w-xl space-y-6 text-left">
           
           {/* Tag Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50/90 backdrop-blur-sm border border-sky-200 text-xs font-bold text-[#0284c7] shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100/90 backdrop-blur-sm border border-zinc-200 text-xs font-bold text-zinc-800 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-zinc-800 animate-pulse" />
             <span>ARQUITECTURA TECNOLÓGICA & DASHBOARDS</span>
           </div>
 
           {/* H1 Exact Headline */}
-          <h1 className="text-3xl sm:text-4xl lg:text-[2.85rem] font-black tracking-tight text-slate-900 leading-[1.12]">
-            AGENTES DE IA PARA LA AUTOMATIZACION GASTRONÓMICA
+          <h1 className="font-heading text-3xl sm:text-4xl lg:text-[2.85rem] font-bold tracking-tight text-slate-900 leading-[1.12]">
+            Arquitectura Tecnológica y Automatización para la Industria de la Gastronomía.
           </h1>
 
           {/* H2 Subtitle */}
-          <h2 className="text-lg sm:text-xl text-slate-800 font-bold leading-snug">
-            Estandarizo y automatizo tus operaciones críticas.
+          <h2 className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed">
+            Transformamos operaciones en ecosistemas precisos, escalables y altamente rentables mediante Inteligencia Artificial.
           </h2>
-
-          {/* Paragraph Description */}
-          <p className="text-base text-slate-600 font-medium leading-relaxed">
-            Reduccion de mermas y control de costos en tiempo real impulsado por agentes IA .
-          </p>
 
           {/* CTA Action Buttons */}
           <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -107,7 +102,7 @@ export function HeroSection() {
               size="lg"
               onClick={openModal}
               rightIcon={<ArrowRight className="w-4 h-4" />}
-              className="text-base font-bold shadow-[0_4px_14px_0_rgba(2,132,199,0.39)] px-8 py-3.5 rounded-xl"
+              className="text-base font-bold shadow-lg px-8 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white"
             >
               Me Interesa
             </Button>
@@ -123,7 +118,7 @@ export function HeroSection() {
           {/* Trust Assurances */}
           <div className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center gap-6 text-xs font-mono text-slate-600">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#0284c7]" /> NDA Confidencial
+              <ShieldCheck className="w-4 h-4 text-zinc-700" /> NDA Confidencial
             </span>
             <span className="flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-emerald-600" /> Monitoreo 24/7

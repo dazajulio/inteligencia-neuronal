@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Timer, Phone, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLeadStore } from "@/store/useLeadStore";
@@ -31,26 +32,28 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
         {/* Left: Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-          <div className="w-8 h-8 rounded-full border-2 border-slate-900 flex items-center justify-center relative shadow-sm transition-colors">
-            <Timer className="w-4 h-4 text-slate-900" />
-            <div className="absolute -top-1 w-2 h-1 bg-slate-900 rounded-sm" />
+        <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 relative flex items-center justify-center transition-transform group-hover:scale-105">
+            <Image src="/logo.png" alt="Inteligencia Neuronal Logo" fill className="object-contain" />
           </div>
-          <span className="font-script text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 select-none group-hover:text-[#0284c7] transition-colors leading-none">
+          <span className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 select-none group-hover:text-zinc-600 transition-colors leading-none">
             Inteligencia Neuronal
           </span>
         </Link>
 
         {/* Center: Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-800">
-          <a href="#servicios" className="hover:text-[#0284c7] transition-colors">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-800">
+          <a href="#servicios" className="hover:text-zinc-500 transition-colors">
             Servicios
           </a>
-          <a href="#como-trabajo" className="hover:text-[#0284c7] transition-colors">
+          <a href="#como-trabajo" className="hover:text-zinc-500 transition-colors">
             Como Trabajo
           </a>
-          <a href="#agencia" className="hover:text-[#0284c7] transition-colors">
-            La Agencia
+          <a href="#agencia" className="hover:text-zinc-500 transition-colors">
+            Agencia IA
+          </a>
+          <a href="#academy" className="hover:text-zinc-500 transition-colors">
+            Academy
           </a>
         </nav>
 
@@ -91,23 +94,30 @@ export function Navbar() {
             <a
               href="#servicios"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-[#0284c7] py-1"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
               Servicios
             </a>
             <a
               href="#como-trabajo"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-[#0284c7] py-1"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
               Como Trabajo
             </a>
             <a
               href="#agencia"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-[#0284c7] py-1"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
-              La Agencia
+              Agencia IA
+            </a>
+            <a
+              href="#academy"
+              onClick={() => setMobileMenuOpen(false)}
+              className="hover:text-zinc-500 py-1 transition-colors"
+            >
+              Academy
             </a>
           </div>
 

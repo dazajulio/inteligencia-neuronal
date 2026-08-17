@@ -7,67 +7,56 @@ import { ServiceCardData } from "@/types";
 export function ServicesGrid() {
   const services: ServiceCardData[] = [
     {
-      id: "compras",
+      id: "auditoria",
       badgeNumber: "01",
-      title: "Automatización de Compras y Abastecimiento",
+      title: "Auditoría y Estandarización Inteligente",
       description:
-        "Elimina el error humano y controla tus costos en tiempo real. Implementamos sistemas inteligentes que monitorean tu inventario y coordinan con proveedores en piloto automático.",
-      bgCard: "bg-[#ede9fe]", // Lavanda pastel
-      accentColor: "#4f46e5", // Indigo
-      borderColor: "border-indigo-200/80",
-      iconType: "compras",
-    },
-    {
-      id: "rentabilidad",
-      badgeNumber: "02",
-      title: "Rentabilidad y Estandarización",
-      description:
-        "Blindamos tu margen de ganancia. Desarrollamos recetarios exactos y manuales operativos que calculan rendimientos reales de cocción para protegerte de la inflación.",
-      bgCard: "bg-[#fff7ed]", // Naranja pastel
-      accentColor: "#ea580c", // Naranja
-      borderColor: "border-orange-200/80",
+        "Diagnóstico de operaciones de cocina, parametrización de macronutrientes, ingeniería de menú y protección de costos bajo estrictos estándares HACCP.",
+      bgCard: "bg-white",
+      accentColor: "#52525b", // zinc-600
+      borderColor: "border-zinc-200",
       iconType: "rentabilidad",
     },
     {
-      id: "kds",
-      badgeNumber: "03",
-      title: "Ecosistemas Tecnológicos Propios",
+      id: "automatizacion",
+      badgeNumber: "02",
+      title: "Sistemas de Automatización (RPA & IA)",
       description:
-        "Unifica tus pedidos, salón y pantallas de cocina. Toma el control absoluto de tus sucursales con plataformas independientes, sin pagar comisiones abusivas a terceros.",
-      bgCard: "bg-[#f1f5f9]", // Gris claro
-      accentColor: "#475569", // Slate
-      borderColor: "border-slate-300/80",
-      iconType: "kds",
+        "Despliegue de flujos de trabajo en servidores dedicados con n8n, integración para reservas y pedidos, y sincronización de bases de datos operativas con CRM propio.",
+      bgCard: "bg-zinc-50",
+      accentColor: "#3f3f46", // zinc-700
+      borderColor: "border-zinc-200",
+      iconType: "compras",
     },
     {
-      id: "adquisicion",
-      badgeNumber: "04",
-      title: "Motores de Adquisición de Clientes",
+      id: "infraestructura",
+      badgeNumber: "03",
+      title: "Desarrollo de Infraestructura (FoodTech)",
       description:
-        "Multiplicamos tu facturación y visibilidad. Optimizamos tu presencia digital para dominar tu zona y convertir búsquedas locales en comensales recurrentes.",
-      bgCard: "bg-[#e0f2fe]", // Azul claro
-      accentColor: "#0284c7", // Azure
-      borderColor: "border-sky-200/80",
-      iconType: "adquisicion",
+        "Creación de entornos digitales robustos, integraciones de pago fluidas (Stripe) y paneles de control (dashboards) en tiempo real para gerencia.",
+      bgCard: "bg-zinc-100",
+      accentColor: "#27272a", // zinc-800
+      borderColor: "border-zinc-300",
+      iconType: "kds",
     },
   ];
 
   return (
-    <section id="servicios" className="py-20 sm:py-28 bg-[#f8fafc] border-t border-slate-200/80 relative">
+    <section id="servicios" className="pt-8 pb-20 sm:pt-12 sm:pb-28 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
-            Servicios
+          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900">
+            Nuestros Pilares
           </h2>
-          <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-            Estructura de 4 pilares de ingeniería agéntica diseñada para resolver los puntos de dolor críticos en cocinas comerciales y cadenas de alimentos.
+          <p className="text-base sm:text-lg text-zinc-500 leading-relaxed max-w-2xl">
+            Arquitectura de servicios diseñados para escalar la operatividad corporativa de tu marca.
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        {/* 3 Cards Grid */}
+        <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {services.map((svc) => (
             <ServiceCard key={svc.id} {...svc} />
           ))}

@@ -27,7 +27,7 @@ export function Button({
 
   const variantStyles = {
     primary:
-      "bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-[0_4px_14px_0_rgba(2,132,199,0.39)] hover:shadow-[0_6px_20px_rgba(2,132,199,0.45)] focus:ring-[#0284c7]",
+      "bg-[#3c3c3c] hover:bg-[#2a2a2a] text-white shadow-lg hover:shadow-xl hover:-translate-y-1 focus:ring-[#3c3c3c]",
     secondary:
       "bg-slate-900 hover:bg-slate-800 text-white shadow-md focus:ring-slate-900",
     outline:
