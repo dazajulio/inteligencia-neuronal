@@ -17,7 +17,11 @@ import {
   Lock,
   Layers,
   Cpu,
-  RotateCw
+  RotateCw,
+  ExternalLink,
+  Eye,
+  Paperclip,
+  CheckCircle
 } from "lucide-react";
 
 interface Course {
@@ -28,7 +32,9 @@ interface Course {
   tagline: string;
   duration: string;
   price: string;
+  previewImage: string;
   tools: string[];
+  stripeColor: string;
   modules: { week: string; title: string; desc: string }[];
   ctaUrl: string;
 }
@@ -42,6 +48,8 @@ const COURSES: Course[] = [
     tagline: "Aprende a desplegar agentes de WhatsApp que atienden, venden y controlan recetas sin alucinaciones.",
     duration: "4 Módulos Intensivos • Acceso de por vida",
     price: "$97 USD",
+    previewImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]",
     tools: ["OpenAI API", "Claude 3.5", "WhatsApp Cloud API", "Airtable"],
     modules: [
       { week: "01", title: "Arquitectura de Prompts & Escandallos", desc: "Control de costos, ingeniería de menú y calibración de recetas sin margen de error." },
@@ -59,6 +67,8 @@ const COURSES: Course[] = [
     tagline: "Construye la infraestructura de automatización de un restaurante sobre servidores VPS dedicados.",
     duration: "6 Semanas en Vivo + Laboratorios",
     price: "$197 USD",
+    previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#1DACE3] via-[#0284c7] to-[#4f46e5]",
     tools: ["n8n Self-Hosted", "Docker", "PostgreSQL", "Meta Webhooks"],
     modules: [
       { week: "01", title: "Despliegue VPS con Docker & Caddy", desc: "Instalación segura de n8n en servidores en la nube con certificados SSL." },
@@ -76,6 +86,8 @@ const COURSES: Course[] = [
     tagline: "Posiciona tu marca gastronómica en Google Maps y sé la respuesta que ChatGPT y Gemini recomiendan.",
     duration: "Taller Práctico Grabado",
     price: "$67 USD",
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#EA0C7F]",
     tools: ["Google Business", "Schema.org", "Perplexity Engine", "JSON-LD"],
     modules: [
       { week: "01", title: "Indexación de Menús para Motores IA (AEO)", desc: "Estructuración de microdatos para que los LLMs recomienden tus platos." },
@@ -92,30 +104,45 @@ const TOOLKIT_RESOURCES = [
     title: "Optimización para Motores de Respuesta (AEO): Arquitectura de Contenido y Datos Estructurados para RAG",
     desc: "Guía técnica y arquitectura para estructurar datos con Schema.org, metadatos JSON-LD y bases vectoriales para que ChatGPT, Gemini y Perplexity indexen y citen tu restaurante.",
     tag: "AEO & RAG // NUEVO",
+    previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
+    stripeColor: "from-[#EA0C7F] to-[#971B8D]",
+    format: "PDF / Arquitectura AEO",
   },
   {
     id: "escandallos",
     title: "Matriz de Escandallos & Costos",
     desc: "Plantilla en Excel para costeo crudo/cocido, factor de rendimiento y mermas técnicas en cocina.",
     tag: "XLSX / EXCEL",
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+    stripeColor: "from-[#1DACE3] to-[#0284c7]",
+    format: "Plantilla XLSX Parametrizada",
   },
   {
     id: "haccp",
     title: "Checklist de Puntos Críticos HACCP",
     desc: "Auditoría de temperaturas, rotación de cámaras y protocolos de inocuidad y seguridad alimentaria.",
     tag: "PDF INTERACTIVO",
+    previewImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
+    stripeColor: "from-[#86C537] to-[#059669]",
+    format: "Checklist PDF Interactivo",
   },
   {
     id: "sops",
     title: "Framework de SOPs para Restaurantes",
     desc: "Estructura modular para documentar recetas y compras antes de automatizar con IA.",
     tag: "NOTION TEMPLATE",
+    previewImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
+    stripeColor: "from-[#FEAD2B] to-[#d97706]",
+    format: "Notion Workspace Duplicable",
   },
   {
     id: "aeo",
     title: "Guía de Indexación Local & AEO",
     desc: "Configuración técnica de menús y Schema.org para Google Maps y motores de respuesta de IA.",
     tag: "GUÍA TÉCNICA",
+    previewImage: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=600&q=80",
+    stripeColor: "from-[#971B8D] to-[#1DACE3]",
+    format: "Guía Técnica PDF",
   },
 ];
 
@@ -250,44 +277,63 @@ export default function AcademyPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Navegador lateral de Cursos (Col 1-5) */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
+          {/* Navegador lateral de Cursos con Franja Superior e Imágenes (Col 1-5) */}
+          <div className="lg:col-span-5 flex flex-col gap-5">
             {COURSES.map((course) => {
               const isSelected = selectedCourse.id === course.id;
               return (
                 <div
                   key={course.id}
                   onClick={() => setSelectedCourse(course)}
-                  className={`p-6 rounded-3xl border transition-all cursor-pointer text-left relative overflow-hidden transform-gpu will-change-transform ${
+                  className={`rounded-3xl border transition-all cursor-pointer text-left relative overflow-hidden transform-gpu will-change-transform shadow-sm hover:shadow-md ${
                     isSelected
-                      ? "border-zinc-900 bg-zinc-50 shadow-md ring-2 ring-zinc-900/10"
-                      : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50 shadow-sm"
+                      ? "border-zinc-900 bg-zinc-50/80 ring-2 ring-zinc-900/15"
+                      : "border-zinc-200 bg-white hover:border-zinc-300"
                   }`}
                 >
-                  {isSelected && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-zinc-900" />
-                  )}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-zinc-200/80 text-zinc-800 border border-zinc-300">
-                      {course.badge}
-                    </span>
-                    <span className="text-xs text-zinc-500 font-mono">{course.level}</span>
+                  {/* Top Color Stripe */}
+                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${course.stripeColor}`} />
+
+                  {/* Thumbnail Banner */}
+                  <div className="h-32 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-100">
+                    <img
+                      src={course.previewImage}
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/90 text-zinc-900 border border-zinc-200 shadow-xs">
+                        {course.badge}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs font-mono">
+                      <span className="font-bold">{course.level}</span>
+                      <span className="font-extrabold bg-zinc-900/80 px-2 py-0.5 rounded text-[11px]">{course.price}</span>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900 mb-1.5">{course.title}</h3>
-                  <p className="text-xs text-zinc-600 line-clamp-2 leading-relaxed mb-4">{course.tagline}</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-zinc-200/80">
-                    <span className="text-lg font-bold text-zinc-900 font-mono">{course.price}</span>
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-zinc-700 group">
-                      Ver temario <ArrowRight className="w-3.5 h-3.5 text-zinc-900 transition-transform group-hover:translate-x-1" />
-                    </span>
+
+                  <div className="p-5">
+                    <h3 className="text-base font-bold text-zinc-900 mb-1 leading-snug">{course.title}</h3>
+                    <p className="text-xs text-zinc-600 line-clamp-2 leading-relaxed mb-3">{course.tagline}</p>
+                    
+                    <div className="flex items-center justify-between pt-3 border-t border-zinc-200/80">
+                      <span className="text-xs font-mono text-zinc-500 font-bold">{course.duration}</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#971B8D] group">
+                        Ver syllabus <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Visor de Contenido & Syllabus Detallado (Col 6-12) */}
-          <div className="lg:col-span-7 rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 relative shadow-lg">
+          {/* Visor de Contenido & Syllabus Detallado con Franja e Imagen (Col 6-12) */}
+          <div className="lg:col-span-7 rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 relative shadow-lg overflow-hidden">
+            {/* Top Color Stripe */}
+            <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${selectedCourse.stripeColor}`} />
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedCourse.id}
@@ -296,23 +342,33 @@ export default function AcademyPage() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-5 mb-6">
-                  <div>
-                    <span className="text-xs font-mono font-bold text-zinc-500">PLAN DE ESTUDIO // SYLLABUS</span>
-                    <h3 className="text-2xl font-bold text-zinc-900 mt-1">{selectedCourse.title}</h3>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-extrabold text-zinc-900 font-mono">{selectedCourse.price}</div>
-                    <span className="text-xs text-zinc-500">{selectedCourse.duration}</span>
+                {/* Banner de Cabecera */}
+                <div className="h-44 w-full rounded-2xl overflow-hidden relative mb-6 border border-zinc-200">
+                  <img
+                    src={selectedCourse.previewImage}
+                    alt={selectedCourse.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/30 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-2 text-white">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-cyan-300 uppercase tracking-widest block mb-1">
+                        PLAN DE ESTUDIO // SYLLABUS
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-bold">{selectedCourse.title}</h3>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-2xl font-extrabold font-mono text-cyan-300">{selectedCourse.price}</div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Herramientas que dominarás */}
                 <div className="mb-6">
-                  <div className="text-xs font-mono font-bold text-zinc-500 mb-2">HERRAMIENTAS & PROTOCOLOS</div>
+                  <div className="text-xs font-mono font-bold text-zinc-500 mb-2">STACK TECNOLÓGICO & HERRAMIENTAS</div>
                   <div className="flex flex-wrap gap-2">
                     {selectedCourse.tools.map((tool, i) => (
-                      <span key={i} className="text-xs font-mono px-3 py-1 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-800">
+                      <span key={i} className="text-xs font-mono px-3 py-1 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-800 font-bold">
                         {tool}
                       </span>
                     ))}
@@ -321,9 +377,9 @@ export default function AcademyPage() {
 
                 {/* Desglose de Módulos */}
                 <div className="space-y-3 mb-8">
-                  <div className="text-xs font-mono font-bold text-zinc-500">ESTRUCTURA DEL CURSO</div>
+                  <div className="text-xs font-mono font-bold text-zinc-500">ESTRUCTURA CLASE POR CLASE</div>
                   {selectedCourse.modules.map((m, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 flex items-start gap-4 shadow-sm">
+                    <div key={idx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 flex items-start gap-4 shadow-xs">
                       <span className="font-mono text-xs font-bold text-white bg-zinc-900 w-8 h-8 rounded-xl flex items-center justify-center shrink-0">
                         {m.week}
                       </span>
@@ -344,7 +400,7 @@ export default function AcademyPage() {
                     href={selectedCourse.ctaUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-8 py-3.5 text-sm font-bold text-white hover:bg-zinc-800 transition-all shadow-md"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-8 py-3.5 text-sm font-bold text-white transition-all shadow-md shadow-[#971B8D]/25 hover:shadow-[#971B8D]/40 hover:-translate-y-0.5"
                   >
                     Inscribirme al Programa
                     <ArrowRight className="w-4 h-4" />
@@ -356,7 +412,7 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      {/* ── SECCIÓN LEAD MAGNET: RECURSOS INDIVIDUALES (#toolkit) ── */}
+      {/* ── SECCIÓN LEAD MAGNET: RECURSOS INDIVIDUALES CON PREVIEWS (#toolkit) ── */}
       <section id="toolkit" className="py-20 px-6 max-w-6xl mx-auto border-t border-zinc-200">
         <div className="text-center mb-12">
           <div className="inline-block rounded-full bg-zinc-100 border border-zinc-300 px-3.5 py-1.5 text-xs font-mono font-bold text-zinc-700 mb-3">
@@ -370,74 +426,92 @@ export default function AcademyPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           {TOOLKIT_RESOURCES.map((item) => {
             const state = downloadStates[item.id] || { loading: false, success: false };
 
             return (
               <div
                 key={item.id}
-                className="p-7 rounded-3xl border border-zinc-200 bg-zinc-50 flex flex-col justify-between shadow-sm hover:shadow-md transition-all"
+                className="rounded-3xl border border-zinc-200 bg-white flex flex-col justify-between shadow-sm hover:shadow-lg transition-all relative overflow-hidden group"
               >
+                {/* Top Color Stripe */}
+                <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${item.stripeColor}`} />
+
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-white text-zinc-800 border border-zinc-300">
-                      {item.tag}
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-400">TAG: #{item.id}</span>
+                  {/* Visual Preview Banner */}
+                  <div className="h-36 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-100">
+                    <img
+                      src={item.previewImage}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="font-mono text-[9px] font-bold px-2.5 py-1 rounded-full bg-white/90 text-zinc-800 border border-zinc-200 shadow-xs">
+                        {item.tag}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2.5 left-3 text-white text-[11px] font-mono font-bold">
+                      {item.format}
+                    </div>
                   </div>
 
-                  <h3 className="text-base font-bold text-zinc-900 mb-1.5">{item.title}</h3>
-                  <p className="text-xs text-zinc-600 leading-relaxed mb-6">{item.desc}</p>
+                  <div className="p-6 pb-2">
+                    <h3 className="text-base font-bold text-zinc-900 mb-1.5 leading-snug">{item.title}</h3>
+                    <p className="text-xs text-zinc-600 leading-relaxed mb-4">{item.desc}</p>
+                  </div>
                 </div>
 
-                {!state.success ? (
-                  <form onSubmit={(e) => handleResourceSubmit(e, item.id)} className="flex gap-2">
-                    <input
-                      type="email"
-                      required
-                      value={resourceEmails[item.id] || ""}
-                      onChange={(e) =>
-                        setResourceEmails((prev) => ({
-                          ...prev,
-                          [item.id]: e.target.value,
-                        }))
-                      }
-                      placeholder="Tu email corporativo..."
-                      className="w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-xs text-zinc-900 placeholder-zinc-400 focus:border-zinc-900 focus:outline-none"
-                    />
-                    <button
-                      type="submit"
-                      disabled={state.loading}
-                      className="rounded-xl bg-zinc-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
-                    >
-                      {state.loading ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Download className="w-3.5 h-3.5" />
-                      )}
-                      <span>Descargar</span>
-                    </button>
-                  </form>
-                ) : (
-                  <div className="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs flex items-center justify-between">
-                    <div className="flex items-center gap-2 font-medium">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>¡Enlace generado! Revisa tu bandeja de entrada.</span>
+                <div className="p-6 pt-2">
+                  {!state.success ? (
+                    <form onSubmit={(e) => handleResourceSubmit(e, item.id)} className="flex gap-2">
+                      <input
+                        type="email"
+                        required
+                        value={resourceEmails[item.id] || ""}
+                        onChange={(e) =>
+                          setResourceEmails((prev) => ({
+                            ...prev,
+                            [item.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Tu email corporativo..."
+                        className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                      />
+                      <button
+                        type="submit"
+                        disabled={state.loading}
+                        className="rounded-xl bg-[#971B8D] hover:bg-[#801676] px-5 py-2.5 text-xs font-bold text-white transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50 shadow-sm shadow-[#971B8D]/25"
+                      >
+                        {state.loading ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5" />
+                        )}
+                        <span>Descargar</span>
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="p-3.5 rounded-xl border border-[#86C537]/40 bg-[#86C537]/10 text-[#55821c] text-xs flex items-center justify-between font-medium">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-[#639922] shrink-0" />
+                        <span>¡Enlace generado! Revisa tu bandeja de entrada.</span>
+                      </div>
+                      <button
+                        onClick={() =>
+                          setDownloadStates((prev) => ({
+                            ...prev,
+                            [item.id]: { loading: false, success: false },
+                          }))
+                        }
+                        className="text-[10px] text-zinc-500 hover:text-zinc-900 underline ml-2 shrink-0"
+                      >
+                        Otro correo
+                      </button>
                     </div>
-                    <button
-                      onClick={() =>
-                        setDownloadStates((prev) => ({
-                          ...prev,
-                          [item.id]: { loading: false, success: false },
-                        }))
-                      }
-                      className="text-[10px] text-zinc-500 hover:text-zinc-900 underline ml-2 shrink-0"
-                    >
-                      Otro correo
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}

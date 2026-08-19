@@ -24,7 +24,9 @@ export function AcademySection() {
       subtitle: "Automatización de la Operación mediante Inteligencia Artificial.",
       description: "Aprende a desplegar asistentes de IA que atienden clientes por WhatsApp, toman pedidos directos, controlan mermas de cocina y blindan tus recetas.",
       price: "$97 USD",
-      icon: <BookOpen className="w-6 h-6 text-zinc-700" />,
+      icon: <BookOpen className="w-5 h-5 text-white" />,
+      previewImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+      stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]",
       tools: ["OpenAI API", "Claude 3.5", "WhatsApp API", "Airtable"],
       modules: [
         "Arquitectura de Prompts & Escandallos",
@@ -41,7 +43,9 @@ export function AcademySection() {
       subtitle: "Despliegue de Arquitecturas con n8n: Conectando tu negocio con agentes de automatizacion.",
       description: "Aprende a montar la infraestructura digital y de automatización sobre servidores VPS propios con Docker, bases de datos PostgreSQL y webhooks de Meta.",
       price: "$197 USD",
-      icon: <Code className="w-6 h-6 text-zinc-700" />,
+      icon: <Code className="w-5 h-5 text-white" />,
+      previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+      stripeColor: "from-[#1DACE3] via-[#0284c7] to-[#4f46e5]",
       tools: ["n8n Self-Hosted", "Docker", "PostgreSQL", "Meta Webhooks"],
       modules: [
         "Despliegue VPS con Docker & SSL",
@@ -58,7 +62,9 @@ export function AcademySection() {
       subtitle: "SEO/AEO Local y Dominio Digital para Marcas Gastronómicas.",
       description: "Domina la presencia de tu restaurante en Google Maps y sé la opción prioritaria recomendada por motores de Inteligencia Artificial como ChatGPT y Gemini.",
       price: "$67 USD",
-      icon: <LineChart className="w-6 h-6 text-zinc-700" />,
+      icon: <LineChart className="w-5 h-5 text-white" />,
+      previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+      stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#EA0C7F]",
       tools: ["Google Business", "Schema.org", "Perplexity", "JSON-LD"],
       modules: [
         "Indexación de Menús para Motores IA (AEO)",
@@ -129,51 +135,61 @@ export function AcademySection() {
                   <div
                     key={course.id}
                     onClick={() => toggleCourseFlip(course.id)}
-                    className="perspective-1000 w-full h-[530px] cursor-pointer group"
+                    className="perspective-1000 w-full h-[540px] cursor-pointer group"
                   >
                     <div
                       className={`relative w-full h-full duration-500 transform-style-3d transform-gpu will-change-transform transition-transform ${
                         isFlipped ? "rotate-y-180" : ""
                       }`}
                     >
-                      {/* Cara Frontal */}
-                      <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-zinc-200 bg-white p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] group-hover:-translate-y-1 transition-all duration-300">
+                      {/* Cara Frontal con Franja Superior e Imagen */}
+                      <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-zinc-200 bg-white flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                        {/* Top Color Stripe */}
+                        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${course.stripeColor} z-10`} />
+
                         <div>
-                          <div className="flex items-center justify-between gap-2 mb-4">
-                            <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-800 border border-zinc-200">
-                              {course.badge}
-                            </span>
-                            <span className="text-[11px] font-mono text-zinc-500">{course.level}</span>
-                          </div>
+                          {/* Banner de Imagen */}
+                          <div className="h-36 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-100">
+                            <img
+                              src={course.previewImage}
+                              alt={course.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            
+                            <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between">
+                              <span className="font-mono text-[9px] font-bold px-2.5 py-1 rounded-full bg-white/90 text-zinc-900 border border-zinc-200 shadow-xs">
+                                {course.badge}
+                              </span>
+                              <span className="text-[10px] font-mono font-bold text-white bg-black/40 backdrop-blur-xs px-2 py-0.5 rounded">
+                                {course.level}
+                              </span>
+                            </div>
 
-                          <div className="w-12 h-12 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center mb-4">
-                            {course.icon}
-                          </div>
-
-                          <h4 className="text-xl font-bold text-zinc-900 mb-2 leading-snug">
-                            {course.title}
-                          </h4>
-                          <p className="text-xs font-semibold text-zinc-700 mb-3">
-                            {course.subtitle}
-                          </p>
-                          <p className="text-xs text-zinc-600 leading-relaxed line-clamp-4">
-                            {course.description}
-                          </p>
-                        </div>
-
-                        <div className="pt-4 border-t border-zinc-100 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold font-mono text-zinc-900">{course.price}</span>
-                            <div className="flex items-center gap-1 text-[11px] font-mono text-zinc-400">
-                              <span>(Toca para temario ⟳)</span>
-                              <RotateCw className="w-3 h-3 text-zinc-500" />
+                            <div className="absolute bottom-2.5 left-3.5 right-3.5 flex items-center justify-between text-white text-xs font-mono">
+                              <span className="font-extrabold text-sm text-cyan-300">{course.price}</span>
+                              <span className="text-[10px] text-zinc-300">(Toca para temario ⟳)</span>
                             </div>
                           </div>
 
+                          <div className="p-6">
+                            <h4 className="text-lg font-bold text-zinc-900 mb-1 leading-snug">
+                              {course.title}
+                            </h4>
+                            <p className="text-xs font-semibold text-[#971B8D] mb-2.5">
+                              {course.subtitle}
+                            </p>
+                            <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
+                              {course.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-6 pt-0 space-y-3">
                           <Link
                             href="/academy#programas"
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full text-xs font-bold flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-3 rounded-xl shadow-md transition-all"
+                            className="w-full text-xs font-bold flex items-center justify-center gap-2 bg-[#971B8D] hover:bg-[#801676] text-white px-5 py-3 rounded-xl shadow-md transition-all shadow-[#971B8D]/25"
                           >
                             <span>IR AL PROGRAMA</span>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -182,7 +198,10 @@ export function AcademySection() {
                       </div>
 
                       {/* Cara Posterior */}
-                      <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-300 bg-zinc-900 text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl">
+                      <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-300 bg-zinc-900 text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
+                        {/* Top Color Stripe */}
+                        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${course.stripeColor}`} />
+
                         <div>
                           <div className="flex items-center justify-between gap-2 mb-3">
                             <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-cyan-300 border border-cyan-400/30">
@@ -225,7 +244,7 @@ export function AcademySection() {
                           <Link
                             href="/academy#programas"
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full text-xs font-bold flex items-center justify-center gap-2 bg-white hover:bg-zinc-100 text-zinc-900 px-5 py-3 rounded-xl shadow-md transition-all"
+                            className="w-full text-xs font-bold flex items-center justify-center gap-2 bg-white hover:bg-zinc-100 text-zinc-900 px-5 py-3 rounded-xl shadow-md transition-all font-bold"
                           >
                             <span>IR AL PROGRAMA</span>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -247,11 +266,11 @@ export function AcademySection() {
               </h3>
             </div>
 
-            {/* Single 3D Flip Card for Toolkit */}
+            {/* Single 3D Flip Card for Toolkit con Franja Superior e Imagen */}
             <div className="max-w-2xl mx-auto">
               <div
                 onClick={() => setFlippedToolkit(!flippedToolkit)}
-                className="perspective-1000 w-full h-[530px] cursor-pointer group"
+                className="perspective-1000 w-full h-[560px] cursor-pointer group"
               >
                 <div
                   className={`relative w-full h-full duration-500 transform-style-3d transform-gpu will-change-transform transition-transform ${
@@ -259,26 +278,46 @@ export function AcademySection() {
                   }`}
                 >
                   {/* Cara Frontal Toolkit */}
-                  <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border-2 border-zinc-300 bg-white p-8 sm:p-10 flex flex-col justify-between shadow-[0_8px_30px_rgba(0,0,0,0.06)] group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 transition-all duration-300">
+                  <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border-2 border-zinc-300 bg-white flex flex-col justify-between shadow-[0_8px_30px_rgba(0,0,0,0.06)] group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                    {/* Top Color Stripe */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-500 z-10" />
+
                     <div>
-                      <div className="inline-block rounded-full bg-emerald-50 border border-emerald-300 px-3 py-1 text-xs font-mono font-bold text-emerald-700 mb-4">
-                        Activos Operativos (Gratis Recursos y Plantillas)
+                      {/* Banner de Previsualización de Recursos */}
+                      <div className="h-40 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-200">
+                        <img
+                          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80"
+                          alt="Kit de Estandarización & Arquitectura Gastronómica"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent" />
+                        
+                        <div className="absolute top-3.5 left-4">
+                          <span className="rounded-full bg-white/90 border border-zinc-200 px-3 py-1 text-xs font-mono font-bold text-zinc-900 shadow-xs">
+                            Activos Operativos (5 Recursos)
+                          </span>
+                        </div>
+                        <div className="absolute bottom-3 left-4 text-white text-xs font-mono font-bold">
+                          DESCARGA INMEDIATA EN FORMATO EDITABLE
+                        </div>
                       </div>
 
-                      <h4 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 mb-2 leading-tight">
-                        Kit de Estandarización & Arquitectura Gastronómica
-                      </h4>
+                      <div className="p-7 sm:p-8 pb-2">
+                        <h4 className="text-xl sm:text-2xl font-extrabold text-zinc-900 mb-2 leading-tight">
+                          Kit de Estandarización & Arquitectura Gastronómica
+                        </h4>
 
-                      <p className="text-sm font-semibold text-zinc-700 mb-4">
-                        Las herramientas exactas para auditar y controlar tu cocina hoy mismo.
-                      </p>
+                        <p className="text-xs sm:text-sm font-semibold text-[#971B8D] mb-3">
+                          Las herramientas exactas para auditar y controlar tu cocina hoy mismo.
+                        </p>
 
-                      <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-                        Descarga el paquete de plantillas operativas y matrices de cálculo utilizadas en auditorías profesionales de alto nivel. Diseñado para directores de operaciones y chefs que buscan eliminar mermas, proteger el costo de sus recetas y preparar su negocio para la automatización agéntica.
-                      </p>
+                        <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
+                          Descarga el paquete de plantillas operativas, arquitectura AEO para RAG y matrices de cálculo utilizadas en auditorías profesionales de alto nivel.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="pt-6 border-t border-zinc-100 space-y-4">
+                    <div className="p-7 sm:p-8 pt-0 space-y-3">
                       <div className="flex items-center justify-between text-xs font-mono text-zinc-500">
                         <span>(Toca la tarjeta para ver los recursos incluidos ⟳)</span>
                         <RotateCw className="w-4 h-4 text-zinc-600" />
@@ -296,7 +335,10 @@ export function AcademySection() {
                   </div>
 
                   {/* Cara Posterior Toolkit */}
-                  <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-400 bg-zinc-900 text-white p-8 sm:p-10 flex flex-col justify-between shadow-2xl">
+                  <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-400 bg-zinc-900 text-white p-8 sm:p-10 flex flex-col justify-between shadow-2xl overflow-hidden">
+                    {/* Top Color Stripe */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-500" />
+
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <span className="font-mono text-[10px] font-bold px-3 py-1 rounded-full bg-fuchsia-950/80 text-fuchsia-300 border border-fuchsia-500/40">
@@ -379,4 +421,3 @@ export function AcademySection() {
     </section>
   );
 }
-

@@ -6,6 +6,7 @@ import { useLeadStore } from "@/store/useLeadStore";
 
 interface SolutionCardData {
   id: string;
+  stripeColor: string;
   front: {
     badge: string;
     title: string;
@@ -42,6 +43,7 @@ export function ServicesGrid() {
   const solutions: SolutionCardData[] = [
     {
       id: "auditoria",
+      stripeColor: "from-[#1DACE3] via-[#0284c7] to-[#971B8D]",
       front: {
         badge: "PASO 01 // AUDITORÍA",
         title: "Auditoría de Ecosistema Digital",
@@ -79,6 +81,7 @@ export function ServicesGrid() {
     },
     {
       id: "automatizacion",
+      stripeColor: "from-[#971B8D] via-[#EA0C7F] to-[#FEAD2B]",
       front: {
         badge: "PASO 02 // IMPLEMENTACIÓN",
         title: "Sistemas Agénticos Autónomos",
@@ -112,6 +115,7 @@ export function ServicesGrid() {
     },
     {
       id: "infraestructura",
+      stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#1DACE3]",
       front: {
         badge: "PASO 03 // INFRAESTRUCTURA & ESCALABILIDAD",
         title: "Infraestructura & Plataformas FoodTech",
@@ -182,7 +186,9 @@ export function ServicesGrid() {
                   >
                     
                     {/* ── CARA FRONTAL (FRONT) ── */}
-                    <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-zinc-200 bg-white p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.09)] group-hover:-translate-y-1 transition-all duration-300">
+                    <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-zinc-200 bg-white p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.09)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                      {/* Top Color Stripe */}
+                      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${card.stripeColor}`} />
                       
                       <div>
                         {/* Header Badge & Icon */}
@@ -234,7 +240,9 @@ export function ServicesGrid() {
                     </div>
 
                     {/* ── CARA POSTERIOR (BACK) ── */}
-                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-300 bg-zinc-900 text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl">
+                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-300 bg-zinc-900 text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
+                      {/* Top Color Stripe */}
+                      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${card.stripeColor}`} />
                       
                       <div>
                         {/* Header Badge */}
@@ -284,7 +292,7 @@ export function ServicesGrid() {
                             e.stopPropagation();
                             openModal();
                           }}
-                          className="w-full text-xs font-bold flex items-center justify-center gap-2 cursor-pointer bg-white hover:bg-zinc-100 text-zinc-900 px-5 py-3 rounded-xl shadow-md transition-all"
+                          className="w-full text-xs font-bold flex items-center justify-center gap-2 cursor-pointer bg-white hover:bg-zinc-100 text-zinc-900 px-5 py-3 rounded-xl shadow-md transition-all font-bold"
                         >
                           <span>Solicitar Diagnóstico</span>
                           <ArrowRight className="w-3.5 h-3.5" />
