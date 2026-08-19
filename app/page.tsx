@@ -7,6 +7,7 @@ import { ServicesGrid } from "@/components/sections/ServicesGrid";
 import { ProcessSection } from "@/components/sections/ProcessSection";
 import { AuthoritySection } from "@/components/sections/AuthoritySection";
 import { AcademySection } from "@/components/sections/AcademySection";
+import { GroupSection } from "@/components/sections/GroupSection";
 import { LeadModal } from "@/components/ui/LeadModal";
 
 export default function Home() {
@@ -21,10 +22,10 @@ export default function Home() {
       {/* 3. El Diagnóstico (El Dolor del Sector) */}
       <DiagnosisSection />
 
-      {/* 4. Pilares de Servicios (High-Ticket) */}
+      {/* 4. Pilares de Servicios / Soluciones (High-Ticket con 3D Flip Cards) */}
       <ServicesGrid />
 
-      {/* 5. Process Methodology ("Como Trabajo") */}
+      {/* 5. Metodología de Desarrollo ("Desarrollo") */}
       <ProcessSection />
 
       {/* 6. El Foso de Autoridad (Julio Daza) */}
@@ -33,10 +34,13 @@ export default function Home() {
       {/* 7. Inteligencia Neuronal Academy */}
       <AcademySection />
 
-      {/* 8. Corporate Technical Footer with Wide CTA y Salida B2C */}
+      {/* 8. Inteligencia Neuronal Group (Ecosistema de Empresas) */}
+      <GroupSection />
+
+      {/* 9. Corporate Technical Footer Elegante y Ligero */}
       <Footer />
 
-      {/* 9. Multi-step Qualification & Lead Capture Modal */}
+      {/* 10. Multi-step Qualification & Lead Capture Modal */}
       <LeadModal />
     </main>
   );

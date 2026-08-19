@@ -1,0 +1,462 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Sparkles,
+  BookOpen,
+  Download,
+  ShieldCheck,
+  ArrowRight,
+  CheckCircle2,
+  Check,
+  Loader2,
+  FileSpreadsheet,
+  FileText,
+  Lock,
+  Layers,
+  Cpu,
+  RotateCw
+} from "lucide-react";
+
+interface Course {
+  id: string;
+  badge: string;
+  level: string;
+  title: string;
+  tagline: string;
+  duration: string;
+  price: string;
+  tools: string[];
+  modules: { week: string; title: string; desc: string }[];
+  ctaUrl: string;
+}
+
+const COURSES: Course[] = [
+  {
+    id: "ia-restaurantes",
+    badge: "MÁS POPULAR",
+    level: "Operativo & Estratégico",
+    title: "Masterclass: Automatización Agéntica con IA",
+    tagline: "Aprende a desplegar agentes de WhatsApp que atienden, venden y controlan recetas sin alucinaciones.",
+    duration: "4 Módulos Intensivos • Acceso de por vida",
+    price: "$97 USD",
+    tools: ["OpenAI API", "Claude 3.5", "WhatsApp Cloud API", "Airtable"],
+    modules: [
+      { week: "01", title: "Arquitectura de Prompts & Escandallos", desc: "Control de costos, ingeniería de menú y calibración de recetas sin margen de error." },
+      { week: "02", title: "Agente de Ventas & Reservas 24/7", desc: "Configuración de asistentes conversacionales con menús dinámicos y cobros." },
+      { week: "03", title: "Supervisión & Mitigación de Alucinaciones", desc: "Protocolos de seguridad para que la IA no invente datos ni comprometa precios." },
+      { week: "04", title: "Integración en el Negocio Real", desc: "Puesta en marcha con clientes reales y métricas de conversión en vivo." }
+    ],
+    ctaUrl: "https://buy.stripe.com/test_ia_restaurantes"
+  },
+  {
+    id: "bootcamp-n8n",
+    badge: "TÉCNICO / DEV",
+    level: "Avanzado",
+    title: "Bootcamp: Despliegue de Pipelines con n8n",
+    tagline: "Construye la infraestructura de automatización de un restaurante sobre servidores VPS dedicados.",
+    duration: "6 Semanas en Vivo + Laboratorios",
+    price: "$197 USD",
+    tools: ["n8n Self-Hosted", "Docker", "PostgreSQL", "Meta Webhooks"],
+    modules: [
+      { week: "01", title: "Despliegue VPS con Docker & Caddy", desc: "Instalación segura de n8n en servidores en la nube con certificados SSL." },
+      { week: "02", title: "Meta Cloud API & Webhooks Reversos", desc: "Recepción y procesamiento de eventos transaccionales de WhatsApp." },
+      { week: "03", title: "Conexión a Bases de Datos Relacionales", desc: "Persistencia de pedidos, clientes y stock con PostgreSQL/Supabase." },
+      { week: "04", title: "Alertas Críticas y Monitoreo 24/7", desc: "Integración de bots de Telegram para fallas de servidor y cuellos de botella." }
+    ],
+    ctaUrl: "https://buy.stripe.com/test_bootcamp_n8n"
+  },
+  {
+    id: "crecimiento-aeo",
+    badge: "CRECIMIENTO B2C",
+    level: "Marketing & Adquisición",
+    title: "Dominio Local: SEO, AEO & Visibilidad IA",
+    tagline: "Posiciona tu marca gastronómica en Google Maps y sé la respuesta que ChatGPT y Gemini recomiendan.",
+    duration: "Taller Práctico Grabado",
+    price: "$67 USD",
+    tools: ["Google Business", "Schema.org", "Perplexity Engine", "JSON-LD"],
+    modules: [
+      { week: "01", title: "Indexación de Menús para Motores IA (AEO)", desc: "Estructuración de microdatos para que los LLMs recomienden tus platos." },
+      { week: "02", title: "Autoridad Local & Google Business 360°", desc: "Estrategias de posicionamiento en el mapa y reputación sin pagar pauta." },
+      { week: "03", title: "Embudos de Tráfico Directo a WhatsApp", desc: "Conversión de búsquedas orgánicas en pedidos sin pagar comisiones." }
+    ],
+    ctaUrl: "https://buy.stripe.com/test_crecimiento_aeo"
+  }
+];
+
+const TOOLKIT_RESOURCES = [
+  {
+    id: "aeo-rag",
+    title: "Optimización para Motores de Respuesta (AEO): Arquitectura de Contenido y Datos Estructurados para RAG",
+    desc: "Guía técnica y arquitectura para estructurar datos con Schema.org, metadatos JSON-LD y bases vectoriales para que ChatGPT, Gemini y Perplexity indexen y citen tu restaurante.",
+    tag: "AEO & RAG // NUEVO",
+  },
+  {
+    id: "escandallos",
+    title: "Matriz de Escandallos & Costos",
+    desc: "Plantilla en Excel para costeo crudo/cocido, factor de rendimiento y mermas técnicas en cocina.",
+    tag: "XLSX / EXCEL",
+  },
+  {
+    id: "haccp",
+    title: "Checklist de Puntos Críticos HACCP",
+    desc: "Auditoría de temperaturas, rotación de cámaras y protocolos de inocuidad y seguridad alimentaria.",
+    tag: "PDF INTERACTIVO",
+  },
+  {
+    id: "sops",
+    title: "Framework de SOPs para Restaurantes",
+    desc: "Estructura modular para documentar recetas y compras antes de automatizar con IA.",
+    tag: "NOTION TEMPLATE",
+  },
+  {
+    id: "aeo",
+    title: "Guía de Indexación Local & AEO",
+    desc: "Configuración técnica de menús y Schema.org para Google Maps y motores de respuesta de IA.",
+    tag: "GUÍA TÉCNICA",
+  },
+];
+
+export default function AcademyPage() {
+  const [selectedCourse, setSelectedCourse] = useState<Course>(COURSES[0]);
+  const [resourceEmails, setResourceEmails] = useState<Record<string, string>>({});
+  const [downloadStates, setDownloadStates] = useState<Record<string, { loading: boolean; success: boolean }>>({});
+
+  const handleResourceSubmit = async (e: React.FormEvent, resourceId: string) => {
+    e.preventDefault();
+    const email = resourceEmails[resourceId];
+    if (!email) return;
+
+    setDownloadStates((prev) => ({
+      ...prev,
+      [resourceId]: { loading: true, success: false }
+    }));
+
+    try {
+      await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: "Lead Toolkit " + resourceId.toUpperCase(),
+          email: email,
+          phone: "+0000000000",
+          companyName: "Toolkit: " + resourceId,
+          serviceNeeded: "Toolkit Download: " + resourceId,
+          businessSize: "B2C Lead Magnet",
+          currentChallenge: "Descarga de recurso operativo " + resourceId,
+        }),
+      });
+
+      setTimeout(() => {
+        setDownloadStates((prev) => ({
+          ...prev,
+          [resourceId]: { loading: false, success: true }
+        }));
+      }, 500);
+    } catch (err) {
+      setDownloadStates((prev) => ({
+        ...prev,
+        [resourceId]: { loading: false, success: true }
+      }));
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-800 selection:text-white relative overflow-hidden font-sans">
+      
+      {/* ── HEADER SUPERIOR ── */}
+      <header className="border-b border-zinc-200 bg-white/95 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <span className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 group-hover:text-zinc-600 transition-colors">
+              Inteligencia Neuronal
+            </span>
+            <span className="text-[10px] font-mono font-bold bg-zinc-100 border border-zinc-300 text-zinc-700 px-2.5 py-0.5 rounded-full">
+              CAMPUS
+            </span>
+          </Link>
+
+          <nav className="flex items-center gap-6 text-sm font-semibold">
+            <a href="#programas" className="text-zinc-600 hover:text-zinc-900 transition-colors">
+              Cursos
+            </a>
+            <a href="#toolkit" className="text-zinc-600 hover:text-zinc-900 transition-colors">
+              Toolkit Gratis
+            </a>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-xl border border-zinc-300 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 transition-all shadow-sm"
+            >
+              Volver a Empresa
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* ── HERO SECTION ── */}
+      <section className="relative pt-20 pb-16 px-6 max-w-5xl mx-auto text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/60 px-4 py-1.5 text-xs font-mono font-bold text-indigo-900 shadow-sm mb-6">
+          <Sparkles className="w-3.5 h-3.5 text-fuchsia-600" />
+          <span>CAMPUS VIRTUAL // APRENDIZAJE AGÉNTICO EN PRODUCCIÓN</span>
+        </div>
+
+        <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-900 mb-6 leading-[1.12]">
+          Aprende a construir la <br />
+          <span className="bg-gradient-to-r from-[#0284c7] via-[#6366f1] to-[#d946ef] bg-clip-text text-transparent underline decoration-[#d946ef] decoration-wavy underline-offset-8">
+            inteligencia operativa
+          </span> de tu negocio.
+        </h1>
+
+        <p className="text-zinc-600 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed mb-10">
+          Formación técnica y ejecutiva para dominar agentes de IA, flujos autónomos en n8n y posicionamiento de última generación. De la teoría al servidor en vivo.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href="#programas"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0284c7] via-[#6366f1] to-[#d946ef] hover:from-[#0369a1] hover:via-[#4f46e5] hover:to-[#c026d3] px-8 py-4 text-sm font-bold text-white transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5"
+          >
+            <BookOpen className="w-4 h-4" />
+            Explorar Cursos & Programas
+          </a>
+          <a
+            href="#toolkit"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border-2 border-zinc-300 bg-white px-8 py-4 text-sm font-bold text-zinc-900 transition-all hover:bg-zinc-50 hover:border-zinc-400 shadow-sm hover:-translate-y-0.5"
+          >
+            <Download className="w-4 h-4 text-zinc-700" />
+            Obtener Toolkit Operativo Gratis
+          </a>
+        </div>
+      </section>
+
+      {/* ── DASHBOARD CURRICULAR / SYLLABUS INTERACTIVO ── */}
+      <section id="programas" className="py-16 px-6 max-w-7xl mx-auto border-t border-zinc-200">
+        <div className="border-b border-zinc-200 pb-6 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono font-bold text-zinc-700 mb-2">
+              CURRÍCULO PRÁCTICO
+            </div>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-zinc-900 tracking-tight">
+              Programas de Formación Aplicada
+            </h2>
+            <p className="text-zinc-500 text-sm mt-1">Selecciona un curso para inspeccionar el temario semanal y herramientas.</p>
+          </div>
+          <span className="font-mono text-xs font-bold text-zinc-600 bg-zinc-100 px-3 py-1.5 rounded-lg border border-zinc-200">
+            [PROGRAMAS 2026 // ACTUALIZADOS]
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Navegador lateral de Cursos (Col 1-5) */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            {COURSES.map((course) => {
+              const isSelected = selectedCourse.id === course.id;
+              return (
+                <div
+                  key={course.id}
+                  onClick={() => setSelectedCourse(course)}
+                  className={`p-6 rounded-3xl border transition-all cursor-pointer text-left relative overflow-hidden transform-gpu will-change-transform ${
+                    isSelected
+                      ? "border-zinc-900 bg-zinc-50 shadow-md ring-2 ring-zinc-900/10"
+                      : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50 shadow-sm"
+                  }`}
+                >
+                  {isSelected && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-zinc-900" />
+                  )}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-zinc-200/80 text-zinc-800 border border-zinc-300">
+                      {course.badge}
+                    </span>
+                    <span className="text-xs text-zinc-500 font-mono">{course.level}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 mb-1.5">{course.title}</h3>
+                  <p className="text-xs text-zinc-600 line-clamp-2 leading-relaxed mb-4">{course.tagline}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-zinc-200/80">
+                    <span className="text-lg font-bold text-zinc-900 font-mono">{course.price}</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-zinc-700 group">
+                      Ver temario <ArrowRight className="w-3.5 h-3.5 text-zinc-900 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Visor de Contenido & Syllabus Detallado (Col 6-12) */}
+          <div className="lg:col-span-7 rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 relative shadow-lg">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedCourse.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-5 mb-6">
+                  <div>
+                    <span className="text-xs font-mono font-bold text-zinc-500">PLAN DE ESTUDIO // SYLLABUS</span>
+                    <h3 className="text-2xl font-bold text-zinc-900 mt-1">{selectedCourse.title}</h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-extrabold text-zinc-900 font-mono">{selectedCourse.price}</div>
+                    <span className="text-xs text-zinc-500">{selectedCourse.duration}</span>
+                  </div>
+                </div>
+
+                {/* Herramientas que dominarás */}
+                <div className="mb-6">
+                  <div className="text-xs font-mono font-bold text-zinc-500 mb-2">HERRAMIENTAS & PROTOCOLOS</div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCourse.tools.map((tool, i) => (
+                      <span key={i} className="text-xs font-mono px-3 py-1 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-800">
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desglose de Módulos */}
+                <div className="space-y-3 mb-8">
+                  <div className="text-xs font-mono font-bold text-zinc-500">ESTRUCTURA DEL CURSO</div>
+                  {selectedCourse.modules.map((m, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 flex items-start gap-4 shadow-sm">
+                      <span className="font-mono text-xs font-bold text-white bg-zinc-900 w-8 h-8 rounded-xl flex items-center justify-center shrink-0">
+                        {m.week}
+                      </span>
+                      <div>
+                        <h4 className="text-sm font-bold text-zinc-900">{m.title}</h4>
+                        <p className="text-xs text-zinc-600 mt-0.5 leading-relaxed">{m.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-zinc-200">
+                  <div className="flex items-center gap-2 text-xs text-zinc-600 font-medium">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Garantía de satisfacción de 7 días</span>
+                  </div>
+                  <a
+                    href={selectedCourse.ctaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-8 py-3.5 text-sm font-bold text-white hover:bg-zinc-800 transition-all shadow-md"
+                  >
+                    Inscribirme al Programa
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECCIÓN LEAD MAGNET: RECURSOS INDIVIDUALES (#toolkit) ── */}
+      <section id="toolkit" className="py-20 px-6 max-w-6xl mx-auto border-t border-zinc-200">
+        <div className="text-center mb-12">
+          <div className="inline-block rounded-full bg-zinc-100 border border-zinc-300 px-3.5 py-1.5 text-xs font-mono font-bold text-zinc-700 mb-3">
+            DESCARGAS INDIVIDUALES // TOOLKIT OPERATIVO
+          </div>
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-zinc-900 tracking-tight">
+            Activos y Plantillas de Implementación
+          </h2>
+          <p className="text-zinc-600 text-sm mt-2 max-w-2xl mx-auto">
+            Ingresa tu correo corporativo en el recurso que necesitas para recibir el archivo de forma individual y directa.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {TOOLKIT_RESOURCES.map((item) => {
+            const state = downloadStates[item.id] || { loading: false, success: false };
+
+            return (
+              <div
+                key={item.id}
+                className="p-7 rounded-3xl border border-zinc-200 bg-zinc-50 flex flex-col justify-between shadow-sm hover:shadow-md transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-white text-zinc-800 border border-zinc-300">
+                      {item.tag}
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-400">TAG: #{item.id}</span>
+                  </div>
+
+                  <h3 className="text-base font-bold text-zinc-900 mb-1.5">{item.title}</h3>
+                  <p className="text-xs text-zinc-600 leading-relaxed mb-6">{item.desc}</p>
+                </div>
+
+                {!state.success ? (
+                  <form onSubmit={(e) => handleResourceSubmit(e, item.id)} className="flex gap-2">
+                    <input
+                      type="email"
+                      required
+                      value={resourceEmails[item.id] || ""}
+                      onChange={(e) =>
+                        setResourceEmails((prev) => ({
+                          ...prev,
+                          [item.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Tu email corporativo..."
+                      className="w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-xs text-zinc-900 placeholder-zinc-400 focus:border-zinc-900 focus:outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={state.loading}
+                      className="rounded-xl bg-zinc-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-zinc-800 transition-all shrink-0 flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
+                    >
+                      {state.loading ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      <span>Descargar</span>
+                    </button>
+                  </form>
+                ) : (
+                  <div className="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs flex items-center justify-between">
+                    <div className="flex items-center gap-2 font-medium">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>¡Enlace generado! Revisa tu bandeja de entrada.</span>
+                    </div>
+                    <button
+                      onClick={() =>
+                        setDownloadStates((prev) => ({
+                          ...prev,
+                          [item.id]: { loading: false, success: false },
+                        }))
+                      }
+                      className="text-[10px] text-zinc-500 hover:text-zinc-900 underline ml-2 shrink-0"
+                    >
+                      Otro correo
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── FOOTER B2C ── */}
+      <footer className="border-t border-zinc-200 bg-zinc-50 py-10 px-6 text-center text-xs text-zinc-500">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© 2026 Inteligencia Neuronal LLC. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link href="/" className="hover:text-zinc-900 transition-colors">Inicio</Link>
+            <a href="#programas" className="hover:text-zinc-900 transition-colors">Programas</a>
+            <a href="#toolkit" className="hover:text-zinc-900 transition-colors">Recursos</a>
+            <Link href="/admin/login" className="text-zinc-400 hover:text-zinc-900 transition-colors">Admin Portal</Link>
+          </div>
+        </div>
+      </footer>
+
+    </main>
+  );
+}

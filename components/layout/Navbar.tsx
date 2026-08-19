@@ -43,18 +43,18 @@ export function Navbar() {
 
         {/* Center: Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-800">
-          <a href="#servicios" className="hover:text-zinc-500 transition-colors">
-            Servicios
+          <a href="#soluciones" className="hover:text-zinc-500 transition-colors">
+            Soluciones
           </a>
-          <a href="#como-trabajo" className="hover:text-zinc-500 transition-colors">
-            Como Trabajo
+          <a href="#desarrollo" className="hover:text-zinc-500 transition-colors">
+            Desarrollo
           </a>
           <a href="#agencia" className="hover:text-zinc-500 transition-colors">
             Agencia IA
           </a>
-          <a href="#academy" className="hover:text-zinc-500 transition-colors">
+          <Link href="/academy" className="hover:text-zinc-500 transition-colors">
             Academy
-          </a>
+          </Link>
         </nav>
 
         {/* Right: Phone Line & Primary Button */}
@@ -68,10 +68,10 @@ export function Navbar() {
           </a>
 
           <Button
-            variant="primary"
+            variant="gradient"
             size="md"
             onClick={openModal}
-            className="rounded-xl px-6 py-2.5 text-sm shadow-blue-button"
+            className="rounded-xl px-6 py-2.5 text-sm"
           >
             Contacto
           </Button>
@@ -92,18 +92,18 @@ export function Navbar() {
         <div className="md:hidden bg-white border-b border-slate-200 px-6 py-5 space-y-4 shadow-xl animate-in slide-in-from-top duration-200">
           <div className="flex flex-col space-y-3 text-base font-semibold text-slate-800">
             <a
-              href="#servicios"
+              href="#soluciones"
               onClick={() => setMobileMenuOpen(false)}
               className="hover:text-zinc-500 py-1 transition-colors"
             >
-              Servicios
+              Soluciones
             </a>
             <a
-              href="#como-trabajo"
+              href="#desarrollo"
               onClick={() => setMobileMenuOpen(false)}
               className="hover:text-zinc-500 py-1 transition-colors"
             >
-              Como Trabajo
+              Desarrollo
             </a>
             <a
               href="#agencia"
@@ -112,13 +112,13 @@ export function Navbar() {
             >
               Agencia IA
             </a>
-            <a
-              href="#academy"
+            <Link
+              href="/academy"
               onClick={() => setMobileMenuOpen(false)}
               className="hover:text-zinc-500 py-1 transition-colors"
             >
               Academy
-            </a>
+            </Link>
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-3">

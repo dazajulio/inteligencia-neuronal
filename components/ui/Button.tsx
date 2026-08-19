@@ -4,7 +4,7 @@ import React from "react";
 import { Loader2 } from "lucide-react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "outline";
+  variant?: "primary" | "secondary" | "ghost" | "outline" | "gradient";
   size?: "sm" | "md" | "lg" | "xl";
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -28,6 +28,8 @@ export function Button({
   const variantStyles = {
     primary:
       "bg-[#3c3c3c] hover:bg-[#2a2a2a] text-white shadow-lg hover:shadow-xl hover:-translate-y-1 focus:ring-[#3c3c3c]",
+    gradient:
+      "bg-gradient-to-r from-[#0284c7] via-[#6366f1] to-[#d946ef] hover:from-[#0369a1] hover:via-[#4f46e5] hover:to-[#c026d3] text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-1 focus:ring-indigo-500",
     secondary:
       "bg-slate-900 hover:bg-slate-800 text-white shadow-md focus:ring-slate-900",
     outline:

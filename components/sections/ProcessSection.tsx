@@ -1,80 +1,75 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowRight, CheckCircle2, Layers, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Layers, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLeadStore } from "@/store/useLeadStore";
 
 interface PhaseData {
   number: string;
   name: string;
-  tagline: string;
+  enfoque: string;
   description: string;
   deliverables: string[];
-  timeline: string;
   kpiTarget: string;
 }
 
 const phases: PhaseData[] = [
   {
     number: "01",
-    name: "Fase 1: Diagnóstico de Fugas Operativas",
-    tagline: "Auditoría profunda de inventario, recetas y mermas",
+    name: "Fase 1: Diagnóstico de Ecosistema & Fugas",
+    enfoque: "Auditoría 360° de presencia digital, visibilidad y operaciones.",
     description:
-      "Auditoría técnica y de campo en tus sucursales para mapear fugas en rendimientos crudo/cocido, compras urgentes a sobreprecio y tiempos de pase en línea caliente.",
+      "Evaluamos tu posicionamiento en Google, mapas y motores de IA (SEO/AEO), medimos la fricción en la toma de pedidos, calculamos pérdidas por comisiones de intermediarios y detectamos descontrol en mermas y recetas.",
     deliverables: [
-      "Mapeo de mermas y variaciones reales de Food Cost",
-      "Auditoría de endpoints de tu POS/ERP (Micros, Toast, SoftRestaurant)",
-      "Proyección de ROI y plazo exacto de amortización",
-      "Firma de Acuerdo de Confidencialidad (NDA) para recetarios",
+      "Reporte de Indexación & Visibilidad (SEO/AEO): Auditoría técnica de robots, sitemaps y respuesta de modelos de IA.",
+      "Matriz de Rendimiento y Fricción Transaccional: Mapeo del embudo de conversión y cálculo de margen cedido.",
+      "Diagnóstico de Estandarización & Costos: Análisis de desvíos en fichas técnicas y mermas operativas.",
+      "Hoja de Ruta de Arquitectura Digital: Plan de acción priorizado con ROI estimado.",
     ],
-    timeline: "Semana 1",
-    kpiTarget: "Identificación de hasta un 15% de sobrecostes operativos",
+    kpiTarget: "Entrega de la hoja de ruta con las prioridades exactas para tapar fugas de capital de inmediato.",
   },
   {
     number: "02",
-    name: "Fase 2: Arquitectura & Estandarización",
-    tagline: "Diseño de recetarios maestros y pipelines agénticos",
+    name: "Fase 2: Implementación de Sistemas Agénticos (IA & RPA)",
+    enfoque: "Despliegue de tu fuerza de trabajo digital autónoma 24/7.",
     description:
-      "Construcción de bases de datos deterministas, manuales operativos inmutables y conectores asíncronos con tus proveedores habituales.",
+      "Construcción y puesta a punto de los 3 agentes clave: el Agente de Ventas y WhatsApp para capturar pedidos directos y reservas, el Agente de Compras y Abastecimiento para predicción de stock, y el Agente de Control de Datos para sincronización automática con tu CRM/ERP.",
     deliverables: [
-      "Fichas técnicas y escandallos maestros estandarizados",
-      "Configuración de órdenes de compra automáticas en ERP",
-      "Diseño de pantallas KDS para pase de cocina caliente/fría",
-      "Integración de canal WhatsApp directo (0% comisiones a terceros)",
+      "Agente de Ventas & WhatsApp en Producción: Flujo en API oficial con menú interactivo y pagos directos.",
+      "Agente de Compras & Abastecimiento: Módulo predictivo de stock y generación de órdenes de compra.",
+      "Canales de Sincronización CRM/ERP: Conectores automatizados para registro de clientes y pedidos.",
+      "Entorno de Ejecución en Servidor Dedicado: Despliegue en contenedores aislados con variables seguras.",
     ],
-    timeline: "Semana 2 - 3",
-    kpiTarget: "Estandarización 100% libre de errores humanos",
+    kpiTarget: "Automatizar la atención y el control de insumos sin depender del error humano.",
   },
   {
     number: "03",
-    name: "Fase 3: Despliegue en Producción sin Fricción",
-    tagline: "Implementación en sede piloto durante servicio real",
+    name: "Fase 3: Despliegue de Infraestructura FoodTech & Producción",
+    enfoque: "Lanzamiento de tu plataforma propia y sincronización operativa en vivo.",
     description:
-      "Despliegue de los sistemas en entornos de producción seguros, sin detener el flujo diario ni interrumpir los turnos de comida o cena.",
+      "Puesta en marcha de tu canal propio de venta (Menú QR, Delivery y Takeaway) con pasarela de pagos integrada, instalación de pantallas de cocina (KDS) en tiempo real y configuración del panel gerencial sin interrumpir los turnos de servicio.",
     deliverables: [
-      "Despliegue en servidores e instancias VPS dedicadas",
-      "Pruebas de estrés y validación en horas pico de servicio",
-      "Capacitación a chefs ejecutivos, gerentes de cocina y compras",
-      "Monitoreo de latencia y sincronización de comandas en tiempo real",
+      "Plataforma de Menú Digital & Delivery: Aplicación web propia con pagos integrados y geofencing.",
+      "Módulo KDS (Kitchen Display System): Pantalla de comandas en tiempo real con baja latencia.",
+      "Panel de Control Gerencial: Dashboard con métricas financieras y gestión de pedidos en vivo.",
+      "Base de Datos Aislada con RLS: Almacenamiento seguro y aislamiento de datos de clientes.",
     ],
-    timeline: "Semana 4 - 6",
-    kpiTarget: "Cero fricción ni paros operativos en la línea",
+    kpiTarget: "Independencia tecnológica total, eliminación de comandas de papel y recuperación del margen de ganancia.",
   },
   {
     number: "04",
-    name: "Fase 4: Infraestructura como Servicio (AaaS)",
-    tagline: "Mantenimiento continuo, observabilidad y soporte 24/7",
+    name: "Fase 4: Infraestructura como Servicio (AaaS) & Transferencia de Conocimiento",
+    enfoque: "Operatividad continua, blindaje técnico y autonomía para tu equipo.",
     description:
-      "Acompañamiento permanente, re-calibración de menús por estacionalidad y observabilidad técnica bajo modelo corporativo.",
+      "Alojamiento en servidores VPS dedicados, gestión de cómputo/tokens de IA, monitoreo de latencia 24/7 y actualizaciones de seguridad. Integramos un programa intensivo de capacitación técnica y operativa para que tu personal domine el ecosistema sin fricción.",
     deliverables: [
-      "Monitoreo 24/7 de telemetría y cumplimiento HACCP",
-      "Actualización continua según cambios en la carta o proveedores",
-      "Reportes ejecutivos mensuales de EBITDA protegido",
-      "SLA de disponibilidad del 99.98% con soporte directo",
+      "Alojamiento & Telemetría Activa: Servidores dedicados, bases de datos RLS y mantenimiento preventivo.",
+      "Actualización de Modelos: Calibración continua de agentes ante cambios de menú y promociones.",
+      "Capacitación Ejecutiva & Operativa: Formación a directores de operaciones, chefs y gerentes de compras.",
+      "Transferencia Técnica (IT / Administración): Entrenamiento para gestión autónoma del panel y roles.",
     ],
-    timeline: "Continuo (SLA Corporativo)",
-    kpiTarget: "Disponibilidad del 99.98% y maximización de margen neto",
+    kpiTarget: "Operatividad continua blindada 24/7 y soberanía tecnológica total de tu equipo.",
   },
 ];
 
@@ -84,16 +79,20 @@ export function ProcessSection() {
   const currentPhase = phases[activePhaseIndex];
 
   return (
-    <section id="como-trabajo" className="py-20 sm:py-28 bg-white border-t border-slate-200/80">
+    <section id="desarrollo" className="py-20 sm:py-28 bg-white border-t border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono font-bold text-zinc-800">
+            <Sparkles className="w-3.5 h-3.5 text-zinc-700" />
+            <span>METODOLOGÍA DE TRABAJO</span>
+          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
-            Como Trabajo
+            Desarrollo
           </h2>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-            Un método estructurado en 4 fases que garantiza la estandarización y automatización de tu negocio gastronómico sin detener el servicio ni un solo día.
+            Un método estructurado en 4 fases que garantiza la digitalización, automatización y soberanía tecnológica de tu negocio gastronómico sin detener el servicio ni un solo día.
           </p>
         </div>
 
@@ -104,32 +103,59 @@ export function ProcessSection() {
           <div className="lg:col-span-5 space-y-3">
             {phases.map((p, index) => {
               const isActive = activePhaseIndex === index;
+
+              // Distinct color styles per phase
+              const phaseColors = [
+                {
+                  activeBox: "bg-sky-600 text-white shadow-md shadow-sky-500/25",
+                  inactiveBox: "bg-sky-50 text-sky-700 border border-sky-200",
+                  activeBorder: "border-sky-600 ring-2 ring-sky-500/20 bg-sky-50/40",
+                  badge: "bg-sky-100 text-sky-800 border-sky-200",
+                },
+                {
+                  activeBox: "bg-indigo-600 text-white shadow-md shadow-indigo-500/25",
+                  inactiveBox: "bg-indigo-50 text-indigo-700 border border-indigo-200",
+                  activeBorder: "border-indigo-600 ring-2 ring-indigo-500/20 bg-indigo-50/40",
+                  badge: "bg-indigo-100 text-indigo-800 border-indigo-200",
+                },
+                {
+                  activeBox: "bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/25",
+                  inactiveBox: "bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200",
+                  activeBorder: "border-fuchsia-600 ring-2 ring-fuchsia-500/20 bg-fuchsia-50/40",
+                  badge: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200",
+                },
+                {
+                  activeBox: "bg-emerald-600 text-white shadow-md shadow-emerald-500/25",
+                  inactiveBox: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+                  activeBorder: "border-emerald-600 ring-2 ring-emerald-500/20 bg-emerald-50/40",
+                  badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                },
+              ][index];
+
               return (
                 <div
                   key={p.number}
                   onClick={() => setActivePhaseIndex(index)}
                   className={`p-5 rounded-2xl border cursor-pointer transition-all duration-200 flex items-start gap-4 ${
                     isActive
-                      ? "bg-white border-zinc-900 shadow-md ring-2 ring-zinc-900/20"
+                      ? `bg-white shadow-md ${phaseColors.activeBorder}`
                       : "bg-slate-50/70 border-slate-200 hover:border-slate-300 hover:bg-white"
                   }`}
                 >
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm shrink-0 transition-colors ${
-                      isActive
-                        ? "bg-zinc-900 text-white shadow-sm"
-                        : "bg-slate-200 text-slate-600"
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm shrink-0 transition-all ${
+                      isActive ? phaseColors.activeBox : phaseColors.inactiveBox
                     }`}
                   >
                     {p.number}
                   </div>
 
                   <div className="space-y-1">
-                    <h4 className={`text-base font-bold transition-colors ${isActive ? "text-slate-900" : "text-slate-700"}`}>
+                    <h4 className={`text-sm sm:text-base font-bold transition-colors ${isActive ? "text-slate-900" : "text-slate-700"}`}>
                       {p.name}
                     </h4>
                     <p className="text-xs text-slate-500 line-clamp-1">
-                      {p.tagline}
+                      {p.enfoque}
                     </p>
                   </div>
                 </div>
@@ -143,9 +169,9 @@ export function ProcessSection() {
             {/* Header info */}
             <div className="space-y-2 pb-6 border-b border-slate-200">
               <div className="flex items-center justify-between text-xs font-mono text-zinc-900 font-bold">
-                <span>FASE {currentPhase.number} &bull; {currentPhase.timeline}</span>
-                <span className="text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">
-                  {currentPhase.tagline}
+                <span>0{activePhaseIndex + 1} // FASE {currentPhase.number}</span>
+                <span className="text-slate-700 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm text-[11px]">
+                  {currentPhase.enfoque}
                 </span>
               </div>
 
@@ -165,11 +191,11 @@ export function ProcessSection() {
                 <span>Entregables Técnicos Clave</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-2.5">
                 {currentPhase.deliverables.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 bg-white rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700 font-medium shadow-sm"
+                    className="p-3.5 bg-white rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700 font-medium shadow-sm leading-relaxed"
                   >
                     <CheckCircle2 className="w-4 h-4 text-zinc-900 shrink-0 mt-0.5" />
                     <span>{item}</span>
@@ -184,7 +210,7 @@ export function ProcessSection() {
                 <div className="text-[11px] font-mono uppercase text-zinc-900 font-bold">
                   Objetivo de Impacto:
                 </div>
-                <div className="text-sm font-bold text-slate-900">
+                <div className="text-xs sm:text-sm font-bold text-slate-900">
                   {currentPhase.kpiTarget}
                 </div>
               </div>
@@ -194,8 +220,9 @@ export function ProcessSection() {
                 size="sm"
                 onClick={openModal}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
+                className="shrink-0"
               >
-                Iniciar Fase {currentPhase.number}
+                Solicitar Diagnóstico
               </Button>
             </div>
 
@@ -207,3 +234,4 @@ export function ProcessSection() {
     </section>
   );
 }
+

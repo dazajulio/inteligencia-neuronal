@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, ShieldCheck, Activity, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLeadStore } from "@/store/useLeadStore";
@@ -97,22 +98,20 @@ export function HeroSection() {
 
           {/* CTA Action Buttons */}
           <div className="pt-2 flex flex-wrap items-center gap-4">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={openModal}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
-              className="text-base font-bold shadow-lg px-8 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white"
-            >
-              Me Interesa
-            </Button>
-
             <a
-              href="#servicios"
-              className="inline-flex items-center justify-center px-6 py-3.5 text-sm font-semibold text-slate-700 hover:text-slate-900 rounded-xl border border-slate-300 bg-white/90 backdrop-blur-sm hover:bg-white transition-colors shadow-sm"
+              href="#soluciones"
+              className="inline-flex items-center justify-center gap-2 text-base font-bold shadow-lg shadow-indigo-500/20 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#0284c7] via-[#6366f1] to-[#d946ef] hover:from-[#0369a1] hover:via-[#4f46e5] hover:to-[#c026d3] text-white transition-all hover:shadow-indigo-500/35 hover:-translate-y-0.5"
             >
-              Ver Servicios
+              <span>SOLUCIONES</span>
+              <ArrowRight className="w-4 h-4" />
             </a>
+
+            <Link
+              href="/academy"
+              className="inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-zinc-900 rounded-xl border-2 border-zinc-200 bg-white/95 backdrop-blur-sm hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm hover:-translate-y-0.5"
+            >
+              <span>ACADEMY</span>
+            </Link>
           </div>
 
           {/* Trust Assurances */}
