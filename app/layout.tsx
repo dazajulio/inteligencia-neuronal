@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     "Control de Mermas Cocina Industrial",
   ],
   authors: [{ name: "Inteligencia Neuronal" }],
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
     title: "Inteligencia Neuronal | Automatización Gastronómica",
     description:
@@ -27,10 +32,6 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     siteName: "Inteligencia Neuronal",
-  icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
   },
 };
 
