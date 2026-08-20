@@ -1,7 +1,13 @@
 import { Resend } from "resend";
 
-const apiKey = process.env.RESEND_API_KEY || "";
-export const resend = new Resend(apiKey);
+export function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("[Resend] RESEND_API_KEY no está configurada en las variables de entorno.");
+    return null;
+  }
+  return new Resend(apiKey);
+}
 
 // Remitente: Oficial de Inteligencia Neuronal
 const DEFAULT_FROM = process.env.EMAIL_FROM || "Inteligencia Neuronal <recursos@inteligencianeuronal.com>";
@@ -44,9 +50,14 @@ interface AdminLeadAlertPayload {
  * 1. Envío de Recursos / Lead Magnet del Toolkit
  */
 export async function sendResourceDeliveryEmail(payload: ResourceEmailPayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    console.warn("[Resend Resource Delivery] No se pudo enviar porque falta RESEND_API_KEY.");
+    return { success: false, error: "Missing RESEND_API_KEY" };
+  }
+
   const {
     to,
-    userName = "Colega",
     resourceTitle,
     resourceTag = "TOOLKIT OPERATIVO",
     resourceFormat = "PDF / Hoja de Cálculo",
@@ -76,8 +87,7 @@ export async function sendResourceDeliveryEmail(payload: ResourceEmailPayload) {
     .resource-tag { font-family: monospace; font-size: 10px; font-weight: 700; color: #971B8D; text-transform: uppercase; margin-bottom: 6px; }
     .resource-title { font-size: 17px; font-weight: 800; color: #0f172a; line-height: 1.35; margin-bottom: 8px; }
     .resource-desc { font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 16px; }
-    .resource-meta { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: #334155; padding-top: 12px; border-top: 1px solid #e2e8f0; }
-    .btn-download { display: block; width: 100%; box-sizing: border-box; text-align: center; background: linear-gradient(90deg, #971B8D, #EA0C7F); color: #ffffff !important; font-size: 14px; font-weight: 700; text-decoration: none; padding: 14px 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(234, 12, 127, 0.3); transition: all 0.2s ease; }
+    .btn-download { display: block; width: 100%; box-sizing: border-box; text-align: center; background: linear-gradient(90deg, #971B8D, #EA0C7F); color: #ffffff !important; font-size: 14px; font-weight: 700; text-decoration: none; padding: 14px 24px; border-radius: 12px; box-shadow: 0 4px 15px rgba(234, 12, 127, 0.3); }
     .advisory-box { background-color: #fdf2f8; border: 1px solid #fbcfe8; border-radius: 14px; padding: 20px; margin-top: 24px; }
     .advisory-title { font-size: 13px; font-weight: 800; color: #971B8D; margin-bottom: 6px; }
     .advisory-desc { font-size: 12px; color: #831843; line-height: 1.5; margin-bottom: 10px; }
@@ -89,24 +99,16 @@ export async function sendResourceDeliveryEmail(payload: ResourceEmailPayload) {
 </head>
 <body>
   <div class="wrapper">
-    <!-- Header -->
     <div class="header">
-      <div class="brand-logo">
-        Inteligencia <span class="brand-accent">Neuronal</span>
-      </div>
-      <div>
-        <span class="badge">ACTIVO OPERATIVO B2B</span>
-      </div>
+      <div class="brand-logo">Inteligencia <span class="brand-accent">Neuronal</span></div>
+      <div><span class="badge">ACTIVO OPERATIVO B2B</span></div>
     </div>
-
-    <!-- Body -->
     <div class="body-content">
       <div class="greeting">¡Hola! Aquí tienes tu activo solicitado.</div>
       <p class="intro-text">
         Has solicitado acceso a una de las herramientas de nuestro <strong>Toolkit Operativo y de Arquitectura</strong>. Puedes descargar el archivo listo para usar en tu negocio haciendo clic en el botón a continuación.
       </p>
 
-      <!-- Resource Card -->
       <div class="resource-card">
         <div class="resource-stripe"></div>
         <div class="resource-tag">${resourceTag} • ${resourceFormat}</div>
@@ -117,7 +119,6 @@ export async function sendResourceDeliveryEmail(payload: ResourceEmailPayload) {
         </a>
       </div>
 
-      <!-- Advisory Pitch -->
       <div class="advisory-box">
         <div class="advisory-title">¿Necesitas auditar tu operación o automatizar con IA?</div>
         <div class="advisory-desc">
@@ -129,15 +130,12 @@ export async function sendResourceDeliveryEmail(payload: ResourceEmailPayload) {
       </div>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
       <div class="footer-links">
         <a href="https://inteligencianeuronal.com">Sitio Web</a> •
-        <a href="https://inteligencianeuronal.com/academy">Campus Academy</a> •
-        <a href="https://inteligencianeuronal.com/admin/login">Admin Portal</a>
+        <a href="https://inteligencianeuronal.com/academy">Campus Academy</a>
       </div>
       <p>© 2026 Inteligencia Neuronal LLC. Todos los derechos reservados.</p>
-      <p>Este correo fue enviado porque solicitaste una descarga en inteligencianeuronal.com.</p>
     </div>
   </div>
 </body>
@@ -162,6 +160,12 @@ export async function sendResourceDeliveryEmail(payload: ResourceEmailPayload) {
  * 2. Confirmación al Cliente de Diagnóstico / Auditoría Agendada
  */
 export async function sendDiagnosisConfirmationEmail(payload: DiagnosisEmailPayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    console.warn("[Resend Diagnosis Confirmation] No se pudo enviar porque falta RESEND_API_KEY.");
+    return { success: false, error: "Missing RESEND_API_KEY" };
+  }
+
   const {
     to,
     fullName,
@@ -263,6 +267,11 @@ export async function sendDiagnosisConfirmationEmail(payload: DiagnosisEmailPayl
  * 3. Alerta Inmediata al Administrador por Nuevo Lead / Diagnóstico
  */
 export async function sendAdminLeadAlertEmail(payload: AdminLeadAlertPayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    return;
+  }
+
   const {
     folio,
     fullName,
