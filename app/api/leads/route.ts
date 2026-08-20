@@ -9,6 +9,29 @@ import {
 
 export const dynamic = "force-dynamic";
 
+// Lista de dominios de correos temporales / desechables bloqueados
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  "mailinator.com",
+  "guerrillamail.com",
+  "tempmail.com",
+  "10minutemail.com",
+  "yopmail.com",
+  "sharklasers.com",
+  "trashmail.com",
+  "getairmail.com",
+  "throwawaymail.com",
+  "temp-mail.org",
+  "fakeinbox.com",
+  "dispostable.com",
+  "burnermail.io",
+  "crazymailing.com",
+]);
+
+function isDisposableEmail(email: string): boolean {
+  const domain = email.split("@")[1]?.toLowerCase();
+  return domain ? DISPOSABLE_EMAIL_DOMAINS.has(domain) : false;
+}
+
 export async function GET() {
   try {
     const db = getSupabaseAdmin();
@@ -50,16 +73,40 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const db = getSupabaseAdmin();
 
-    // Caso 1: Descarga de Toolkit (Lead Magnet)
+    // ── 🛡️ PROTECCIÓN ANTI-BOTS: Honeypot ──
+    if (body.hp_website || body.honeypot || body.fax_number) {
+      // Trampa para bots: responden con éxito falso para no alertar al bot
+      return NextResponse.json(
+        { success: true, message: "Recurso procesado con éxito." },
+        { status: 200 }
+      );
+    }
+
+    // ── 1. CASO: DESCARGA DE TOOLKIT (LEAD MAGNET CON REGLAS Y RATE LIMITING) ──
     if (body.fullName && body.fullName.startsWith("Lead Toolkit")) {
-      const randomNum = Math.floor(10000 + Math.random() * 90000);
-      const generatedFolio = `IN-TOOLKIT-${randomNum}`;
+      const email = body.email ? body.email.trim().toLowerCase() : "";
+
+      if (!email || !email.includes("@")) {
+        return NextResponse.json(
+          { success: false, message: "Por favor ingresa un correo electrónico válido." },
+          { status: 400 }
+        );
+      }
+
+      // 🛡️ Filtro contra correos temporales desechables
+      if (isDisposableEmail(email)) {
+        return NextResponse.json(
+          { success: false, message: "Por favor ingresa un correo corporativo o personal real (no temporal)." },
+          { status: 400 }
+        );
+      }
+
       const resourceId = body.resourceId || body.companyName?.replace("Toolkit: ", "").toLowerCase();
+      const cleanId = resourceId ? resourceId.replace(/^res-/, "") : "";
 
       // 1.1 Obtener detalles del recurso desde la BD
       let resourceData: any = null;
       if (resourceId) {
-        const cleanId = resourceId.replace(/^res-/, "");
         const { data: res } = await db
           .from("academy_resources")
           .select("*")
@@ -68,13 +115,84 @@ export async function POST(req: NextRequest) {
         resourceData = res;
       }
 
+      const targetResourceId = resourceData?.id || cleanId || resourceId;
       const resourceTitle = resourceData?.title || `Recurso Operativo ${resourceId?.toUpperCase() || ""}`;
       const resourceTag = resourceData?.tag || "TOOLKIT OPERATIVO";
       const resourceFormat = resourceData?.format || "PDF / Plantilla Editable";
       const resourceDesc = resourceData?.description || "Activo de arquitectura operativa y estandarización para restaurantes.";
       const fileUrl = resourceData?.file_url || "https://inteligencianeuronal.com/academy#toolkit";
 
-      // 1.2 Guardar Lead en Supabase
+      // ── 🛡️ REGLA: RATE LIMITING & 1 DESCARGA POR CORREO ──
+      // Verificamos si este correo ya descargó este recurso específico previamente
+      const { data: existingDownloads } = await db
+        .from("resource_downloads")
+        .select("id, created_at")
+        .eq("email", email)
+        .eq("resource_id", targetResourceId)
+        .order("created_at", { ascending: false });
+
+      if (existingDownloads && existingDownloads.length > 0) {
+        const lastDownload = new Date(existingDownloads[0].created_at).getTime();
+        const minutesAgo = (Date.now() - lastDownload) / (1000 * 60);
+
+        // Si lo solicitó hace menos de 15 minutos: Bloqueo anti-spam
+        if (minutesAgo < 15) {
+          return NextResponse.json(
+            {
+              success: true,
+              alreadyDownloaded: true,
+              message: "Ya hemos enviado este recurso a tu correo recientemente. Por favor revisa tu bandeja de entrada o spam.",
+            },
+            { status: 200 }
+          );
+        }
+
+        // Si lo solicitó hace más de 15 minutos: Reenviamos el correo sin duplicar lead ni inflar métricas
+        try {
+          await sendResourceDeliveryEmail({
+            to: email,
+            resourceTitle,
+            resourceTag,
+            resourceFormat,
+            resourceDescription: resourceDesc,
+            downloadUrl: fileUrl,
+          });
+        } catch (e) {
+          console.warn("[Resend Re-delivery Warning]", e);
+        }
+
+        return NextResponse.json(
+          {
+            success: true,
+            alreadyDownloaded: true,
+            message: "Te hemos reenviado el recurso a tu correo electrónico.",
+          },
+          { status: 200 }
+        );
+      }
+
+      // ── 🛡️ PROTECCIÓN GLOBAL: Máximo 4 descargas en 10 minutos por el mismo email ──
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { data: recentUserDownloads } = await db
+        .from("resource_downloads")
+        .select("id")
+        .eq("email", email)
+        .gte("created_at", tenMinutesAgo);
+
+      if (recentUserDownloads && recentUserDownloads.length >= 4) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Has alcanzado el límite de descargas simultáneas. Por favor espera unos minutos.",
+          },
+          { status: 429 }
+        );
+      }
+
+      // 1.2 Registro de Lead Nuevo y Único en Supabase
+      const randomNum = Math.floor(10000 + Math.random() * 90000);
+      const generatedFolio = `IN-TOOLKIT-${randomNum}`;
+
       const { data: insertedLead } = await db
         .from("leads")
         .insert([
@@ -83,14 +201,14 @@ export async function POST(req: NextRequest) {
             lead_type: "toolkit_download",
             full_name: body.fullName,
             company_name: body.companyName || "Descarga Toolkit",
-            corporate_email: body.email,
+            corporate_email: email,
             phone_whatsapp: body.phone || "-",
             business_type: "B2C Lead Magnet",
             daily_volume: "-",
             current_erp: "-",
             primary_bottleneck: body.currentChallenge || `Descarga de recurso: ${resourceTitle}`,
             service_needed: `Toolkit Download: ${resourceTitle}`,
-            resource_id: resourceData?.id || resourceId,
+            resource_id: targetResourceId,
             status: "Enviado Secuencia Email",
             source: "academy_toolkit",
           },
@@ -98,44 +216,40 @@ export async function POST(req: NextRequest) {
         .select()
         .single();
 
-      // 1.3 Registrar en resource_downloads
-      if (resourceId) {
-        await db.from("resource_downloads").insert([
-          {
-            resource_id: resourceData?.id || resourceId,
-            lead_id: insertedLead?.id,
-            email: body.email,
-          },
-        ]);
+      // 1.3 Registrar en tabla de descargas
+      await db.from("resource_downloads").insert([
+        {
+          resource_id: targetResourceId,
+          lead_id: insertedLead?.id,
+          email: email,
+        },
+      ]);
 
-        // Incrementar contador de descargas en la BD
-        if (resourceData?.id) {
-          try {
-            await db
-              .from("academy_resources")
-              .update({ downloads_count: (resourceData.downloads_count || 0) + 1 })
-              .eq("id", resourceData.id);
-          } catch (e) {
-            // ignore
-          }
+      // Incrementar contador de descargas reales en academy_resources
+      if (resourceData?.id) {
+        try {
+          await db
+            .from("academy_resources")
+            .update({ downloads_count: (resourceData.downloads_count || 0) + 1 })
+            .eq("id", resourceData.id);
+        } catch (e) {
+          // ignore
         }
       }
 
-      // 1.4 Enviar Correo con Resend (Await obligatorio en Serverless/Vercel)
-      if (body.email) {
-        try {
-          const resendResult = await sendResourceDeliveryEmail({
-            to: body.email,
-            resourceTitle,
-            resourceTag,
-            resourceFormat,
-            resourceDescription: resourceDesc,
-            downloadUrl: fileUrl,
-          });
-          console.log("[Resend Resource Delivery Result]", resendResult);
-        } catch (err) {
-          console.error("[Resend Resource Dispatch Error]", err);
-        }
+      // 1.4 Enviar Correo con Resend
+      try {
+        const resendResult = await sendResourceDeliveryEmail({
+          to: email,
+          resourceTitle,
+          resourceTag,
+          resourceFormat,
+          resourceDescription: resourceDesc,
+          downloadUrl: fileUrl,
+        });
+        console.log("[Resend Resource Delivery Result]", resendResult);
+      } catch (err) {
+        console.error("[Resend Resource Dispatch Error]", err);
       }
 
       return NextResponse.json(
@@ -148,7 +262,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Caso 2: Diagnóstico B2B Completo
+    // ── 2. CASO: DIAGNÓSTICO B2B COMPLETO ──
     const validationResult = leadSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -164,6 +278,15 @@ export async function POST(req: NextRequest) {
     }
 
     const validatedData = validationResult.data;
+
+    // Filtro contra correos temporales en auditorías
+    if (isDisposableEmail(validatedData.corporateEmail)) {
+      return NextResponse.json(
+        { success: false, message: "Por favor ingresa un correo corporativo válido para coordinar la auditoría." },
+        { status: 400 }
+      );
+    }
+
     const dbResponse = await submitLeadToDatabase(validatedData);
 
     // 2.1 Enviar Correo de Confirmación al Cliente con Resend

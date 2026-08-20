@@ -203,11 +203,11 @@ export default function AcademyPage() {
 
     setDownloadStates((prev) => ({
       ...prev,
-      [resourceId]: { loading: true, success: false }
+      [resourceId]: { loading: true, success: false, message: "" }
     }));
 
     try {
-      await fetch("/api/leads", {
+      const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -221,17 +221,20 @@ export default function AcademyPage() {
           currentChallenge: "Descarga de recurso operativo " + resourceId,
         }),
       });
+      const data = await res.json();
 
-      setTimeout(() => {
-        setDownloadStates((prev) => ({
-          ...prev,
-          [resourceId]: { loading: false, success: true }
-        }));
-      }, 500);
+      setDownloadStates((prev) => ({
+        ...prev,
+        [resourceId]: {
+          loading: false,
+          success: data.success !== false,
+          message: data.message || "¡Recurso enviado! Revisa tu bandeja de entrada o spam.",
+        }
+      }));
     } catch (err) {
       setDownloadStates((prev) => ({
         ...prev,
-        [resourceId]: { loading: false, success: true }
+        [resourceId]: { loading: false, success: true, message: "¡Enviado! Revisa tu bandeja de entrada." }
       }));
     }
   };
@@ -525,7 +528,15 @@ export default function AcademyPage() {
 
                 <div className="p-6 pt-2">
                   {!state.success ? (
-                    <form onSubmit={(e) => handleResourceSubmit(e, item.id)} className="flex gap-2">
+                    <form onSubmit={(e) => handleResourceSubmit(e, item.id)} className="flex items-center gap-2">
+                      {/* 🛡️ Honeypot invisible anti-bots */}
+                      <input
+                        type="text"
+                        name="hp_website"
+                        style={{ display: "none" }}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
                       <input
                         type="email"
                         required
@@ -556,13 +567,13 @@ export default function AcademyPage() {
                     <div className="p-3.5 rounded-xl border border-[#86C537]/40 bg-[#86C537]/10 text-[#55821c] text-xs flex items-center justify-between font-medium">
                       <div className="flex items-center gap-2">
                         <Check className="w-4 h-4 text-[#639922] shrink-0" />
-                        <span>¡Enlace generado! Revisa tu bandeja de entrada.</span>
+                        <span>{state.message || "¡Enlace generado! Revisa tu bandeja de entrada."}</span>
                       </div>
                       <button
                         onClick={() =>
                           setDownloadStates((prev) => ({
                             ...prev,
-                            [item.id]: { loading: false, success: false },
+                            [item.id]: { loading: false, success: false, message: "" },
                           }))
                         }
                         className="text-[10px] text-zinc-500 hover:text-zinc-900 underline ml-2 shrink-0"
