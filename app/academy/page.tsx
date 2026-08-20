@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,37 +9,56 @@ import {
   Download,
   ShieldCheck,
   ArrowRight,
-  CheckCircle2,
   Check,
   Loader2,
-  FileSpreadsheet,
-  FileText,
-  Lock,
-  Layers,
-  Cpu,
-  RotateCw,
-  ExternalLink,
-  Eye,
-  Paperclip,
-  CheckCircle
 } from "lucide-react";
+
+interface CourseModule {
+  id?: string;
+  week_label?: string;
+  week?: string;
+  title: string;
+  description?: string;
+  desc?: string;
+}
 
 interface Course {
   id: string;
+  slug?: string;
   badge: string;
   level: string;
   title: string;
   tagline: string;
+  description?: string;
   duration: string;
-  price: string;
-  previewImage: string;
+  price_display?: string;
+  price?: string;
+  preview_image?: string;
+  previewImage?: string;
   tools: string[];
-  stripeColor: string;
-  modules: { week: string; title: string; desc: string }[];
-  ctaUrl: string;
+  stripe_color?: string;
+  stripeColor?: string;
+  modules?: CourseModule[];
+  cta_url?: string;
+  ctaUrl?: string;
 }
 
-const COURSES: Course[] = [
+interface ResourceItem {
+  id: string;
+  slug?: string;
+  title: string;
+  description?: string;
+  desc?: string;
+  tag: string;
+  format: string;
+  preview_image?: string;
+  previewImage?: string;
+  stripe_color?: string;
+  stripeColor?: string;
+  file_url?: string;
+}
+
+const DEFAULT_COURSES: Course[] = [
   {
     id: "ia-restaurantes",
     badge: "MÁS POPULAR",
@@ -98,7 +117,7 @@ const COURSES: Course[] = [
   }
 ];
 
-const TOOLKIT_RESOURCES = [
+const DEFAULT_RESOURCES: ResourceItem[] = [
   {
     id: "aeo-rag",
     title: "Optimización para Motores de Respuesta (AEO): Arquitectura de Contenido y Datos Estructurados para RAG",
@@ -147,9 +166,35 @@ const TOOLKIT_RESOURCES = [
 ];
 
 export default function AcademyPage() {
-  const [selectedCourse, setSelectedCourse] = useState<Course>(COURSES[0]);
+  const [courses, setCourses] = useState<Course[]>(DEFAULT_COURSES);
+  const [resources, setResources] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
+  const [selectedCourse, setSelectedCourse] = useState<Course>(DEFAULT_COURSES[0]);
   const [resourceEmails, setResourceEmails] = useState<Record<string, string>>({});
   const [downloadStates, setDownloadStates] = useState<Record<string, { loading: boolean; success: boolean }>>({});
+
+  // Cargar cursos y recursos desde la base de datos Supabase en tiempo real
+  useEffect(() => {
+    fetch("/api/courses")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.courses && Array.isArray(data.courses)) {
+          setCourses(data.courses);
+          if (data.courses.length > 0) {
+            setSelectedCourse(data.courses[0]);
+          }
+        }
+      })
+      .catch((e) => console.warn("[Courses Fetch Fallback]", e));
+
+    fetch("/api/resources")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.resources && Array.isArray(data.resources)) {
+          setResources(data.resources);
+        }
+      })
+      .catch((e) => console.warn("[Resources Fetch Fallback]", e));
+  }, []);
 
   const handleResourceSubmit = async (e: React.FormEvent, resourceId: string) => {
     e.preventDefault();
@@ -170,6 +215,7 @@ export default function AcademyPage() {
           email: email,
           phone: "+0000000000",
           companyName: "Toolkit: " + resourceId,
+          resourceId: resourceId,
           serviceNeeded: "Toolkit Download: " + resourceId,
           businessSize: "B2C Lead Magnet",
           currentChallenge: "Descarga de recurso operativo " + resourceId,
@@ -189,6 +235,15 @@ export default function AcademyPage() {
       }));
     }
   };
+
+  const getCoursePrice = (c: Course) => c.price_display || c.price || "$97 USD";
+  const getCourseImage = (c: Course) => c.preview_image || c.previewImage || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80";
+  const getCourseStripe = (c: Course) => c.stripe_color || c.stripeColor || "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]";
+  const getCourseCta = (c: Course) => c.cta_url || c.ctaUrl || "#";
+
+  const getResourceImage = (r: ResourceItem) => r.preview_image || r.previewImage || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80";
+  const getResourceStripe = (r: ResourceItem) => r.stripe_color || r.stripeColor || "from-[#EA0C7F] to-[#971B8D]";
+  const getResourceDesc = (r: ResourceItem) => r.description || r.desc || "";
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-800 selection:text-white relative overflow-hidden font-sans">
@@ -271,7 +326,7 @@ export default function AcademyPage() {
             <p className="text-zinc-500 text-sm mt-1">Selecciona un curso para inspeccionar el temario semanal y herramientas.</p>
           </div>
           <span className="font-mono text-xs font-bold text-zinc-600 bg-zinc-100 px-3 py-1.5 rounded-lg border border-zinc-200">
-            [PROGRAMAS 2026 // ACTUALIZADOS]
+            [PROGRAMAS 2026 // BASE DE DATOS SINCRONIZADA]
           </span>
         </div>
 
@@ -279,8 +334,8 @@ export default function AcademyPage() {
           
           {/* Navegador lateral de Cursos con Franja Superior e Imágenes (Col 1-5) */}
           <div className="lg:col-span-5 flex flex-col gap-5">
-            {COURSES.map((course) => {
-              const isSelected = selectedCourse.id === course.id;
+            {courses.map((course) => {
+              const isSelected = selectedCourse?.id === course.id;
               return (
                 <div
                   key={course.id}
@@ -292,12 +347,12 @@ export default function AcademyPage() {
                   }`}
                 >
                   {/* Top Color Stripe */}
-                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${course.stripeColor}`} />
+                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getCourseStripe(course)}`} />
 
                   {/* Thumbnail Banner */}
                   <div className="h-32 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-100">
                     <img
-                      src={course.previewImage}
+                      src={getCourseImage(course)}
                       alt={course.title}
                       className="w-full h-full object-cover"
                     />
@@ -309,7 +364,7 @@ export default function AcademyPage() {
                     </div>
                     <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs font-mono">
                       <span className="font-bold">{course.level}</span>
-                      <span className="font-extrabold bg-zinc-900/80 px-2 py-0.5 rounded text-[11px]">{course.price}</span>
+                      <span className="font-extrabold bg-zinc-900/80 px-2 py-0.5 rounded text-[11px]">{getCoursePrice(course)}</span>
                     </div>
                   </div>
 
@@ -329,90 +384,95 @@ export default function AcademyPage() {
             })}
           </div>
 
-          {/* Visor de Contenido & Syllabus Detallado con Franja e Imagen (Col 6-12) */}
-          <div className="lg:col-span-7 rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 relative shadow-lg overflow-hidden">
-            {/* Top Color Stripe */}
-            <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${selectedCourse.stripeColor}`} />
+          {/* Visor de Contenido & Syllabus Detallado (Col 6-12) */}
+          {selectedCourse && (
+            <div className="lg:col-span-7 rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 relative shadow-lg overflow-hidden">
+              <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getCourseStripe(selectedCourse)}`} />
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedCourse.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Banner de Cabecera */}
-                <div className="h-44 w-full rounded-2xl overflow-hidden relative mb-6 border border-zinc-200">
-                  <img
-                    src={selectedCourse.previewImage}
-                    alt={selectedCourse.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/30 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-2 text-white">
-                    <div>
-                      <span className="text-[10px] font-mono font-bold text-cyan-300 uppercase tracking-widest block mb-1">
-                        PLAN DE ESTUDIO // SYLLABUS
-                      </span>
-                      <h3 className="text-xl sm:text-2xl font-bold">{selectedCourse.title}</h3>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-2xl font-extrabold font-mono text-cyan-300">{selectedCourse.price}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Herramientas que dominarás */}
-                <div className="mb-6">
-                  <div className="text-xs font-mono font-bold text-zinc-500 mb-2">STACK TECNOLÓGICO & HERRAMIENTAS</div>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCourse.tools.map((tool, i) => (
-                      <span key={i} className="text-xs font-mono px-3 py-1 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-800 font-bold">
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Desglose de Módulos */}
-                <div className="space-y-3 mb-8">
-                  <div className="text-xs font-mono font-bold text-zinc-500">ESTRUCTURA CLASE POR CLASE</div>
-                  {selectedCourse.modules.map((m, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 flex items-start gap-4 shadow-xs">
-                      <span className="font-mono text-xs font-bold text-white bg-zinc-900 w-8 h-8 rounded-xl flex items-center justify-center shrink-0">
-                        {m.week}
-                      </span>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedCourse.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {/* Banner de Cabecera */}
+                  <div className="h-44 w-full rounded-2xl overflow-hidden relative mb-6 border border-zinc-200">
+                    <img
+                      src={getCourseImage(selectedCourse)}
+                      alt={selectedCourse.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/30 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-2 text-white">
                       <div>
-                        <h4 className="text-sm font-bold text-zinc-900">{m.title}</h4>
-                        <p className="text-xs text-zinc-600 mt-0.5 leading-relaxed">{m.desc}</p>
+                        <span className="text-[10px] font-mono font-bold text-cyan-300 uppercase tracking-widest block mb-1">
+                          PLAN DE ESTUDIO // SYLLABUS
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-bold">{selectedCourse.title}</h3>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-2xl font-extrabold font-mono text-cyan-300">{getCoursePrice(selectedCourse)}</div>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-zinc-200">
-                  <div className="flex items-center gap-2 text-xs text-zinc-600 font-medium">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>Garantía de satisfacción de 7 días</span>
                   </div>
-                  <a
-                    href={selectedCourse.ctaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-8 py-3.5 text-sm font-bold text-white transition-all shadow-md shadow-[#971B8D]/25 hover:shadow-[#971B8D]/40 hover:-translate-y-0.5"
-                  >
-                    Inscribirme al Programa
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+
+                  {/* Herramientas */}
+                  {selectedCourse.tools && selectedCourse.tools.length > 0 && (
+                    <div className="mb-6">
+                      <div className="text-xs font-mono font-bold text-zinc-500 mb-2">STACK TECNOLÓGICO & HERRAMIENTAS</div>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedCourse.tools.map((tool, i) => (
+                          <span key={i} className="text-xs font-mono px-3 py-1 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-800 font-bold">
+                            {tool}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Desglose de Módulos */}
+                  {selectedCourse.modules && selectedCourse.modules.length > 0 && (
+                    <div className="space-y-3 mb-8">
+                      <div className="text-xs font-mono font-bold text-zinc-500">ESTRUCTURA CLASE POR CLASE</div>
+                      {selectedCourse.modules.map((m, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 flex items-start gap-4 shadow-xs">
+                          <span className="font-mono text-xs font-bold text-white bg-zinc-900 w-8 h-8 rounded-xl flex items-center justify-center shrink-0">
+                            {m.week_label || m.week || `0${idx + 1}`}
+                          </span>
+                          <div>
+                            <h4 className="text-sm font-bold text-zinc-900">{m.title}</h4>
+                            <p className="text-xs text-zinc-600 mt-0.5 leading-relaxed">{m.description || m.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-zinc-200">
+                    <div className="flex items-center gap-2 text-xs text-zinc-600 font-medium">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <span>Garantía de satisfacción de 7 días</span>
+                    </div>
+                    <a
+                      href={getCourseCta(selectedCourse)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-8 py-3.5 text-sm font-bold text-white transition-all shadow-md shadow-[#971B8D]/25 hover:shadow-[#971B8D]/40 hover:-translate-y-0.5"
+                    >
+                      Inscribirme al Programa
+                      <ArrowRight className="w-4 h-4" />
+                    </a>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ── SECCIÓN LEAD MAGNET: RECURSOS INDIVIDUALES CON PREVIEWS (#toolkit) ── */}
+      {/* ── SECCIÓN LEAD MAGNET: RECURSOS INDIVIDUALES (#toolkit) ── */}
       <section id="toolkit" className="py-20 px-6 max-w-6xl mx-auto border-t border-zinc-200">
         <div className="text-center mb-12">
           <div className="inline-block rounded-full bg-zinc-100 border border-zinc-300 px-3.5 py-1.5 text-xs font-mono font-bold text-zinc-700 mb-3">
@@ -427,7 +487,7 @@ export default function AcademyPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-          {TOOLKIT_RESOURCES.map((item) => {
+          {resources.map((item) => {
             const state = downloadStates[item.id] || { loading: false, success: false };
 
             return (
@@ -436,13 +496,13 @@ export default function AcademyPage() {
                 className="rounded-3xl border border-zinc-200 bg-white flex flex-col justify-between shadow-sm hover:shadow-lg transition-all relative overflow-hidden group"
               >
                 {/* Top Color Stripe */}
-                <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${item.stripeColor}`} />
+                <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getResourceStripe(item)}`} />
 
                 <div>
                   {/* Visual Preview Banner */}
                   <div className="h-36 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-100">
                     <img
-                      src={item.previewImage}
+                      src={getResourceImage(item)}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -459,7 +519,7 @@ export default function AcademyPage() {
 
                   <div className="p-6 pb-2">
                     <h3 className="text-base font-bold text-zinc-900 mb-1.5 leading-snug">{item.title}</h3>
-                    <p className="text-xs text-zinc-600 leading-relaxed mb-4">{item.desc}</p>
+                    <p className="text-xs text-zinc-600 leading-relaxed mb-4">{getResourceDesc(item)}</p>
                   </div>
                 </div>
 

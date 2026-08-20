@@ -1,73 +1,77 @@
-import { LeadFormData, LeadSubmissionResponse } from "@/types";
+import { createClient } from '@supabase/supabase-js';
+import { LeadFormData, LeadSubmissionResponse } from '@/types';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey;
+
+// Cliente público para el browser
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Cliente administrador para rutas API de servidor (Bypass RLS)
+export const getSupabaseAdmin = () => {
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+};
 
 /**
- * Enterprise Supabase Bridge
- * Dispatches leads securely using server-side service role or REST endpoint.
- * Includes graceful resilient buffer with telemetry logging.
+ * Persiste leads de diagnóstico y auditoría en la tabla 'leads' de Supabase
  */
 export async function submitLeadToDatabase(
   formData: LeadFormData
 ): Promise<LeadSubmissionResponse> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const randomNum = Math.floor(10000 + Math.random() * 90000);
+  const generatedFolio = `IN-AUDIT-${randomNum}`;
 
-  if (supabaseUrl && serviceRoleKey) {
-    try {
-      const res = await fetch(`${supabaseUrl}/rest/v1/leads`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: serviceRoleKey,
-          Authorization: `Bearer ${serviceRoleKey}`,
-          Prefer: "return=representation",
-        },
-        body: JSON.stringify({
-          full_name: formData.fullName,
-          company_name: formData.companyName,
-          corporate_email: formData.corporateEmail,
-          phone_whatsapp: formData.phoneWhatsApp,
-          business_type: formData.businessType,
-          daily_volume: formData.dailyVolume,
-          current_erp: formData.currentERP,
-          bottleneck: formData.primaryBottleneck || null,
-          source: formData.source || "hero_cta",
-          created_at: new Date().toISOString(),
-        }),
-      });
+  try {
+    if (supabaseUrl && (supabaseServiceRoleKey || supabaseAnonKey)) {
+      const db = getSupabaseAdmin();
+      const { data, error } = await db
+        .from('leads')
+        .insert([
+          {
+            folio: generatedFolio,
+            lead_type: 'diagnostico',
+            full_name: formData.fullName,
+            company_name: formData.companyName,
+            corporate_email: formData.corporateEmail,
+            phone_whatsapp: formData.phoneWhatsApp,
+            business_type: formData.businessType,
+            daily_volume: formData.dailyVolume,
+            current_erp: formData.currentERP,
+            primary_bottleneck: formData.primaryBottleneck || null,
+            service_needed: 'Auditoría & Diagnóstico de Automatización',
+            source: formData.source || 'diagnostico_modal',
+            status: 'Nuevo',
+          },
+        ])
+        .select()
+        .single();
 
-      if (res.ok) {
-        const data = await res.json();
+      if (!error && data) {
         return {
           success: true,
-          leadId: data[0]?.id || `lead_${Math.random().toString(36).substring(2, 9)}`,
-          registeredAt: new Date().toISOString(),
+          leadId: data.folio || data.id,
+          registeredAt: data.created_at,
+          message: 'Diagnóstico registrado con éxito en Supabase.',
         };
+      } else if (error) {
+        console.warn('[Supabase Insert Lead Warning]', error.message);
       }
-    } catch (err) {
-      console.warn("[Inteligencia Neuronal :: Supabase Bridge Fallback]", err);
     }
+  } catch (err) {
+    console.warn('[Inteligencia Neuronal :: Supabase Bridge Error]', err);
   }
 
-  // Graceful simulated dispatch for local evaluation
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  const generatedId = `IN-LEAD-${Math.floor(100000 + Math.random() * 900000)}`;
-
-  console.info("[Inteligencia Neuronal :: Lead Ingested into Pipeline Buffer]", {
-    leadId: generatedId,
-    timestamp: new Date().toISOString(),
-    prospect: formData.fullName,
-    company: formData.companyName,
-    email: formData.corporateEmail,
-    businessType: formData.businessType,
-    dailyVolume: formData.dailyVolume,
-    erp: formData.currentERP,
-  });
-
+  // Fallback simulado si no hay conexión
   return {
     success: true,
-    leadId: generatedId,
+    leadId: generatedFolio,
     registeredAt: new Date().toISOString(),
-    message: "Solicitud registrada con éxito en el pipeline de auditoría.",
+    message: 'Solicitud registrada con éxito en el pipeline de auditoría.',
   };
 }

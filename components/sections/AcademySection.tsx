@@ -1,12 +1,98 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { BookOpen, Code, LineChart, Download, ArrowRight, RotateCw, CheckCircle2, Sparkles, FileSpreadsheet, ShieldCheck, Layers, Cpu } from "lucide-react";
+import { BookOpen, Code, LineChart, Download, ArrowRight, RotateCw, CheckCircle2, Sparkles } from "lucide-react";
+
+interface Course {
+  id: string;
+  badge: string;
+  level: string;
+  title: string;
+  subtitle?: string;
+  tagline?: string;
+  description?: string;
+  price_display?: string;
+  price?: string;
+  preview_image?: string;
+  previewImage?: string;
+  stripe_color?: string;
+  stripeColor?: string;
+  tools?: string[];
+  modules?: any[];
+}
+
+const DEFAULT_COURSES: Course[] = [
+  {
+    id: "ia-restaurantes",
+    badge: "MÁS POPULAR",
+    level: "Operativo & Estratégico",
+    title: "Masterclass de IA para Restaurantes",
+    subtitle: "Automatización de la Operación mediante Inteligencia Artificial.",
+    description: "Aprende a desplegar asistentes de IA que atienden clientes por WhatsApp, toman pedidos directos, controlan mermas de cocina y blindan tus recetas.",
+    price: "$97 USD",
+    previewImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]",
+    tools: ["OpenAI API", "Claude 3.5", "WhatsApp API", "Airtable"],
+    modules: [
+      { title: "Arquitectura de Prompts & Escandallos" },
+      { title: "Agente de Ventas & Reservas 24/7" },
+      { title: "Supervisión & Mitigación de Alucinaciones" },
+      { title: "Integración en el Negocio Real" },
+    ],
+  },
+  {
+    id: "bootcamp-n8n",
+    badge: "TÉCNICO / DEV",
+    level: "Avanzado",
+    title: "Bootcamp Técnico",
+    subtitle: "Despliegue de Arquitecturas con n8n: Conectando tu negocio con agentes de automatización.",
+    description: "Aprende a montar la infraestructura digital y de automatización sobre servidores VPS propios con Docker, bases de datos PostgreSQL y webhooks de Meta.",
+    price: "$197 USD",
+    previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#1DACE3] via-[#0284c7] to-[#4f46e5]",
+    tools: ["n8n Self-Hosted", "Docker", "PostgreSQL", "Meta Webhooks"],
+    modules: [
+      { title: "Despliegue VPS con Docker & SSL" },
+      { title: "Meta Cloud API & Webhooks Reversos" },
+      { title: "Conexión a Bases de Datos Relacionales" },
+      { title: "Alertas Críticas y Monitoreo 24/7" },
+    ],
+  },
+  {
+    id: "crecimiento-aeo",
+    badge: "CRECIMIENTO B2C",
+    level: "Marketing & Adquisición",
+    title: "Gestión de Crecimiento",
+    subtitle: "SEO/AEO Local y Dominio Digital para Marcas Gastronómicas.",
+    description: "Domina la presencia de tu restaurante en Google Maps y sé la opción prioritaria recomendada por motores de Inteligencia Artificial como ChatGPT y Gemini.",
+    price: "$67 USD",
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#EA0C7F]",
+    tools: ["Google Business", "Schema.org", "Perplexity", "JSON-LD"],
+    modules: [
+      { title: "Indexación de Menús para Motores IA (AEO)" },
+      { title: "Autoridad Local & Google Maps 360°" },
+      { title: "Embudos de Tráfico Directo a WhatsApp" },
+    ],
+  },
+];
 
 export function AcademySection() {
+  const [courses, setCourses] = useState<Course[]>(DEFAULT_COURSES);
   const [flippedCourse, setFlippedCourse] = useState<Record<string, boolean>>({});
   const [flippedToolkit, setFlippedToolkit] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/courses")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.courses && Array.isArray(data.courses)) {
+          setCourses(data.courses);
+        }
+      })
+      .catch((e) => console.warn("[AcademySection Courses Fallback]", e));
+  }, []);
 
   const toggleCourseFlip = (id: string) => {
     setFlippedCourse((prev) => ({
@@ -15,64 +101,14 @@ export function AcademySection() {
     }));
   };
 
-  const courses = [
-    {
-      id: "ia-restaurantes",
-      badge: "MÁS POPULAR",
-      level: "Operativo & Estratégico",
-      title: "Masterclass de IA para Restaurantes",
-      subtitle: "Automatización de la Operación mediante Inteligencia Artificial.",
-      description: "Aprende a desplegar asistentes de IA que atienden clientes por WhatsApp, toman pedidos directos, controlan mermas de cocina y blindan tus recetas.",
-      price: "$97 USD",
-      icon: <BookOpen className="w-5 h-5 text-white" />,
-      previewImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
-      stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]",
-      tools: ["OpenAI API", "Claude 3.5", "WhatsApp API", "Airtable"],
-      modules: [
-        "Arquitectura de Prompts & Escandallos",
-        "Agente de Ventas & Reservas 24/7",
-        "Supervisión & Mitigación de Alucinaciones",
-        "Integración en el Negocio Real",
-      ],
-    },
-    {
-      id: "bootcamp-n8n",
-      badge: "TÉCNICO / DEV",
-      level: "Avanzado",
-      title: "Bootcamp Técnico",
-      subtitle: "Despliegue de Arquitecturas con n8n: Conectando tu negocio con agentes de automatizacion.",
-      description: "Aprende a montar la infraestructura digital y de automatización sobre servidores VPS propios con Docker, bases de datos PostgreSQL y webhooks de Meta.",
-      price: "$197 USD",
-      icon: <Code className="w-5 h-5 text-white" />,
-      previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-      stripeColor: "from-[#1DACE3] via-[#0284c7] to-[#4f46e5]",
-      tools: ["n8n Self-Hosted", "Docker", "PostgreSQL", "Meta Webhooks"],
-      modules: [
-        "Despliegue VPS con Docker & SSL",
-        "Meta Cloud API & Webhooks Reversos",
-        "Conexión a Bases de Datos Relacionales",
-        "Alertas Críticas y Monitoreo 24/7",
-      ],
-    },
-    {
-      id: "gestion-crecimiento",
-      badge: "CRECIMIENTO B2C",
-      level: "Marketing & Adquisición",
-      title: "Gestión de Crecimiento",
-      subtitle: "SEO/AEO Local y Dominio Digital para Marcas Gastronómicas.",
-      description: "Domina la presencia de tu restaurante en Google Maps y sé la opción prioritaria recomendada por motores de Inteligencia Artificial como ChatGPT y Gemini.",
-      price: "$67 USD",
-      icon: <LineChart className="w-5 h-5 text-white" />,
-      previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-      stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#EA0C7F]",
-      tools: ["Google Business", "Schema.org", "Perplexity", "JSON-LD"],
-      modules: [
-        "Indexación de Menús para Motores IA (AEO)",
-        "Autoridad Local & Google Maps 360°",
-        "Embudos de Tráfico Directo a WhatsApp",
-      ],
-    },
-  ];
+  const getCoursePrice = (c: Course) => c.price_display || c.price || "$97 USD";
+  const getCourseImage = (c: Course) => c.preview_image || c.previewImage || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80";
+  const getCourseStripe = (c: Course) => c.stripe_color || c.stripeColor || "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]";
+  const getCourseSubtitle = (c: Course) => c.subtitle || c.tagline || "";
+  const getCourseModules = (c: Course) => {
+    if (!c.modules || c.modules.length === 0) return [];
+    return c.modules.map((m) => typeof m === "string" ? m : m.title);
+  };
 
   return (
     <section id="academy" className="py-24 sm:py-32 bg-zinc-50 border-t border-zinc-200">
@@ -130,6 +166,7 @@ export function AcademySection() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {courses.map((course) => {
                 const isFlipped = !!flippedCourse[course.id];
+                const modules = getCourseModules(course);
 
                 return (
                   <div
@@ -142,16 +179,14 @@ export function AcademySection() {
                         isFlipped ? "rotate-y-180" : ""
                       }`}
                     >
-                      {/* Cara Frontal con Franja Superior e Imagen */}
+                      {/* Cara Frontal */}
                       <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-zinc-200 bg-white flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-                        {/* Top Color Stripe */}
-                        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${course.stripeColor} z-10`} />
+                        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getCourseStripe(course)} z-10`} />
 
                         <div>
-                          {/* Banner de Imagen */}
                           <div className="h-36 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-100">
                             <img
-                              src={course.previewImage}
+                              src={getCourseImage(course)}
                               alt={course.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -167,7 +202,7 @@ export function AcademySection() {
                             </div>
 
                             <div className="absolute bottom-2.5 left-3.5 right-3.5 flex items-center justify-between text-white text-xs font-mono">
-                              <span className="font-extrabold text-sm text-cyan-300">{course.price}</span>
+                              <span className="font-extrabold text-sm text-cyan-300">{getCoursePrice(course)}</span>
                               <span className="text-[10px] text-zinc-300">(Toca para temario ⟳)</span>
                             </div>
                           </div>
@@ -176,11 +211,13 @@ export function AcademySection() {
                             <h4 className="text-lg font-bold text-zinc-900 mb-1 leading-snug">
                               {course.title}
                             </h4>
-                            <p className="text-xs font-semibold text-[#971B8D] mb-2.5">
-                              {course.subtitle}
-                            </p>
+                            {getCourseSubtitle(course) && (
+                              <p className="text-xs font-semibold text-[#971B8D] mb-2.5">
+                                {getCourseSubtitle(course)}
+                              </p>
+                            )}
                             <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
-                              {course.description}
+                              {course.description || course.tagline}
                             </p>
                           </div>
                         </div>
@@ -199,15 +236,14 @@ export function AcademySection() {
 
                       {/* Cara Posterior */}
                       <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-300 bg-zinc-900 text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
-                        {/* Top Color Stripe */}
-                        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${course.stripeColor}`} />
+                        <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getCourseStripe(course)}`} />
 
                         <div>
                           <div className="flex items-center justify-between gap-2 mb-3">
                             <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-cyan-300 border border-cyan-400/30">
                               TEMARIO DEL PROGRAMA
                             </span>
-                            <span className="font-mono text-sm font-bold text-cyan-400">{course.price}</span>
+                            <span className="font-mono text-sm font-bold text-cyan-400">{getCoursePrice(course)}</span>
                           </div>
 
                           <h4 className="text-lg font-bold text-white mb-3">
@@ -215,7 +251,7 @@ export function AcademySection() {
                           </h4>
 
                           <div className="space-y-2 mb-4">
-                            {course.modules.map((m, idx) => (
+                            {modules.map((m, idx) => (
                               <div key={idx} className="flex items-start gap-2 text-xs text-zinc-300">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
                                 <span>{m}</span>
@@ -223,16 +259,18 @@ export function AcademySection() {
                             ))}
                           </div>
 
-                          <div className="pt-2 border-t border-white/10">
-                            <div className="text-[10px] font-mono text-zinc-400 mb-1.5">STACK & HERRAMIENTAS:</div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {course.tools.map((t, idx) => (
-                                <span key={idx} className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">
-                                  {t}
-                                </span>
-                              ))}
+                          {course.tools && course.tools.length > 0 && (
+                            <div className="pt-2 border-t border-white/10">
+                              <div className="text-[10px] font-mono text-zinc-400 mb-1.5">STACK & HERRAMIENTAS:</div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {course.tools.map((t, idx) => (
+                                  <span key={idx} className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
 
                         <div className="pt-3 border-t border-white/10 space-y-2.5">
@@ -266,7 +304,6 @@ export function AcademySection() {
               </h3>
             </div>
 
-            {/* Single 3D Flip Card for Toolkit con Franja Superior e Imagen */}
             <div className="max-w-2xl mx-auto">
               <div
                 onClick={() => setFlippedToolkit(!flippedToolkit)}
@@ -279,11 +316,9 @@ export function AcademySection() {
                 >
                   {/* Cara Frontal Toolkit */}
                   <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border-2 border-zinc-300 bg-white flex flex-col justify-between shadow-[0_8px_30px_rgba(0,0,0,0.06)] group-hover:shadow-[0_16px_40px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-                    {/* Top Color Stripe */}
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-500 z-10" />
 
                     <div>
-                      {/* Banner de Previsualización de Recursos */}
                       <div className="h-40 w-full bg-zinc-100 relative overflow-hidden border-b border-zinc-200">
                         <img
                           src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80"
@@ -294,7 +329,7 @@ export function AcademySection() {
                         
                         <div className="absolute top-3.5 left-4">
                           <span className="rounded-full bg-white/90 border border-zinc-200 px-3 py-1 text-xs font-mono font-bold text-zinc-900 shadow-xs">
-                            Activos Operativos (5 Recursos)
+                            Activos Operativos (Toolkit Actualizado)
                           </span>
                         </div>
                         <div className="absolute bottom-3 left-4 text-white text-xs font-mono font-bold">
@@ -336,7 +371,6 @@ export function AcademySection() {
 
                   {/* Cara Posterior Toolkit */}
                   <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-400 bg-zinc-900 text-white p-8 sm:p-10 flex flex-col justify-between shadow-2xl overflow-hidden">
-                    {/* Top Color Stripe */}
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-fuchsia-600 via-pink-600 to-rose-500" />
 
                     <div>

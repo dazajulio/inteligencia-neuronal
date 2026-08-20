@@ -172,8 +172,9 @@ export default function AdminDashboard() {
 
   const [selectedNotificationForModal, setSelectedNotificationForModal] = useState<AuditNotification | null>(null);
 
-  // Sync with API leads
-  useEffect(() => {
+  // Sync with API leads, courses, and resources
+  const fetchAllData = () => {
+    // 1. Leads
     fetch('/api/leads')
       .then((res) => res.json())
       .then((data) => {
@@ -182,59 +183,78 @@ export default function AdminDashboard() {
           if (audits.length > 0) {
             setNotifications(audits);
           }
+          const toolkitLeads = data.leads
+            .filter((l: any) => l.fullName?.startsWith('Lead Toolkit'))
+            .map((l: any, idx: number) => ({
+              id: idx + 1,
+              email: l.corporateEmail,
+              resource: l.serviceNeeded || 'Toolkit Asset',
+              date: l.createdAt?.split(',')[0] || 'Hoy',
+              source: l.source || 'Academy',
+              status: l.status || 'Enviado Secuencia Email',
+            }));
+          if (toolkitLeads.length > 0) {
+            setLeadsList(toolkitLeads);
+          }
         }
       })
       .catch((e) => console.warn('API leads fetch fallback', e));
+
+    // 2. Cursos
+    fetch('/api/courses')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.courses && Array.isArray(data.courses)) {
+          setCoursesList(
+            data.courses.map((c: any) => ({
+              id: c.id,
+              title: c.title,
+              badge: c.badge || 'NUEVO',
+              level: c.level || 'Intermedio',
+              price: c.price_display || `$${c.price_usd || 97} USD`,
+              duration: c.duration || '4 Semanas',
+              tagline: c.tagline || '',
+              previewImage: c.preview_image || c.previewImage,
+              tools: Array.isArray(c.tools) ? c.tools : [],
+              modulesCount: c.modules?.length || 4,
+              studentsEnrolled: c.students_enrolled || 0,
+              ctaUrl: c.cta_url || c.ctaUrl || '#',
+              status: c.status || 'ACTIVO',
+            }))
+          );
+        }
+      })
+      .catch((e) => console.warn('API courses fetch fallback', e));
+
+    // 3. Recursos
+    fetch('/api/resources')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.resources && Array.isArray(data.resources)) {
+          setResourcesList(
+            data.resources.map((r: any) => ({
+              id: r.id,
+              name: r.title || r.name,
+              format: r.format,
+              access: r.access_type || r.access || 'GRATUITO (LEAD)',
+              downloads: r.downloads_count || r.downloads || 0,
+              tag: r.tag,
+              fileUrl: r.file_url || r.fileUrl,
+              previewImage: r.preview_image || r.previewImage,
+              description: r.description,
+            }))
+          );
+        }
+      })
+      .catch((e) => console.warn('API resources fetch fallback', e));
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
 
   // ── 2. GESTOR DE CURSOS STATE & CRUD ──
-  const [coursesList, setCoursesList] = useState<CourseItem[]>([
-    {
-      id: 'course-ia-restaurantes',
-      title: 'Masterclass: Automatización Agéntica con IA',
-      badge: 'MÁS POPULAR',
-      level: 'Operativo & Estratégico',
-      price: '$97 USD',
-      duration: '4 Módulos Intensivos',
-      tagline: 'Aprende a desplegar agentes de WhatsApp que atienden, venden y controlan recetas sin alucinaciones.',
-      previewImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
-      tools: ['OpenAI API', 'Claude 3.5', 'WhatsApp Cloud API', 'Airtable'],
-      modulesCount: 4,
-      studentsEnrolled: 28,
-      ctaUrl: 'https://buy.stripe.com/test_ia_restaurantes',
-      status: 'ACTIVO',
-    },
-    {
-      id: 'course-bootcamp-n8n',
-      title: 'Bootcamp: Despliegue de Pipelines con n8n',
-      badge: 'TÉCNICO / DEV',
-      level: 'Avanzado',
-      price: '$197 USD',
-      duration: '6 Semanas en Vivo + Labs',
-      tagline: 'Construye la infraestructura de automatización de un restaurante sobre servidores VPS dedicados con Docker.',
-      previewImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
-      tools: ['n8n Self-Hosted', 'Docker', 'PostgreSQL', 'Meta Webhooks'],
-      modulesCount: 6,
-      studentsEnrolled: 14,
-      ctaUrl: 'https://buy.stripe.com/test_bootcamp_n8n',
-      status: 'ACTIVO',
-    },
-    {
-      id: 'course-crecimiento-aeo',
-      title: 'Dominio Local: SEO, AEO & Visibilidad IA',
-      badge: 'CRECIMIENTO B2C',
-      level: 'Marketing & Adquisición',
-      price: '$67 USD',
-      duration: 'Taller Práctico Grabado',
-      tagline: 'Posiciona tu marca gastronómica en Google Maps y sé la opción prioritaria que ChatGPT y Gemini recomiendan.',
-      previewImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-      tools: ['Google Business', 'Schema.org', 'Perplexity Engine', 'JSON-LD'],
-      modulesCount: 3,
-      studentsEnrolled: 19,
-      ctaUrl: 'https://buy.stripe.com/test_crecimiento_aeo',
-      status: 'ACTIVO',
-    },
-  ]);
+  const [coursesList, setCoursesList] = useState<CourseItem[]>([]);
 
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseItem | null>(null);
@@ -276,99 +296,70 @@ export default function AdminDashboard() {
     setIsCourseModalOpen(true);
   };
 
-  const handleSaveCourse = (e: React.FormEvent) => {
+  const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!courseFormData.title) return;
 
-    if (editingCourse) {
-      setCoursesList((prev) =>
-        prev.map((c) => (c.id === editingCourse.id ? ({ ...c, ...courseFormData } as CourseItem) : c))
-      );
-    } else {
-      const newCourse: CourseItem = {
-        id: `course-${Date.now()}`,
-        title: courseFormData.title || 'Nuevo Curso',
-        badge: courseFormData.badge || 'NUEVO',
-        level: courseFormData.level || 'Todos los niveles',
-        price: courseFormData.price || '$97 USD',
-        duration: courseFormData.duration || '4 Semanas',
-        tagline: courseFormData.tagline || '',
-        previewImage: courseFormData.previewImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
-        tools: typeof courseFormData.tools === 'string' ? (courseFormData.tools as string).split(',').map((t: string) => t.trim()) : courseFormData.tools || [],
-        modulesCount: Number(courseFormData.modulesCount) || 4,
-        studentsEnrolled: 0,
-        ctaUrl: courseFormData.ctaUrl || '#',
-        status: courseFormData.status || 'ACTIVO',
-      };
-      setCoursesList((prev) => [newCourse, ...prev]);
+    try {
+      if (editingCourse) {
+        // Update via API (Supabase)
+        await fetch('/api/courses', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingCourse.id,
+            title: courseFormData.title,
+            badge: courseFormData.badge,
+            level: courseFormData.level,
+            price_display: courseFormData.price,
+            duration: courseFormData.duration,
+            tagline: courseFormData.tagline,
+            preview_image: courseFormData.previewImage,
+            tools: courseFormData.tools,
+            cta_url: courseFormData.ctaUrl,
+            status: courseFormData.status,
+            students_enrolled: courseFormData.studentsEnrolled,
+          }),
+        });
+      } else {
+        // Create via API (Supabase)
+        await fetch('/api/courses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: courseFormData.title,
+            badge: courseFormData.badge || 'NUEVO',
+            level: courseFormData.level || 'Intermedio',
+            price_display: courseFormData.price || '$97 USD',
+            duration: courseFormData.duration || '4 Semanas',
+            tagline: courseFormData.tagline || '',
+            preview_image: courseFormData.previewImage,
+            tools: courseFormData.tools,
+            cta_url: courseFormData.ctaUrl || '#',
+            status: courseFormData.status || 'ACTIVO',
+          }),
+        });
+      }
+      fetchAllData();
+    } catch (err) {
+      console.error('[Save Course Error]', err);
     }
     setIsCourseModalOpen(false);
   };
 
-  const handleDeleteCourse = (id: string, title: string) => {
-    if (confirm(`¿Estás seguro de eliminar el curso: "${title}"?`)) {
-      setCoursesList((prev) => prev.filter((c) => c.id !== id));
+  const handleDeleteCourse = async (id: string, title: string) => {
+    if (confirm(`¿Estás seguro de eliminar el curso: "${title}" de la base de datos?`)) {
+      try {
+        await fetch(`/api/courses?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+        fetchAllData();
+      } catch (err) {
+        console.error('[Delete Course Error]', err);
+      }
     }
   };
 
-  // ── 3. GESTOR DE RECURSOS STATE & CRUD (CON ADJUNTOS E IMÁGENES) ──
-  const [resourcesList, setResourcesList] = useState<ResourceItem[]>([
-    {
-      id: 'res-aeo-rag',
-      name: 'Optimización para Motores de Respuesta (AEO): Arquitectura de Contenido y Datos Estructurados para RAG',
-      format: 'PDF / Framework AEO',
-      access: 'GRATUITO (LEAD)',
-      downloads: 168,
-      tag: 'AEO & RAG',
-      fileUrl: '/downloads/aeo-rag-architecture-2026.pdf',
-      previewImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
-      description: 'Guía técnica y arquitectura para estructurar datos con Schema.org, metadatos JSON-LD y bases vectoriales.',
-    },
-    {
-      id: 'res-1',
-      name: 'Matriz de Escandallos & Costos',
-      format: 'XLSX / Template',
-      access: 'GRATUITO (LEAD)',
-      downloads: 218,
-      tag: 'EXCEL',
-      fileUrl: '/downloads/matriz-escandallos-foodcost.xlsx',
-      previewImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
-      description: 'Plantilla parametrizada para costeo en crudo/cocido, factor de rendimiento y mermas técnicas en cocina.',
-    },
-    {
-      id: 'res-2',
-      name: 'Checklist de Puntos Críticos HACCP',
-      format: 'PDF Interactivo',
-      access: 'GRATUITO (LEAD)',
-      downloads: 145,
-      tag: 'PDF',
-      fileUrl: '/downloads/checklist-haccp-restaurantes.pdf',
-      previewImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
-      description: 'Auditoría de temperaturas, rotación de cámaras y protocolos de inocuidad y seguridad alimentaria.',
-    },
-    {
-      id: 'res-3',
-      name: 'Framework de SOPs para Cocina',
-      format: 'Notion Template',
-      access: 'GRATUITO (LEAD)',
-      downloads: 98,
-      tag: 'NOTION',
-      fileUrl: 'https://notion.so/template-sops-inteligencia-neuronal',
-      previewImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80',
-      description: 'Estructura modular para documentar recetas y compras antes de automatizar con IA.',
-    },
-    {
-      id: 'res-4',
-      name: 'Guía de Indexación Local & AEO',
-      format: 'Guía Técnica',
-      access: 'GRATUITO (LEAD)',
-      downloads: 84,
-      tag: 'GUÍA',
-      fileUrl: '/downloads/guia-indexacion-local-google-maps.pdf',
-      previewImage: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=600&q=80',
-      description: 'Configuración técnica de menús y Schema.org para Google Maps y motores de respuesta de IA.',
-    },
-  ]);
+  // ── 3. GESTOR DE RECURSOS STATE & CRUD ──
+  const [resourcesList, setResourcesList] = useState<ResourceItem[]>([]);
 
   const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<ResourceItem | null>(null);
@@ -404,34 +395,60 @@ export default function AdminDashboard() {
     setIsResourceModalOpen(true);
   };
 
-  const handleSaveResource = (e: React.FormEvent) => {
+  const handleSaveResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resourceFormData.name) return;
 
-    if (editingResource) {
-      setResourcesList((prev) =>
-        prev.map((r) => (r.id === editingResource.id ? ({ ...r, ...resourceFormData } as ResourceItem) : r))
-      );
-    } else {
-      const newAsset: ResourceItem = {
-        id: `res-${Date.now()}`,
-        name: resourceFormData.name || 'Nuevo Activo',
-        format: resourceFormData.format || 'PDF / Documento',
-        access: resourceFormData.access || 'GRATUITO (LEAD)',
-        tag: (resourceFormData.tag || 'RECURSO').toUpperCase(),
-        downloads: resourceFormData.downloads || 0,
-        fileUrl: resourceFormData.fileUrl || '#download',
-        previewImage: resourceFormData.previewImage || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
-        description: resourceFormData.description || '',
-      };
-      setResourcesList((prev) => [newAsset, ...prev]);
+    try {
+      if (editingResource) {
+        // Update via API (Supabase)
+        await fetch('/api/resources', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingResource.id,
+            title: resourceFormData.name,
+            format: resourceFormData.format,
+            access_type: resourceFormData.access,
+            tag: resourceFormData.tag,
+            downloads_count: resourceFormData.downloads,
+            file_url: resourceFormData.fileUrl,
+            preview_image: resourceFormData.previewImage,
+            description: resourceFormData.description,
+          }),
+        });
+      } else {
+        // Create via API (Supabase)
+        await fetch('/api/resources', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: resourceFormData.name,
+            format: resourceFormData.format || 'PDF / Documento',
+            access_type: resourceFormData.access || 'GRATUITO (LEAD)',
+            tag: resourceFormData.tag || 'RECURSO',
+            downloads_count: resourceFormData.downloads || 0,
+            file_url: resourceFormData.fileUrl || '#',
+            preview_image: resourceFormData.previewImage,
+            description: resourceFormData.description,
+          }),
+        });
+      }
+      fetchAllData();
+    } catch (err) {
+      console.error('[Save Resource Error]', err);
     }
     setIsResourceModalOpen(false);
   };
 
-  const handleDeleteResource = (id: string, name: string) => {
-    if (confirm(`¿Estás seguro de eliminar el activo: "${name}"?`)) {
-      setResourcesList((prev) => prev.filter((r) => r.id !== id));
+  const handleDeleteResource = async (id: string, name: string) => {
+    if (confirm(`¿Estás seguro de eliminar el activo: "${name}" de la base de datos?`)) {
+      try {
+        await fetch(`/api/resources?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+        fetchAllData();
+      } catch (err) {
+        console.error('[Delete Resource Error]', err);
+      }
     }
   };
 
@@ -456,18 +473,21 @@ export default function AdminDashboard() {
   };
 
   // ── 5. CRM LEADS STATE ──
-  const [leadsList, setLeadsList] = useState([
-    { id: 1, email: 'direccion@santorinifood.com', resource: 'AEO & RAG Architecture', date: '19 Ago 2026', source: 'Instagram Ads', status: 'Enviado Secuencia Email' },
-    { id: 2, email: 'consultor@gastroexpert.mx', resource: 'Matriz Escandallos', date: '18 Ago 2026', source: 'Web Directo', status: 'Calificado para Diagnóstico' },
-    { id: 3, email: 'gerencia@bistro54.co', resource: 'Checklist HACCP', date: '18 Ago 2026', source: 'Instagram Ads', status: 'Enviado Secuencia Email' },
-    { id: 4, email: 'chef.alberto@bistro54.mx', resource: 'Framework SOPs', date: '18 Ago 2026', source: 'Web / Academy', status: 'Lead Caliente' },
-    { id: 5, email: 'operaciones@burgerlab.co', resource: 'Guía Indexación Local', date: '17 Ago 2026', source: 'Web Directo', status: 'Enviado Secuencia Email' },
-  ]);
+  const [leadsList, setLeadsList] = useState<any[]>([]);
 
-  const handleUpdateAuditStatus = (id: string, newStatus: AuditNotification['status']) => {
+  const handleUpdateAuditStatus = async (id: string, newStatus: AuditNotification['status']) => {
     setNotifications((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
     );
+    try {
+      await fetch('/api/leads', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+    } catch (err) {
+      console.error('[Update Lead Status Error]', err);
+    }
   };
 
   const handleSyncN8n = () => {

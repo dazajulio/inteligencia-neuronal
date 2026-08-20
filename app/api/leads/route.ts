@@ -1,101 +1,105 @@
 import { NextRequest, NextResponse } from "next/server";
 import { leadSchema } from "@/lib/validators/lead";
-import { submitLeadToDatabase } from "@/lib/supabase/client";
-
-// In-memory server-side buffer of captured leads
-// (persisted across requests during server runtime, syncs with Supabase when available)
-declare global {
-  var __LEADS_BUFFER__: any[] | undefined;
-}
-
-if (!global.__LEADS_BUFFER__) {
-  global.__LEADS_BUFFER__ = [
-    {
-      id: "IN-AUDIT-98214",
-      fullName: "Roberto Valenzuela",
-      companyName: "Grupo Gastronómico Altamira",
-      corporateEmail: "roberto@grupoaltamira.com",
-      phoneWhatsApp: "+58 414 8817137",
-      businessType: "Cadena de Restaurantes",
-      dailyVolume: "2,000 - 10,000 órdenes / día",
-      currentERP: "Oracle Micros / Simphony",
-      primaryBottleneck: "Fugas en Food Cost de proteínas y lentitud en despacho KDS horas pico.",
-      serviceNeeded: "Auditoría de Ecosistema Digital ($450 USD)",
-      status: "Nuevo",
-      source: "solicitar_diagnostico",
-      createdAt: "19 Ago 2026, 05:30 AM",
-    },
-    {
-      id: "IN-AUDIT-98213",
-      fullName: "Carlos Mendoza",
-      companyName: "Bistro Gourmet 54",
-      corporateEmail: "gerencia@bistro54.mx",
-      phoneWhatsApp: "+52 55 4912 3456",
-      businessType: "Dark Kitchen / Cocina Central",
-      dailyVolume: "500 - 2,000 órdenes / día",
-      currentERP: "Toast POS",
-      primaryBottleneck: "Demoras en WhatsApp y órdenes de compras manuales a proveedores.",
-      serviceNeeded: "Sistemas Agénticos Autónomos",
-      status: "En Evaluación",
-      source: "hero_soy_empresa",
-      createdAt: "18 Ago 2026, 08:45 PM",
-    },
-    {
-      id: "IN-AUDIT-98212",
-      fullName: "Valeria Gómez",
-      companyName: "Burger Lab Express",
-      corporateEmail: "operaciones@burgerlab.co",
-      phoneWhatsApp: "+57 310 987 6543",
-      businessType: "Franquicia Multisede",
-      dailyVolume: "> 10,000 órdenes / día (Enterprise)",
-      currentERP: "Soft Restaurant",
-      primaryBottleneck: "Altas comisiones pagadas a plataformas de delivery externas.",
-      serviceNeeded: "Infraestructura & Plataformas FoodTech",
-      status: "Contactado",
-      source: "soluciones_card",
-      createdAt: "18 Ago 2026, 02:15 PM",
-    },
-  ];
-}
+import { getSupabaseAdmin, submitLeadToDatabase } from "@/lib/supabase/client";
 
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    leads: global.__LEADS_BUFFER__ || [],
-  });
+  try {
+    const db = getSupabaseAdmin();
+    const { data: leads, error } = await db
+      .from("leads")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error || !leads) {
+      return NextResponse.json({ success: true, leads: [] });
+    }
+
+    const formatted = leads.map((l) => ({
+      id: l.folio || l.id,
+      realId: l.id,
+      fullName: l.full_name,
+      companyName: l.company_name,
+      corporateEmail: l.corporate_email,
+      phoneWhatsApp: l.phone_whatsapp,
+      businessType: l.business_type,
+      dailyVolume: l.daily_volume,
+      currentERP: l.current_erp,
+      primaryBottleneck: l.primary_bottleneck,
+      serviceNeeded: l.service_needed,
+      status: l.status,
+      source: l.source,
+      createdAt: new Date(l.created_at).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }),
+    }));
+
+    return NextResponse.json({ success: true, leads: formatted });
+  } catch (err) {
+    console.error("[GET /api/leads Error]", err);
+    return NextResponse.json({ success: true, leads: [] });
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const db = getSupabaseAdmin();
 
-    // Check if it's a toolkit download lead or diagnosis lead
+    // Caso 1: Descarga de Toolkit (Lead Magnet)
     if (body.fullName && body.fullName.startsWith("Lead Toolkit")) {
-      const toolkitLead = {
-        id: `IN-TOOLKIT-${Math.floor(100000 + Math.random() * 900000)}`,
-        fullName: body.fullName,
-        companyName: body.companyName || "Descarga Toolkit",
-        corporateEmail: body.email,
-        phoneWhatsApp: body.phone || "-",
-        businessType: "B2C Lead Magnet",
-        dailyVolume: "-",
-        currentERP: "-",
-        primaryBottleneck: body.currentChallenge || "Descarga de recurso",
-        serviceNeeded: body.serviceNeeded || "Toolkit Download",
-        status: "Enviado Secuencia Email",
-        source: "academy_toolkit",
-        createdAt: new Date().toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }),
-      };
+      const generatedFolio = `IN-TOOLKIT-${Math.floor(10000 + Math.random() * 90000)}`;
+      const resourceId = body.resourceId || body.companyName?.replace("Toolkit: ", "").toLowerCase();
 
-      global.__LEADS_BUFFER__?.unshift(toolkitLead);
+      // Guardar Lead en Supabase
+      const { data: insertedLead } = await db
+        .from("leads")
+        .insert([
+          {
+            folio: generatedFolio,
+            lead_type: "toolkit_download",
+            full_name: body.fullName,
+            company_name: body.companyName || "Descarga Toolkit",
+            corporate_email: body.email,
+            phone_whatsapp: body.phone || "-",
+            business_type: "B2C Lead Magnet",
+            daily_volume: "-",
+            current_erp: "-",
+            primary_bottleneck: body.currentChallenge || "Descarga de recurso",
+            service_needed: body.serviceNeeded || `Toolkit Download: ${resourceId}`,
+            resource_id: resourceId,
+            status: "Enviado Secuencia Email",
+            source: "academy_toolkit",
+          },
+        ])
+        .select()
+        .single();
+
+      // Registrar en resource_downloads
+      if (resourceId) {
+        await db.from("resource_downloads").insert([
+          {
+            resource_id: resourceId,
+            lead_id: insertedLead?.id,
+            email: body.email,
+          },
+        ]);
+
+        // Incrementar contador de descargas
+        try {
+          const { data: currentRes } = await db.from("academy_resources").select("downloads_count").eq("id", resourceId).single();
+          if (currentRes) {
+            await db.from("academy_resources").update({ downloads_count: (currentRes.downloads_count || 0) + 1 }).eq("id", resourceId);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
 
       return NextResponse.json(
-        { success: true, leadId: toolkitLead.id, message: "Lead registrado" },
+        { success: true, leadId: generatedFolio, message: "Descarga de recurso registrada" },
         { status: 201 }
       );
     }
 
-    // 1. Validate payload with Zod for full diagnosis
+    // Caso 2: Diagnóstico B2B Completo
     const validationResult = leadSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -111,29 +115,9 @@ export async function POST(req: NextRequest) {
     }
 
     const validatedData = validationResult.data;
-
-    // 2. Persist to Database (Supabase with RLS)
     const dbResponse = await submitLeadToDatabase(validatedData);
 
-    const newLead = {
-      id: dbResponse.leadId,
-      fullName: validatedData.fullName,
-      companyName: validatedData.companyName,
-      corporateEmail: validatedData.corporateEmail,
-      phoneWhatsApp: validatedData.phoneWhatsApp,
-      businessType: validatedData.businessType,
-      dailyVolume: validatedData.dailyVolume,
-      currentERP: validatedData.currentERP,
-      primaryBottleneck: validatedData.primaryBottleneck || "No especificado",
-      serviceNeeded: "Auditoría & Diagnóstico de Automatización",
-      status: "Nuevo",
-      source: validatedData.source || "diagnostico_modal",
-      createdAt: new Date().toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" }),
-    };
-
-    global.__LEADS_BUFFER__?.unshift(newLead);
-
-    // 3. Webhook bridge for external CRM / n8n orchestrator
+    // Webhook opcional CRM / n8n
     const webhookUrl = process.env.WEBHOOK_CRM_URL;
     if (webhookUrl) {
       try {
@@ -173,3 +157,54 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    if (!body.id) {
+      return NextResponse.json({ success: false, message: "ID del lead requerido" }, { status: 400 });
+    }
+
+    const db = getSupabaseAdmin();
+    const isUuid = body.id.includes("-") && body.id.length > 20 && !body.id.startsWith("IN-");
+
+    const query = isUuid
+      ? db.from("leads").update({ status: body.status }).eq("id", body.id)
+      : db.from("leads").update({ status: body.status }).eq("folio", body.id);
+
+    const { error } = await query;
+    if (error) {
+      return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, message: "Estado de lead actualizado" });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ success: false, message: "ID requerido para eliminar" }, { status: 400 });
+    }
+
+    const db = getSupabaseAdmin();
+    const isUuid = id.includes("-") && id.length > 20 && !id.startsWith("IN-");
+
+    const query = isUuid
+      ? db.from("leads").delete().eq("id", id)
+      : db.from("leads").delete().eq("folio", id);
+
+    const { error } = await query;
+    if (error) {
+      return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, message: "Lead eliminado" });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 });
+  }
+}
