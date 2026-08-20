@@ -121,54 +121,8 @@ export default function AdminDashboard() {
   const [searchLead, setSearchLead] = useState('');
   const [searchAudit, setSearchAudit] = useState('');
 
-  // ── 1. NOTIFICACIONES & AUDITORÍAS STATE ──
-  const [notifications, setNotifications] = useState<AuditNotification[]>([
-    {
-      id: 'NOTIF-98214',
-      fullName: 'Roberto Valenzuela',
-      companyName: 'Grupo Gastronómico Altamira',
-      corporateEmail: 'roberto@grupoaltamira.com',
-      phoneWhatsApp: '+584148817137',
-      businessType: 'Cadena de Restaurantes',
-      dailyVolume: '2,000 - 10,000 órdenes / día',
-      currentERP: 'Oracle Micros / Simphony',
-      primaryBottleneck: 'Fugas en Food Cost de proteínas prime y lentitud en sincronización KDS con sala.',
-      serviceNeeded: 'Auditoría de Ecosistema Digital ($450 USD)',
-      status: 'Nuevo',
-      source: 'solicitar_diagnostico',
-      createdAt: '19 Ago 2026, 05:30 AM',
-    },
-    {
-      id: 'NOTIF-98213',
-      fullName: 'Carlos Mendoza',
-      companyName: 'Bistro Gourmet 54',
-      corporateEmail: 'gerencia@bistro54.mx',
-      phoneWhatsApp: '+525549123456',
-      businessType: 'Dark Kitchen / Cocina Central',
-      dailyVolume: '500 - 2,000 órdenes / día',
-      currentERP: 'Toast POS',
-      primaryBottleneck: 'Demoras en WhatsApp y órdenes de compras manuales a proveedores sin predicción.',
-      serviceNeeded: 'Sistemas Agénticos Autónomos',
-      status: 'En Evaluación',
-      source: 'hero_soy_empresa',
-      createdAt: '18 Ago 2026, 08:45 PM',
-    },
-    {
-      id: 'NOTIF-98212',
-      fullName: 'Valeria Gómez',
-      companyName: 'Burger Lab Express',
-      corporateEmail: 'operaciones@burgerlab.co',
-      phoneWhatsApp: '+573109876543',
-      businessType: 'Franquicia Multisede',
-      dailyVolume: '> 10,000 órdenes / día (Enterprise)',
-      currentERP: 'Soft Restaurant',
-      primaryBottleneck: 'Altas comisiones pagadas a plataformas de delivery externas (30% margen perdido).',
-      serviceNeeded: 'Infraestructura & Plataformas FoodTech',
-      status: 'Contactado',
-      source: 'soluciones_card',
-      createdAt: '18 Ago 2026, 02:15 PM',
-    },
-  ]);
+  // ── 1. NOTIFICACIONES & AUDITORÍAS STATE (DATOS REALES) ──
+  const [notifications, setNotifications] = useState<AuditNotification[]>([]);
 
   const [selectedNotificationForModal, setSelectedNotificationForModal] = useState<AuditNotification | null>(null);
 
@@ -452,12 +406,12 @@ export default function AdminDashboard() {
     }
   };
 
-  // ── 4. RED AGÉNTICA STATE ──
+  // ── 4. RED AGÉNTICA STATE (DATOS REALES) ──
   const [agents, setAgents] = useState<AgentData[]>([
-    { id: 'ag-1', name: 'Agente Ventas & WhatsApp', trigger: 'Meta Webhook', status: 'ONLINE', executionsToday: 1420, errorRate: '0.2%', tokensConsumed: '124.5k' },
-    { id: 'ag-2', name: 'Agente Ingesta de Leads & Toolkit', trigger: 'Formulario Web API', status: 'ONLINE', executionsToday: 384, errorRate: '0.0%', tokensConsumed: '18.2k' },
-    { id: 'ag-3', name: 'Agente Calibración & Abastecimiento', trigger: 'Cron Diario (04:00 AM)', status: 'IDLE', executionsToday: 24, errorRate: '0.0%', tokensConsumed: '45.0k' },
-    { id: 'ag-4', name: 'Agente Notificaciones Telegram', trigger: 'Event Bus', status: 'ONLINE', executionsToday: 89, errorRate: '0.0%', tokensConsumed: '8.4k' },
+    { id: 'ag-1', name: 'Agente Ventas & WhatsApp', trigger: 'Meta Webhook', status: 'ONLINE', executionsToday: 0, errorRate: '0.0%', tokensConsumed: '0k' },
+    { id: 'ag-2', name: 'Agente Ingesta de Leads & Toolkit', trigger: 'Formulario Web API', status: 'ONLINE', executionsToday: 0, errorRate: '0.0%', tokensConsumed: '0k' },
+    { id: 'ag-3', name: 'Agente Calibración & Abastecimiento', trigger: 'Cron Diario (04:00 AM)', status: 'IDLE', executionsToday: 0, errorRate: '0.0%', tokensConsumed: '0k' },
+    { id: 'ag-4', name: 'Agente Notificaciones Telegram', trigger: 'Event Bus', status: 'ONLINE', executionsToday: 0, errorRate: '0.0%', tokensConsumed: '0k' },
   ]);
 
   const toggleAgentStatus = (id: string) => {
@@ -717,10 +671,10 @@ export default function AdminDashboard() {
               {/* Tarjetas de Métricas Clave con Franja Superior */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                  { label: 'Facturación Bruta (Stripe)', val: '$8,450 USD', change: '+24.8%', icon: TrendingUp, stripe: 'from-[#971B8D] to-[#EA0C7F]', bgTint: 'to-pink-50/40', badge: 'STRIPE LIVE' },
-                  { label: 'Notificaciones & Diagnósticos', val: `${notifications.length} Solicitudes`, change: '+3 esta semana', icon: Bell, stripe: 'from-[#1DACE3] to-[#0284c7]', bgTint: 'to-sky-50/40', badge: 'PIPELINE' },
-                  { label: 'Cursos & Alumnos Activos', val: '42 Alumnos', change: '+18 via IG', icon: GraduationCap, stripe: 'from-[#FEAD2B] to-[#c2410c]', bgTint: 'to-amber-50/40', badge: 'CAMPUS' },
-                  { label: 'Leads Capturados (Toolkit)', val: '384 Registros', change: '+32 hoy', icon: Users, stripe: 'from-[#86C537] to-[#059669]', bgTint: 'to-emerald-50/40', badge: 'CRM LEADS' },
+                  { label: 'Facturación Bruta (Stripe)', val: '$0.00 USD', change: '0 transacciones', icon: TrendingUp, stripe: 'from-[#971B8D] to-[#EA0C7F]', bgTint: 'to-pink-50/40', badge: 'STRIPE LIVE' },
+                  { label: 'Notificaciones & Diagnósticos', val: `${notifications.length} Solicitudes`, change: `${notifications.length} activas`, icon: Bell, stripe: 'from-[#1DACE3] to-[#0284c7]', bgTint: 'to-sky-50/40', badge: 'PIPELINE' },
+                  { label: 'Cursos & Alumnos Activos', val: `${coursesList.reduce((acc, c) => acc + (c.studentsEnrolled || 0), 0)} Alumnos`, change: `${coursesList.length} cursos`, icon: GraduationCap, stripe: 'from-[#FEAD2B] to-[#c2410c]', bgTint: 'to-amber-50/40', badge: 'CAMPUS' },
+                  { label: 'Leads Capturados (Toolkit)', val: `${leadsList.length} Registros`, change: `${leadsList.length} descargas`, icon: Users, stripe: 'from-[#86C537] to-[#059669]', bgTint: 'to-emerald-50/40', badge: 'CRM LEADS' },
                 ].map((kpi, idx) => {
                   const Icon = kpi.icon;
                   return (
@@ -768,20 +722,26 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                   <div className="space-y-3">
-                    {notifications.slice(0, 3).map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs hover:bg-zinc-100/60 transition-colors">
-                        <div>
-                          <div className="font-bold text-zinc-900">{lead.companyName}</div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{lead.fullName} • {lead.serviceNeeded}</div>
-                        </div>
-                        <div className="text-right">
-                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EA0C7F]/10 text-[#EA0C7F] border border-[#EA0C7F]/20">
-                            {lead.status}
-                          </span>
-                          <div className="text-[10px] text-zinc-400 mt-1 font-mono">{lead.createdAt.split(',')[0]}</div>
-                        </div>
+                    {notifications.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-zinc-400 font-mono">
+                        No hay solicitudes de diagnóstico registradas aún.
                       </div>
-                    ))}
+                    ) : (
+                      notifications.slice(0, 3).map((lead) => (
+                        <div key={lead.id} className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs hover:bg-zinc-100/60 transition-colors">
+                          <div>
+                            <div className="font-bold text-zinc-900">{lead.companyName}</div>
+                            <div className="text-[11px] text-zinc-500 mt-0.5">{lead.fullName} • {lead.serviceNeeded}</div>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EA0C7F]/10 text-[#EA0C7F] border border-[#EA0C7F]/20">
+                              {lead.status}
+                            </span>
+                            <div className="text-[10px] text-zinc-400 mt-1 font-mono">{lead.createdAt.split(',')[0]}</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -798,22 +758,9 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                   <div className="space-y-3">
-                    {[
-                      { concept: 'Diagnóstico de Ecosistema Digital', amount: '$450.00 USD', status: 'PAGADO', client: 'Restaurante Altamira' },
-                      { concept: 'Masterclass: Automatización IA', amount: '$97.00 USD', status: 'PAGADO', client: 'Carlos Mendoza' },
-                      { concept: 'Bootcamp: n8n Pipelines', amount: '$197.00 USD', status: 'PAGADO', client: 'DevLab FoodTech' },
-                    ].map((tx, i) => (
-                      <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs hover:bg-zinc-100/60 transition-colors">
-                        <div>
-                          <div className="font-bold text-zinc-900">{tx.concept}</div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{tx.client}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-mono font-bold text-zinc-900">{tx.amount}</div>
-                          <span className="font-mono text-[9px] font-bold text-[#86C537] bg-[#86C537]/10 px-2 py-0.5 rounded border border-[#86C537]/20">{tx.status}</span>
-                        </div>
-                      </div>
-                    ))}
+                    <div className="text-center py-8 text-xs text-zinc-400 font-mono">
+                      No hay transacciones registradas aún.
+                    </div>
                   </div>
                 </div>
 
@@ -1154,23 +1101,9 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-3">
-                  {[
-                    { id: 'tx_9843', desc: 'Diagnóstico de Ecosistema Digital', amount: '$450.00 USD', customer: 'Restaurante Altamira', date: '19 Ago 2026', status: 'PAGADO' },
-                    { id: 'tx_9842', desc: 'Masterclass: Automatización IA', amount: '$97.00 USD', customer: 'Carlos Mendoza', date: '19 Ago 2026', status: 'PAGADO' },
-                    { id: 'tx_9841', desc: 'Bootcamp: n8n Pipelines', amount: '$197.00 USD', customer: 'DevLab FoodTech', date: '18 Ago 2026', status: 'PAGADO' },
-                    { id: 'tx_9840', desc: 'Diagnóstico de Ecosistema Digital', amount: '$450.00 USD', customer: 'Bistro Gourmet 54', date: '17 Ago 2026', status: 'PAGADO' },
-                  ].map((tx, i) => (
-                    <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs">
-                      <div>
-                        <div className="font-bold text-zinc-900">{tx.desc}</div>
-                        <div className="text-[11px] text-zinc-500 mt-0.5">{tx.customer} • ID: {tx.id}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-mono font-bold text-zinc-900">{tx.amount}</div>
-                        <div className="font-mono text-[10px] font-bold text-[#86C537]">{tx.status} • {tx.date}</div>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="text-center py-10 text-xs text-zinc-400 font-mono">
+                    No hay transacciones registradas aún. Las compras de Stripe aparecerán aquí automáticamente.
+                  </div>
                 </div>
               </div>
             </motion.div>
