@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { leadSchema } from "@/lib/validators/lead";
 import { getSupabaseAdmin, submitLeadToDatabase } from "@/lib/supabase/client";
+import {
+  sendResourceDeliveryEmail,
+  sendDiagnosisConfirmationEmail,
+  sendAdminLeadAlertEmail,
+} from "@/lib/resend/client";
 
 export const dynamic = "force-dynamic";
 
@@ -47,10 +52,29 @@ export async function POST(req: NextRequest) {
 
     // Caso 1: Descarga de Toolkit (Lead Magnet)
     if (body.fullName && body.fullName.startsWith("Lead Toolkit")) {
-      const generatedFolio = `IN-TOOLKIT-${Math.floor(10000 + Math.random() * 90000)}`;
+      const randomNum = Math.floor(10000 + Math.random() * 90000);
+      const generatedFolio = `IN-TOOLKIT-${randomNum}`;
       const resourceId = body.resourceId || body.companyName?.replace("Toolkit: ", "").toLowerCase();
 
-      // Guardar Lead en Supabase
+      // 1.1 Obtener detalles del recurso desde la BD
+      let resourceData: any = null;
+      if (resourceId) {
+        const cleanId = resourceId.replace(/^res-/, "");
+        const { data: res } = await db
+          .from("academy_resources")
+          .select("*")
+          .or(`id.eq.${resourceId},id.eq.${cleanId},slug.eq.${resourceId},slug.eq.${cleanId}`)
+          .single();
+        resourceData = res;
+      }
+
+      const resourceTitle = resourceData?.title || `Recurso Operativo ${resourceId?.toUpperCase() || ""}`;
+      const resourceTag = resourceData?.tag || "TOOLKIT OPERATIVO";
+      const resourceFormat = resourceData?.format || "PDF / Plantilla Editable";
+      const resourceDesc = resourceData?.description || "Activo de arquitectura operativa y estandarización para restaurantes.";
+      const fileUrl = resourceData?.file_url || "https://inteligencianeuronal.com/academy#toolkit";
+
+      // 1.2 Guardar Lead en Supabase
       const { data: insertedLead } = await db
         .from("leads")
         .insert([
@@ -64,9 +88,9 @@ export async function POST(req: NextRequest) {
             business_type: "B2C Lead Magnet",
             daily_volume: "-",
             current_erp: "-",
-            primary_bottleneck: body.currentChallenge || "Descarga de recurso",
-            service_needed: body.serviceNeeded || `Toolkit Download: ${resourceId}`,
-            resource_id: resourceId,
+            primary_bottleneck: body.currentChallenge || `Descarga de recurso: ${resourceTitle}`,
+            service_needed: `Toolkit Download: ${resourceTitle}`,
+            resource_id: resourceData?.id || resourceId,
             status: "Enviado Secuencia Email",
             source: "academy_toolkit",
           },
@@ -74,29 +98,47 @@ export async function POST(req: NextRequest) {
         .select()
         .single();
 
-      // Registrar en resource_downloads
+      // 1.3 Registrar en resource_downloads
       if (resourceId) {
         await db.from("resource_downloads").insert([
           {
-            resource_id: resourceId,
+            resource_id: resourceData?.id || resourceId,
             lead_id: insertedLead?.id,
             email: body.email,
           },
         ]);
 
-        // Incrementar contador de descargas
-        try {
-          const { data: currentRes } = await db.from("academy_resources").select("downloads_count").eq("id", resourceId).single();
-          if (currentRes) {
-            await db.from("academy_resources").update({ downloads_count: (currentRes.downloads_count || 0) + 1 }).eq("id", resourceId);
+        // Incrementar contador de descargas en la BD
+        if (resourceData?.id) {
+          try {
+            await db
+              .from("academy_resources")
+              .update({ downloads_count: (resourceData.downloads_count || 0) + 1 })
+              .eq("id", resourceData.id);
+          } catch (e) {
+            // ignore
           }
-        } catch (e) {
-          // ignore
         }
       }
 
+      // 1.4 Enviar Correo con Resend
+      if (body.email) {
+        sendResourceDeliveryEmail({
+          to: body.email,
+          resourceTitle,
+          resourceTag,
+          resourceFormat,
+          resourceDescription: resourceDesc,
+          downloadUrl: fileUrl,
+        }).catch((err) => console.warn("[Resend Dispatch Warning]", err));
+      }
+
       return NextResponse.json(
-        { success: true, leadId: generatedFolio, message: "Descarga de recurso registrada" },
+        {
+          success: true,
+          leadId: generatedFolio,
+          message: "Recurso enviado a tu correo electrónico con éxito.",
+        },
         { status: 201 }
       );
     }
@@ -119,7 +161,34 @@ export async function POST(req: NextRequest) {
     const validatedData = validationResult.data;
     const dbResponse = await submitLeadToDatabase(validatedData);
 
-    // Webhook opcional CRM / n8n
+    // 2.1 Enviar Correo de Confirmación al Cliente con Resend
+    if (validatedData.corporateEmail) {
+      sendDiagnosisConfirmationEmail({
+        to: validatedData.corporateEmail,
+        fullName: validatedData.fullName,
+        companyName: validatedData.companyName,
+        serviceNeeded: "Auditoría de Ecosistema Digital & Automatización",
+        folio: dbResponse.leadId || `IN-AUDIT-${Date.now()}`,
+        businessType: validatedData.businessType,
+        dailyVolume: validatedData.dailyVolume,
+      }).catch((err) => console.warn("[Resend Client Confirmation Warning]", err));
+    }
+
+    // 2.2 Enviar Alerta Inmediata al Administrador con Resend
+    sendAdminLeadAlertEmail({
+      folio: dbResponse.leadId || `IN-AUDIT-${Date.now()}`,
+      fullName: validatedData.fullName,
+      companyName: validatedData.companyName,
+      corporateEmail: validatedData.corporateEmail,
+      phoneWhatsApp: validatedData.phoneWhatsApp,
+      businessType: validatedData.businessType,
+      dailyVolume: validatedData.dailyVolume,
+      currentERP: validatedData.currentERP,
+      primaryBottleneck: validatedData.primaryBottleneck,
+      serviceNeeded: "Auditoría de Ecosistema Digital",
+    }).catch((err) => console.warn("[Resend Admin Alert Warning]", err));
+
+    // 2.3 Webhook opcional CRM / n8n
     const webhookUrl = process.env.WEBHOOK_CRM_URL;
     if (webhookUrl) {
       try {
@@ -143,7 +212,7 @@ export async function POST(req: NextRequest) {
         success: true,
         leadId: dbResponse.leadId,
         registeredAt: dbResponse.registeredAt,
-        message: "Diagnóstico agendado con éxito.",
+        message: "Diagnóstico agendado con éxito. Hemos enviado la confirmación a tu correo.",
       },
       { status: 201 }
     );
