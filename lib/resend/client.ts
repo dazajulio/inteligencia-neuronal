@@ -3,8 +3,8 @@ import { Resend } from "resend";
 const apiKey = process.env.RESEND_API_KEY || "";
 export const resend = new Resend(apiKey);
 
-// Remitente: Configurable vía EMAIL_FROM en .env / Vercel (ej: recursos@inteligencianeuronal.com o onboarding@resend.dev)
-const DEFAULT_FROM = process.env.EMAIL_FROM || "Inteligencia Neuronal <onboarding@resend.dev>";
+// Remitente: Oficial de Inteligencia Neuronal
+const DEFAULT_FROM = process.env.EMAIL_FROM || "Inteligencia Neuronal <recursos@inteligencianeuronal.com>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@inteligencianeuronal.com";
 
 interface ResourceEmailPayload {
