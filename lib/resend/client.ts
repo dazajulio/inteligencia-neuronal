@@ -328,3 +328,117 @@ export async function sendAdminLeadAlertEmail(payload: AdminLeadAlertPayload) {
     console.warn("[Resend Admin Alert Error]", error);
   }
 }
+
+export interface AcademyWelcomeEmailPayload {
+  to: string;
+  fullName: string;
+  courseTitle: string;
+  campusUrl?: string;
+  whatsappVipUrl?: string;
+}
+
+/**
+ * 4. Envío Automático de Bienvenida y Acceso al Campus Virtual
+ */
+export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    console.warn("[Resend Academy Welcome] No se pudo enviar porque falta RESEND_API_KEY.");
+    return { success: false, error: "Missing RESEND_API_KEY" };
+  }
+
+  const {
+    to,
+    fullName,
+    courseTitle,
+    campusUrl = "https://inteligencianeuronal.com/academy/campus",
+    whatsappVipUrl = "https://chat.whatsapp.com/sample-academy-vip",
+  } = payload;
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Bienvenido a ${courseTitle}! — Inteligencia Neuronal Academy</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a; color: #f8fafc; }
+    .wrapper { width: 100%; max-width: 620px; margin: 30px auto; background-color: #1e293b; border-radius: 24px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .header { background: linear-gradient(135deg, #1F242D 0%, #0f172a 100%); padding: 36px 32px; border-bottom: 4px solid #971B8D; position: relative; }
+    .brand-logo { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+    .brand-accent { background: linear-gradient(90deg, #1DACE3, #971B8D, #EA0C7F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .badge { display: inline-block; padding: 5px 14px; background-color: rgba(134, 197, 55, 0.15); border: 1px solid #86C537; color: #86C537; border-radius: 9999px; font-size: 11px; font-weight: 800; font-family: monospace; margin-top: 10px; }
+    .body-content { padding: 36px 32px; }
+    .greeting { font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 12px; }
+    .intro-text { font-size: 14px; line-height: 1.6; color: #cbd5e1; margin-bottom: 24px; }
+    .course-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #475569; border-radius: 18px; padding: 24px; margin-bottom: 28px; position: relative; }
+    .course-tag { font-family: monospace; font-size: 10px; font-weight: 800; color: #1DACE3; text-transform: uppercase; margin-bottom: 6px; }
+    .course-title { font-size: 18px; font-weight: 800; color: #ffffff; line-height: 1.35; margin-bottom: 8px; }
+    .btn-campus { display: block; width: 100%; box-sizing: border-box; text-align: center; background: linear-gradient(90deg, #971B8D, #EA0C7F); color: #ffffff !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 16px 24px; border-radius: 14px; box-shadow: 0 4px 20px rgba(234, 12, 127, 0.4); margin-top: 16px; }
+    .steps-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 16px; padding: 20px; margin-top: 24px; }
+    .steps-title { font-size: 14px; font-weight: 800; color: #FEAD2B; margin-bottom: 12px; }
+    .step-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 13px; color: #94a3b8; line-height: 1.5; }
+    .step-num { background-color: #334155; color: #ffffff; font-weight: 800; font-family: monospace; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; shrink-0; }
+    .btn-whatsapp { display: inline-block; background-color: #22c55e; color: #ffffff !important; font-size: 13px; font-weight: 700; text-decoration: none; padding: 10px 18px; border-radius: 10px; margin-top: 8px; }
+    .footer { background-color: #0f172a; padding: 24px 32px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="brand-logo">Inteligencia <span class="brand-accent">Neuronal</span> Academy</div>
+      <div><span class="badge">MATRÍCULA CONFIRMADA</span></div>
+    </div>
+    <div class="body-content">
+      <div class="greeting">¡Hola, ${fullName}! Te damos la bienvenida oficial.</div>
+      <p class="intro-text">
+        Tu inscripción al programa <strong>${courseTitle}</strong> ha sido validada con éxito. A partir de este momento tienes acceso exclusivo a los módulos grabados, arquitecturas de automatización en n8n y plantillas operativas.
+      </p>
+
+      <div class="course-card">
+        <div class="course-tag">ACCESO PERMANENTE AL CAMPUS VIRTUAL</div>
+        <div class="course-title">${courseTitle}</div>
+        <p style="font-size: 12px; color: #94a3b8; margin: 0 0 12px 0;">Tu usuario de acceso es tu correo: <strong>${to}</strong></p>
+        <a href="${campusUrl}?email=${encodeURIComponent(to)}" class="btn-campus" target="_blank">
+          🚀 Ingresar al Campus Virtual
+        </a>
+      </div>
+
+      <div class="steps-box">
+        <div class="steps-title">Tus siguientes pasos recomendados:</div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div><strong>Accede al Campus:</strong> Explora las lecciones y descarga los blueprints de n8n y prompts de ChatGPT.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div><strong>Únete a la Comunidad VIP:</strong> Conéctate directamente con Julio Daza y otros directores para resolver dudas técnicas.<br>
+            <a href="${whatsappVipUrl}" class="btn-whatsapp" target="_blank">💬 Unirme al Grupo VIP de WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2026 Inteligencia Neuronal LLC. Innovación y Eficiencia Operativa en Gastronomía.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  try {
+    const data = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [to],
+      subject: `🎉 ¡Bienvenido(a) a ${courseTitle}! — Acceso a tu Campus Virtual`,
+      html: htmlContent,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error("[Resend Academy Welcome Email Error]", error);
+    return { success: false, error };
+  }
+}
+

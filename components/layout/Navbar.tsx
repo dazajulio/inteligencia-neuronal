@@ -55,6 +55,13 @@ export function Navbar() {
           <Link href="/academy" className="hover:text-zinc-500 transition-colors">
             Academy
           </Link>
+          <Link
+            href="/academy/campus"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold transition-all shadow-xs"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1DACE3] animate-pulse" />
+            <span>Campus</span>
+          </Link>
         </nav>
 
         {/* Right: Phone Line & Primary Button */}
@@ -133,6 +140,14 @@ export function Navbar() {
             >
               <span>05. Grupo</span>
             </a>
+            <Link
+              href="/academy/campus"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-[#971B8D] font-bold py-1 transition-colors flex items-center justify-between"
+            >
+              <span>06. Campus Virtual (Alumnos)</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#971B8D]/10">ACCESO</span>
+            </Link>
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-3">

@@ -40,7 +40,8 @@ import {
   Layers,
   Sparkles,
   Link2,
-  UploadCloud
+  UploadCloud,
+  UserPlus,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -211,6 +212,16 @@ export default function AdminDashboard() {
         }
       })
       .catch((e) => console.warn('API settings fetch fallback', e));
+
+    // 5. Alumnos Matriculados en el Campus
+    fetch('/api/campus/enroll')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.enrollments)) {
+          setStudentsList(data.enrollments);
+        }
+      })
+      .catch((e) => console.warn('API students fetch fallback', e));
   };
 
   useEffect(() => {
@@ -504,6 +515,45 @@ export default function AdminDashboard() {
       console.error("[Save Payment Settings Error]", err);
     } finally {
       setIsSavingSettings(false);
+    }
+  };
+
+  // ── 7. ALUMNOS & MATRÍCULA CAMPUS STATE ──
+  const [studentsList, setStudentsList] = useState<any[]>([]);
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [enrollFormData, setEnrollFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    courseTitle: "Masterclass: Inteligencia Artificial para Restaurantes & Food Cost",
+    courseId: "masterclass-ia-restaurantes",
+    sendEmail: true,
+  });
+  const [isEnrollingStudent, setIsEnrollingStudent] = useState(false);
+  const [enrollSuccessMsg, setEnrollSuccessMsg] = useState<string | null>(null);
+
+  const handleEnrollStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsEnrollingStudent(true);
+    try {
+      const res = await fetch("/api/campus/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(enrollFormData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEnrollSuccessMsg(data.message || "Alumno matriculado con éxito.");
+        setTimeout(() => {
+          setEnrollSuccessMsg(null);
+          setIsEnrollModalOpen(false);
+        }, 2000);
+        fetchAllData();
+      }
+    } catch (err) {
+      console.error("[Enroll Student Error]", err);
+    } finally {
+      setIsEnrollingStudent(false);
     }
   };
 
@@ -835,16 +885,25 @@ export default function AdminDashboard() {
                     <span>Gestor de Cursos & Campus Virtual</span>
                   </h2>
                   <p className="text-xs text-zinc-500 mt-0.5">
-                    Crea, edita, elimina y gestiona los programas formativos, precios y vistas previas del Campus Academy.
+                    Crea, edita, elimina y gestiona los programas formativos, precios y matrículas del Campus Virtual.
                   </p>
                 </div>
 
-                <button
-                  onClick={handleOpenAddCourse}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-4 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-[#971B8D]/30 shrink-0"
-                >
-                  <Plus className="w-4 h-4" /> Crear Nuevo Curso
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsEnrollModalOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-emerald-600/20 shrink-0 cursor-pointer"
+                  >
+                    <UserPlus className="w-4 h-4" /> Matricular Alumno
+                  </button>
+
+                  <button
+                    onClick={handleOpenAddCourse}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-4 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-[#971B8D]/30 shrink-0 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" /> Crear Nuevo Curso
+                  </button>
+                </div>
               </div>
 
               {/* Buscador de Cursos */}
@@ -952,6 +1011,76 @@ export default function AdminDashboard() {
                   })}
                 </div>
               </div>
+
+              {/* ── SECCIÓN DE ALUMNOS MATRICULADOS EN EL CAMPUS ── */}
+              <div className="p-6 sm:p-8 rounded-3xl border border-zinc-200 bg-white shadow-sm space-y-5 text-left">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#971B8D]/10 text-[#971B8D] flex items-center justify-center">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-zinc-900">Alumnos Matriculados en el Campus Virtual</h3>
+                      <p className="text-xs text-zinc-500">Gestión de accesos y matrículas activas en la plataforma</p>
+                    </div>
+                  </div>
+
+                  <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
+                    {studentsList.length} Alumnos Activos
+                  </span>
+                </div>
+
+                {studentsList.length === 0 ? (
+                  <div className="text-center py-10 space-y-2">
+                    <GraduationCap className="w-8 h-8 text-zinc-300 mx-auto" />
+                    <p className="text-xs text-zinc-400 font-mono">No hay alumnos matriculados aún.</p>
+                    <button
+                      onClick={() => setIsEnrollModalOpen(true)}
+                      className="text-xs font-bold text-[#971B8D] hover:underline"
+                    >
+                      + Matricular primer alumno ahora
+                    </button>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-zinc-200 text-zinc-500 font-mono">
+                          <th className="pb-3">ALUMNO</th>
+                          <th className="pb-3">EMAIL DE ACCESO</th>
+                          <th className="pb-3">PROGRAMA MATRICULADO</th>
+                          <th className="pb-3">TELÉFONO</th>
+                          <th className="pb-3">ESTADO</th>
+                          <th className="pb-3">FECHA</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100">
+                        {studentsList.map((st, i) => (
+                          <tr key={st.id || i} className="text-zinc-700 hover:bg-zinc-50/80 transition-colors">
+                            <td className="py-3.5 font-bold text-zinc-900">{st.full_name || st.name || 'Alumno'}</td>
+                            <td className="py-3.5 font-mono text-zinc-800">{st.email}</td>
+                            <td className="py-3.5 font-medium text-zinc-800">
+                              <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 font-mono text-[11px]">
+                                {st.course_id || 'Masterclass IA'}
+                              </span>
+                            </td>
+                            <td className="py-3.5 font-mono text-zinc-600">{st.phone || 'Sin teléfono'}</td>
+                            <td className="py-3.5">
+                              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#86C537]/15 text-[#639922] border border-[#86C537]/30">
+                                {st.status || 'Activo'}
+                              </span>
+                            </td>
+                            <td className="py-3.5 font-mono text-zinc-500 text-[11px]">
+                              {st.created_at ? new Date(st.created_at).toLocaleDateString() : 'Reciente'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
             </motion.div>
           )}
 
@@ -2057,6 +2186,142 @@ export default function AdminDashboard() {
                   Cerrar
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL: MATRICULAR ALUMNO EN EL CAMPUS ── */}
+        {isEnrollModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-lg rounded-3xl border border-zinc-200 bg-white p-7 sm:p-9 shadow-2xl space-y-5 text-zinc-900">
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                    <UserPlus className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-zinc-900">Matricular Alumno en Campus Virtual</h3>
+                    <p className="text-[11px] text-zinc-500 font-mono">Alta manual de acceso y envío de bienvenida</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsEnrollModalOpen(false)}
+                  className="text-zinc-400 hover:text-zinc-900 p-1 rounded-lg"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {enrollSuccessMsg && (
+                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span>{enrollSuccessMsg}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleEnrollStudent} className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-zinc-700 font-mono font-bold mb-1">NOMBRE COMPLETO DEL ALUMNO *</label>
+                  <input
+                    type="text"
+                    required
+                    value={enrollFormData.fullName}
+                    onChange={(e) => setEnrollFormData({ ...enrollFormData, fullName: e.target.value })}
+                    placeholder="Ej. Carlos Mendoza"
+                    className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-zinc-700 font-mono font-bold mb-1">CORREO ELECTRÓNICO (USUARIO) *</label>
+                  <input
+                    type="email"
+                    required
+                    value={enrollFormData.email}
+                    onChange={(e) => setEnrollFormData({ ...enrollFormData, email: e.target.value })}
+                    placeholder="carlos@restaurant.com"
+                    className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-zinc-700 font-mono font-bold mb-1">TELÉFONO / WHATSAPP</label>
+                    <input
+                      type="text"
+                      value={enrollFormData.phone}
+                      onChange={(e) => setEnrollFormData({ ...enrollFormData, phone: e.target.value })}
+                      placeholder="0414-1234567"
+                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-zinc-700 font-mono font-bold mb-1">CURSO / PROGRAMA *</label>
+                    <select
+                      value={enrollFormData.courseId}
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const titleMap: Record<string, string> = {
+                          "masterclass-ia-restaurantes": "Masterclass: Inteligencia Artificial para Restaurantes & Food Cost",
+                          "bootcamp-n8n-ia": "Bootcamp Técnico: Arquitectura de Agentes & n8n",
+                          "crecimiento-aeo-local": "Dominio Local & AEO Gastronómico",
+                        };
+                        setEnrollFormData({
+                          ...enrollFormData,
+                          courseId: selectedId,
+                          courseTitle: titleMap[selectedId] || "Programa Academy",
+                        });
+                      }}
+                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                    >
+                      <option value="masterclass-ia-restaurantes">Masterclass IA Restaurantes ($97)</option>
+                      <option value="bootcamp-n8n-ia">Bootcamp n8n ($197)</option>
+                      <option value="crecimiento-aeo-local">Dominio Local AEO ($67)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 p-3 bg-zinc-50 rounded-xl border border-zinc-200">
+                  <input
+                    type="checkbox"
+                    id="sendEmailCheck"
+                    checked={enrollFormData.sendEmail}
+                    onChange={(e) => setEnrollFormData({ ...enrollFormData, sendEmail: e.target.checked })}
+                    className="rounded text-[#971B8D] focus:ring-[#971B8D] w-4 h-4"
+                  />
+                  <label htmlFor="sendEmailCheck" className="text-zinc-700 font-semibold cursor-pointer">
+                    Enviar correo automático de bienvenida y acceso vía Resend
+                  </label>
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEnrollModalOpen(false)}
+                    className="px-4 py-2.5 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 font-semibold text-xs"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isEnrollingStudent}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isEnrollingStudent ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Matriculando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Confirmar Matrícula</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
