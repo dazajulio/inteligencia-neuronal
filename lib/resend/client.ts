@@ -3,8 +3,8 @@ import { Resend } from "resend";
 const apiKey = process.env.RESEND_API_KEY || "";
 export const resend = new Resend(apiKey);
 
-// Sender default: Dominio verificado en tu cuenta de Resend
-const DEFAULT_FROM = process.env.EMAIL_FROM || "Inteligencia Neuronal <recursos@glubbi.app>";
+// Remitente: Configurable vía EMAIL_FROM en .env / Vercel (ej: recursos@inteligencianeuronal.com o onboarding@resend.dev)
+const DEFAULT_FROM = process.env.EMAIL_FROM || "Inteligencia Neuronal <onboarding@resend.dev>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@inteligencianeuronal.com";
 
 interface ResourceEmailPayload {
