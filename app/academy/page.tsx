@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -255,6 +256,9 @@ export default function AcademyPage() {
       <header className="border-b border-zinc-200 bg-white/95 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 relative flex items-center justify-center transition-transform group-hover:scale-105">
+              <Image src="/logo.png" alt="Inteligencia Neuronal Logo" fill className="object-contain" priority />
+            </div>
             <span className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 group-hover:text-zinc-600 transition-colors">
               Inteligencia Neuronal
             </span>

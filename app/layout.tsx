@@ -27,6 +27,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     siteName: "Inteligencia Neuronal",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
