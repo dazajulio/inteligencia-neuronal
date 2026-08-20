@@ -121,16 +121,21 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 1.4 Enviar Correo con Resend
+      // 1.4 Enviar Correo con Resend (Await obligatorio en Serverless/Vercel)
       if (body.email) {
-        sendResourceDeliveryEmail({
-          to: body.email,
-          resourceTitle,
-          resourceTag,
-          resourceFormat,
-          resourceDescription: resourceDesc,
-          downloadUrl: fileUrl,
-        }).catch((err) => console.warn("[Resend Dispatch Warning]", err));
+        try {
+          const resendResult = await sendResourceDeliveryEmail({
+            to: body.email,
+            resourceTitle,
+            resourceTag,
+            resourceFormat,
+            resourceDescription: resourceDesc,
+            downloadUrl: fileUrl,
+          });
+          console.log("[Resend Resource Delivery Result]", resendResult);
+        } catch (err) {
+          console.error("[Resend Resource Dispatch Error]", err);
+        }
       }
 
       return NextResponse.json(
@@ -163,30 +168,39 @@ export async function POST(req: NextRequest) {
 
     // 2.1 Enviar Correo de Confirmación al Cliente con Resend
     if (validatedData.corporateEmail) {
-      sendDiagnosisConfirmationEmail({
-        to: validatedData.corporateEmail,
-        fullName: validatedData.fullName,
-        companyName: validatedData.companyName,
-        serviceNeeded: "Auditoría de Ecosistema Digital & Automatización",
-        folio: dbResponse.leadId || `IN-AUDIT-${Date.now()}`,
-        businessType: validatedData.businessType,
-        dailyVolume: validatedData.dailyVolume,
-      }).catch((err) => console.warn("[Resend Client Confirmation Warning]", err));
+      try {
+        const clientEmailRes = await sendDiagnosisConfirmationEmail({
+          to: validatedData.corporateEmail,
+          fullName: validatedData.fullName,
+          companyName: validatedData.companyName,
+          serviceNeeded: "Auditoría de Ecosistema Digital & Automatización",
+          folio: dbResponse.leadId || `IN-AUDIT-${Date.now()}`,
+          businessType: validatedData.businessType,
+          dailyVolume: validatedData.dailyVolume,
+        });
+        console.log("[Resend Client Confirmation Result]", clientEmailRes);
+      } catch (err) {
+        console.error("[Resend Client Confirmation Error]", err);
+      }
     }
 
     // 2.2 Enviar Alerta Inmediata al Administrador con Resend
-    sendAdminLeadAlertEmail({
-      folio: dbResponse.leadId || `IN-AUDIT-${Date.now()}`,
-      fullName: validatedData.fullName,
-      companyName: validatedData.companyName,
-      corporateEmail: validatedData.corporateEmail,
-      phoneWhatsApp: validatedData.phoneWhatsApp,
-      businessType: validatedData.businessType,
-      dailyVolume: validatedData.dailyVolume,
-      currentERP: validatedData.currentERP,
-      primaryBottleneck: validatedData.primaryBottleneck,
-      serviceNeeded: "Auditoría de Ecosistema Digital",
-    }).catch((err) => console.warn("[Resend Admin Alert Warning]", err));
+    try {
+      await sendAdminLeadAlertEmail({
+        folio: dbResponse.leadId || `IN-AUDIT-${Date.now()}`,
+        fullName: validatedData.fullName,
+        companyName: validatedData.companyName,
+        corporateEmail: validatedData.corporateEmail,
+        phoneWhatsApp: validatedData.phoneWhatsApp,
+        businessType: validatedData.businessType,
+        dailyVolume: validatedData.dailyVolume,
+        currentERP: validatedData.currentERP,
+        primaryBottleneck: validatedData.primaryBottleneck,
+        serviceNeeded: "Auditoría de Ecosistema Digital",
+      });
+    } catch (err) {
+      console.error("[Resend Admin Alert Error]", err);
+    }
 
     // 2.3 Webhook opcional CRM / n8n
     const webhookUrl = process.env.WEBHOOK_CRM_URL;
