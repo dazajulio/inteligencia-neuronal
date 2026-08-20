@@ -38,6 +38,36 @@ export function CourseCheckoutModal() {
   } = useCheckoutStore();
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [paymentSettings, setPaymentSettings] = useState<{
+    pagoMovil: {
+      banco: string;
+      bancoCodigo: string;
+      cedulaRif: string;
+      telefono: string;
+      whatsapp: string;
+      tasaInfo: string;
+    };
+  }>({
+    pagoMovil: {
+      banco: "Banesco",
+      bancoCodigo: "0134",
+      cedulaRif: "V-12.345.678",
+      telefono: "0414-881-7137",
+      whatsapp: "584148817137",
+      tasaInfo: "Calculado a Tasa Oficial BCV del día",
+    },
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings?.pagoMovil) {
+          setPaymentSettings(data.settings);
+        }
+      })
+      .catch((e) => console.warn("[Settings fetch fallback]", e));
+  }, [isCheckoutOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -58,8 +88,9 @@ export function CourseCheckoutModal() {
   };
 
   const handleWhatsAppReport = () => {
+    const cleanWhatsApp = (paymentSettings.pagoMovil.whatsapp || "584148817137").replace(/\D/g, "");
     const message = `👋 Hola, acabo de realizar el Pago Móvil para inscribirme al curso *${selectedCourse.title}* (${selectedCourse.price}).\n\n*Datos del Alumno:*\n• Nombre: ${fullName}\n• Correo: ${email}\n• Teléfono: ${phone}\n• Nro. de Referencia: ${referenceNumber || "Adjunto comprobante"}\n\nQuedo atento a la confirmación y acceso al campus.`;
-    const whatsappUrl = `https://wa.me/584148817137?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -278,15 +309,18 @@ export function CourseCheckoutModal() {
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 font-mono text-xs">
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
                   <span className="text-slate-500 font-sans">Banco:</span>
-                  <span className="font-bold text-slate-900">Banesco (0134)</span>
+                  <span className="font-bold text-slate-900">
+                    {paymentSettings.pagoMovil.banco}{" "}
+                    {paymentSettings.pagoMovil.bancoCodigo ? `(${paymentSettings.pagoMovil.bancoCodigo})` : ""}
+                  </span>
                 </div>
 
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
                   <span className="text-slate-500 font-sans">Cédula / RIF:</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">V-12.345.678</span>
+                    <span className="font-bold text-slate-900">{paymentSettings.pagoMovil.cedulaRif}</span>
                     <button
-                      onClick={() => copyToClipboard("12345678", "ci")}
+                      onClick={() => copyToClipboard(paymentSettings.pagoMovil.cedulaRif.replace(/\D/g, ""), "ci")}
                       className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded"
                     >
                       {copiedField === "ci" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -297,9 +331,9 @@ export function CourseCheckoutModal() {
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
                   <span className="text-slate-500 font-sans">Teléfono:</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">0414-881-7137</span>
+                    <span className="font-bold text-slate-900">{paymentSettings.pagoMovil.telefono}</span>
                     <button
-                      onClick={() => copyToClipboard("04148817137", "phone")}
+                      onClick={() => copyToClipboard(paymentSettings.pagoMovil.telefono.replace(/\D/g, ""), "phone")}
                       className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded"
                     >
                       {copiedField === "phone" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -308,9 +342,9 @@ export function CourseCheckoutModal() {
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500 font-sans">Monto Referencial:</span>
+                  <span className="text-slate-500 font-sans">Tasa / Monto:</span>
                   <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                    {selectedCourse.price} al cambio BCV
+                    {selectedCourse.price} ({paymentSettings.pagoMovil.tasaInfo || "al cambio BCV"})
                   </span>
                 </div>
               </div>

@@ -201,6 +201,16 @@ export default function AdminDashboard() {
         }
       })
       .catch((e) => console.warn('API resources fetch fallback', e));
+
+    // 4. Pasarelas de Pago & Configuración
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setPaymentSettings(data.settings);
+        }
+      })
+      .catch((e) => console.warn('API settings fetch fallback', e));
   };
 
   useEffect(() => {
@@ -451,6 +461,52 @@ export default function AdminDashboard() {
     }, 700);
   };
 
+  // ── 6. CONFIGURACIÓN DE PASARELAS & PAGO MÓVIL STATE ──
+  const [paymentSettings, setPaymentSettings] = useState({
+    pagoMovil: {
+      banco: "Banesco",
+      bancoCodigo: "0134",
+      cedulaRif: "V-12.345.678",
+      telefono: "0414-881-7137",
+      whatsapp: "584148817137",
+      tasaInfo: "Calculado a Tasa Oficial BCV del día",
+    },
+    lemonSqueezy: {
+      storeName: "Inteligencia Neuronal",
+      storeUrl: "https://inteligencia-neuronal.lemonsqueezy.com",
+      courseLinks: {
+        iaRestaurantes: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
+        bootcampN8n: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
+        crecimientoAeo: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
+      },
+    },
+  });
+
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [settingsSuccessMsg, setSettingsSuccessMsg] = useState<string | null>(null);
+
+  const handleSavePaymentSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    setSettingsSuccessMsg(null);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentSettings),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSettingsSuccessMsg("¡Configuración de pasarelas y Pago Móvil guardada con éxito!");
+        setTimeout(() => setSettingsSuccessMsg(null), 4000);
+      }
+    } catch (err) {
+      console.error("[Save Payment Settings Error]", err);
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await fetch('/api/admin/logout', { method: 'POST' });
@@ -554,7 +610,7 @@ export default function AdminDashboard() {
               { id: 'courses', label: 'Gestor de Cursos', icon: GraduationCap, badge: coursesList.length.toString(), color: '#EA0C7F' },
               { id: 'resources', label: 'Gestor de Recursos', icon: FolderDown, badge: resourcesList.length.toString(), color: '#FEAD2B' },
               { id: 'leads', label: 'Base de Leads (CRM)', icon: Users, color: '#86C537' },
-              { id: 'billing', label: 'Facturación & Stripe', icon: CreditCard, color: '#1DACE3' },
+              { id: 'billing', label: 'Pasarelas & Pagos', icon: CreditCard, color: '#1DACE3' },
               { id: 'agents', label: 'Red Agéntica', icon: Bot, color: '#971B8D' },
               { id: 'audits', label: 'Notificaciones', icon: Bell, badge: notifications.length.toString(), color: '#EA0C7F' },
             ].map((item) => {
@@ -626,7 +682,7 @@ export default function AdminDashboard() {
               {activeTab === 'courses' && 'Gestor de Cursos & Campus Virtual'}
               {activeTab === 'resources' && 'Gestor de Recursos & Toolkit'}
               {activeTab === 'leads' && 'Base de Leads CRM & Nutrición'}
-              {activeTab === 'billing' && 'Facturación & Pasarela Stripe'}
+              {activeTab === 'billing' && 'Pasarelas de Pago & Configuración'}
               {activeTab === 'agents' && 'Red Agéntica & Monitoreo'}
               {activeTab === 'audits' && 'Notificaciones & Solicitudes de Diagnóstico'}
             </h1>
@@ -1076,36 +1132,357 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
-          {/* ── TAB 5: BILLING ── */}
+          {/* ── TAB 5: PASARELAS DE PAGO & PAGO MÓVIL ── */}
           {activeTab === 'billing' && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
-              <div>
-                <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-[#1DACE3]" />
-                  <span>Facturación & Pasarela Stripe</span>
-                </h2>
-                <p className="text-xs text-zinc-500 mt-0.5">Control de pagos por auditorías, diagnósticos y programas B2C.</p>
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-[#1DACE3]" />
+                    <span>Configuración de Pasarelas & Coordenadas de Cobro</span>
+                  </h2>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Edita en tiempo real los datos de Pago Móvil (Venezuela) y enlaces de Lemon Squeezy que se muestran en el checkout de la plataforma.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleSavePaymentSettings}
+                  disabled={isSavingSettings}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-5 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-[#971B8D]/30 disabled:opacity-50 shrink-0 cursor-pointer"
+                >
+                  {isSavingSettings ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Guardar Configuración</span>
+                    </>
+                  )}
+                </button>
               </div>
 
-              <div className="p-6 rounded-2xl border border-zinc-200 bg-white shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#1DACE3] to-[#971B8D]" />
+              {/* Success Notification Alert */}
+              {settingsSuccessMsg && (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 shadow-sm animate-in fade-in">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{settingsSuccessMsg}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSavePaymentSettings} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-zinc-100">
-                  <div>
-                    <span className="text-xs text-zinc-400 font-mono font-bold">CONEXIÓN STRIPE</span>
-                    <div className="text-sm font-bold text-zinc-900 mt-0.5">Cuenta Conectada: Inteligencia Neuronal LLC</div>
+                {/* Left Col: Pago Móvil Settings (7 cols) */}
+                <div className="lg:col-span-7 space-y-6">
+                  
+                  {/* PAGO MÓVIL CARD */}
+                  <div className="p-6 sm:p-8 rounded-3xl border border-zinc-200 bg-white shadow-sm space-y-6 relative overflow-hidden text-left">
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#86C537] via-[#1DACE3] to-[#971B8D]" />
+
+                    <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                          <Phone className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-900">Coordenadas de Pago Móvil (Venezuela)</h3>
+                          <p className="text-[11px] text-zinc-500 font-mono">Datos bancarios mostrados a alumnos en Bolívares</p>
+                        </div>
+                      </div>
+                      <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Activo en Modal
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Banco Name */}
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Banco Receptor *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={paymentSettings.pagoMovil.banco}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              pagoMovil: { ...prev.pagoMovil, banco: e.target.value },
+                            }))
+                          }
+                          placeholder="Ej: Banesco, Mercantil, BDV"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Banco Código */}
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Código de Banco (4 dígitos)
+                        </label>
+                        <input
+                          type="text"
+                          value={paymentSettings.pagoMovil.bancoCodigo}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              pagoMovil: { ...prev.pagoMovil, bancoCodigo: e.target.value },
+                            }))
+                          }
+                          placeholder="Ej: 0134, 0105, 0102"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Cédula / RIF */}
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Cédula de Identidad / RIF *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={paymentSettings.pagoMovil.cedulaRif}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              pagoMovil: { ...prev.pagoMovil, cedulaRif: e.target.value },
+                            }))
+                          }
+                          placeholder="Ej: V-12345678 o J-12345678-0"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Teléfono Pago Móvil */}
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Teléfono de Pago Móvil *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={paymentSettings.pagoMovil.telefono}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              pagoMovil: { ...prev.pagoMovil, telefono: e.target.value },
+                            }))
+                          }
+                          placeholder="Ej: 0414-881-7137"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      {/* WhatsApp para Reportar */}
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          WhatsApp Receptor de Comprobantes *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={paymentSettings.pagoMovil.whatsapp}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              pagoMovil: { ...prev.pagoMovil, whatsapp: e.target.value },
+                            }))
+                          }
+                          placeholder="Ej: 584148817137 (código país + número)"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Tasa Info */}
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Instrucción de Tasa de Cambio
+                        </label>
+                        <input
+                          type="text"
+                          value={paymentSettings.pagoMovil.tasaInfo}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              pagoMovil: { ...prev.pagoMovil, tasaInfo: e.target.value },
+                            }))
+                          }
+                          placeholder="Ej: Calculado a Tasa Oficial BCV del día"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-[#86C537]/15 text-[#639922] border border-[#86C537]/30 w-fit">
-                    Modo Producción (Live)
-                  </span>
+
+                  {/* LEMON SQUEEZY CARD */}
+                  <div className="p-6 sm:p-8 rounded-3xl border border-zinc-200 bg-white shadow-sm space-y-6 relative overflow-hidden text-left">
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FEAD2B] via-[#EA0C7F] to-[#971B8D]" />
+
+                    <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                          <CreditCard className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-900">Lemon Squeezy (Pagos Internacionales USD)</h3>
+                          <p className="text-[11px] text-zinc-500 font-mono">Tarjetas de crédito/débito, Apple Pay, PayPal</p>
+                        </div>
+                      </div>
+                      <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        Checkout Links
+                      </span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Enlace Checkout: Masterclass IA para Restaurantes ($97 USD)
+                        </label>
+                        <input
+                          type="url"
+                          value={paymentSettings.lemonSqueezy.courseLinks.iaRestaurantes}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              lemonSqueezy: {
+                                ...prev.lemonSqueezy,
+                                courseLinks: {
+                                  ...prev.lemonSqueezy.courseLinks,
+                                  iaRestaurantes: e.target.value,
+                                },
+                              },
+                            }))
+                          }
+                          placeholder="https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/..."
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Enlace Checkout: Bootcamp Técnico n8n ($197 USD)
+                        </label>
+                        <input
+                          type="url"
+                          value={paymentSettings.lemonSqueezy.courseLinks.bootcampN8n}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              lemonSqueezy: {
+                                ...prev.lemonSqueezy,
+                                courseLinks: {
+                                  ...prev.lemonSqueezy.courseLinks,
+                                  bootcampN8n: e.target.value,
+                                },
+                              },
+                            }))
+                          }
+                          placeholder="https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/..."
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
+                          Enlace Checkout: Dominio Local SEO/AEO ($67 USD)
+                        </label>
+                        <input
+                          type="url"
+                          value={paymentSettings.lemonSqueezy.courseLinks.crecimientoAeo}
+                          onChange={(e) =>
+                            setPaymentSettings((prev) => ({
+                              ...prev,
+                              lemonSqueezy: {
+                                ...prev.lemonSqueezy,
+                                courseLinks: {
+                                  ...prev.lemonSqueezy.courseLinks,
+                                  crecimientoAeo: e.target.value,
+                                },
+                              },
+                            }))
+                          }
+                          placeholder="https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/..."
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isSavingSettings}
+                      className="w-full py-3.5 px-6 rounded-2xl bg-[#971B8D] hover:bg-[#801676] text-white text-xs font-bold shadow-lg shadow-[#971B8D]/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isSavingSettings ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Guardando cambios...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Guardar Todos los Cambios de Pasarela</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="text-center py-10 text-xs text-zinc-400 font-mono">
-                    No hay transacciones registradas aún. Las compras de Stripe aparecerán aquí automáticamente.
+                {/* Right Col: Live Preview Mockup (5 cols) */}
+                <div className="lg:col-span-5 space-y-4 text-left">
+                  <div className="p-6 rounded-3xl border border-zinc-200 bg-zinc-900 text-white shadow-xl space-y-4 sticky top-6">
+                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-cyan-400" />
+                        <span className="text-xs font-mono font-bold text-cyan-300 uppercase">
+                          Vista Previa en Vivo (Modal)
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-zinc-500">Auto-actualizado</span>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-zinc-800/90 border border-zinc-700 space-y-3 font-mono text-xs">
+                      <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Pago Móvil (Bolívares)</span>
+                      </div>
+
+                      <div className="flex justify-between py-1 border-b border-zinc-700/60 text-[11px]">
+                        <span className="text-zinc-400 font-sans">Banco:</span>
+                        <span className="text-white font-bold">
+                          {paymentSettings.pagoMovil.banco} ({paymentSettings.pagoMovil.bancoCodigo || '0134'})
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between py-1 border-b border-zinc-700/60 text-[11px]">
+                        <span className="text-zinc-400 font-sans">Cédula / RIF:</span>
+                        <span className="text-cyan-300 font-bold">{paymentSettings.pagoMovil.cedulaRif}</span>
+                      </div>
+
+                      <div className="flex justify-between py-1 border-b border-zinc-700/60 text-[11px]">
+                        <span className="text-zinc-400 font-sans">Teléfono:</span>
+                        <span className="text-cyan-300 font-bold">{paymentSettings.pagoMovil.telefono}</span>
+                      </div>
+
+                      <div className="flex justify-between py-1 text-[11px]">
+                        <span className="text-zinc-400 font-sans">Tasa:</span>
+                        <span className="text-amber-300 font-bold">{paymentSettings.pagoMovil.tasaInfo}</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-[11px] text-zinc-400 leading-relaxed font-sans">
+                      💡 Al presionar <strong>"Guardar Configuración"</strong>, cualquier cambio en tu banco, cédula, teléfono o links de Lemon Squeezy se reflejará al instante para todos los alumnos que abran el modal de checkout.
+                    </div>
                   </div>
                 </div>
-              </div>
+
+              </form>
             </motion.div>
           )}
 
