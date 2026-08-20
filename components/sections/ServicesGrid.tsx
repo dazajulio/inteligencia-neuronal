@@ -112,6 +112,11 @@ export function ServicesGrid() {
           "Infraestructura digital configurada, entrenada y lista para operar de inmediato en tu empresa.",
         microText: "(Toca para volver al resumen ⟲)",
       },
+      externalCta: {
+        label: "2. Sistemas Agénticos Autónomos",
+        price: "$450 - $950 USD",
+        actionLabel: "Contratar Ya",
+      },
     },
     {
       id: "infraestructura",
@@ -145,6 +150,11 @@ export function ServicesGrid() {
         deliverable:
           "Aplicación web y móvil desplegada bajo tu propio dominio y marca.",
         microText: "(Toca para volver al resumen ⟲)",
+      },
+      externalCta: {
+        label: "3. Infraestructura & Plataformas FoodTech",
+        price: "$1,150 - $5,000 USD",
+        actionLabel: "Contratar Ya",
       },
     },
   ];
