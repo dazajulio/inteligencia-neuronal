@@ -1,5 +1,6 @@
 import React from "react";
 import { Navbar } from "@/components/layout/Navbar";
+import { MobileSectionNav } from "@/components/layout/MobileSectionNav";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { DiagnosisSection } from "@/components/sections/DiagnosisSection";
@@ -9,12 +10,14 @@ import { AuthoritySection } from "@/components/sections/AuthoritySection";
 import { AcademySection } from "@/components/sections/AcademySection";
 import { GroupSection } from "@/components/sections/GroupSection";
 import { LeadModal } from "@/components/ui/LeadModal";
+import { CourseCheckoutModal } from "@/components/ui/CourseCheckoutModal";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-800 selection:text-white">
       {/* 1. Header Navigation */}
       <Navbar />
+      <MobileSectionNav />
 
       {/* 2. Hero Section */}
       <HeroSection />
@@ -42,6 +45,9 @@ export default function Home() {
 
       {/* 10. Multi-step Qualification & Lead Capture Modal */}
       <LeadModal />
+
+      {/* 11. Course Pre-Checkout & Payment Modal */}
+      <CourseCheckoutModal />
     </main>
   );
 }

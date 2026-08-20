@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { BookOpen, Code, LineChart, Download, ArrowRight, RotateCw, CheckCircle2, Sparkles } from "lucide-react";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 
 interface Course {
   id: string;
@@ -79,6 +80,7 @@ const DEFAULT_COURSES: Course[] = [
 ];
 
 export function AcademySection() {
+  const { openCheckout } = useCheckoutStore();
   const [courses, setCourses] = useState<Course[]>(DEFAULT_COURSES);
   const [flippedCourse, setFlippedCourse] = useState<Record<string, boolean>>({});
   const [flippedToolkit, setFlippedToolkit] = useState(false);
@@ -116,9 +118,9 @@ export function AcademySection() {
         
         {/* Academy Hero */}
         <div className="text-center max-w-4xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-200/60 border border-zinc-300 text-xs font-bold text-zinc-700 uppercase tracking-widest">
-            <Sparkles className="w-3.5 h-3.5 text-zinc-700" />
-            <span>Inteligencia Neuronal Academy</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-mono font-bold text-emerald-800 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>04 // INTELIGENCIA NEURONAL ACADEMY</span>
           </div>
           <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-black text-zinc-900 tracking-tight leading-tight">
             Transferencia de Conocimiento: <br className="hidden sm:block" />
@@ -223,14 +225,24 @@ export function AcademySection() {
                         </div>
 
                         <div className="p-6 pt-0 space-y-3">
-                          <Link
-                            href="/academy#programas"
-                            onClick={(e) => e.stopPropagation()}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openCheckout({
+                                id: course.id,
+                                title: course.title,
+                                price: getCoursePrice(course),
+                                tagline: course.subtitle || course.description,
+                                badge: course.badge,
+                                lemonUrl: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
+                              });
+                            }}
                             className="w-full text-xs font-bold flex items-center justify-center gap-2 bg-[#971B8D] hover:bg-[#801676] text-white px-5 py-3 rounded-xl shadow-md transition-all shadow-[#971B8D]/25"
                           >
-                            <span>IR AL PROGRAMA</span>
+                            <span>INSCRIBIRME AL PROGRAMA</span>
                             <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
+                          </button>
                         </div>
                       </div>
 
@@ -279,14 +291,24 @@ export function AcademySection() {
                             <RotateCw className="w-3.5 h-3.5 text-cyan-400" />
                           </div>
 
-                          <Link
-                            href="/academy#programas"
-                            onClick={(e) => e.stopPropagation()}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openCheckout({
+                                id: course.id,
+                                title: course.title,
+                                price: getCoursePrice(course),
+                                tagline: course.subtitle || course.description,
+                                badge: course.badge,
+                                lemonUrl: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
+                              });
+                            }}
                             className="w-full text-xs font-bold flex items-center justify-center gap-2 bg-white hover:bg-zinc-100 text-zinc-900 px-5 py-3 rounded-xl shadow-md transition-all font-bold"
                           >
-                            <span>IR AL PROGRAMA</span>
+                            <span>INSCRIBIRME AL PROGRAMA</span>
                             <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     </div>

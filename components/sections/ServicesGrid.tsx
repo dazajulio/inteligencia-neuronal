@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowRight, RotateCw, CheckCircle2, Search, Bot, Server, Sparkles, CreditCard } from "lucide-react";
+import { ArrowRight, RotateCw, CheckCircle2, Search, Bot, Server, Sparkles, CreditCard, Touchpad } from "lucide-react";
 import { useLeadStore } from "@/store/useLeadStore";
 
 interface SolutionCardData {
   id: string;
+  stepNumber: string;
   stripeColor: string;
   front: {
     badge: string;
@@ -43,14 +44,15 @@ export function ServicesGrid() {
   const solutions: SolutionCardData[] = [
     {
       id: "auditoria",
+      stepNumber: "01",
       stripeColor: "from-[#1DACE3] via-[#0284c7] to-[#971B8D]",
       front: {
         badge: "PASO 01 // AUDITORÍA",
         title: "Auditoría de Ecosistema Digital",
         description:
           "Análisis profundo de la infraestructura tecnológica y operativa de la empresa. Presencia online completa (Google, mapas, motores de IA). Cómo funciona tu empresa hoy para detectar qué procesos te están costando clientes, márgenes de ganancia y horas de trabajo manual. Te entregamos un plan claro y sin complicaciones técnicas para saber qué corregir y por dónde empezar a modernizarte.",
-        icon: <Search className="w-6 h-6 text-zinc-700" />,
-        microText: "(Toca la tarjeta para ver qué analizamos ⟳)",
+        icon: <Search className="w-6 h-6 text-sky-600" />,
+        microText: "Toca para ver qué evaluamos ⟳",
       },
       back: {
         badge: "QUÉ EVALUAMOS EN TU NEGOCIO",
@@ -71,7 +73,7 @@ export function ServicesGrid() {
         ],
         deliverable:
           "Desplegamos un equipo de agentes digitales en tu infraestructura privada que no solo responden, sino que escriben en tu CRM, gestionan incidencias, trackean inventario y facturan.",
-        microText: "(Toca para volver al resumen ⟲)",
+        microText: "Toca para volver al resumen ⟲",
       },
       externalCta: {
         label: "1. Auditoría de Ecosistema Digital",
@@ -81,6 +83,7 @@ export function ServicesGrid() {
     },
     {
       id: "automatizacion",
+      stepNumber: "02",
       stripeColor: "from-[#971B8D] via-[#EA0C7F] to-[#FEAD2B]",
       front: {
         badge: "PASO 02 // IMPLEMENTACIÓN",
@@ -88,8 +91,8 @@ export function ServicesGrid() {
         subtitle: "Asistentes de Inteligencia Artificial que trabajan 24/7 en tu operación.",
         description:
           "Ponemos a trabajar un equipo de agentes inteligentes en tu negocio. Atienden clientes en WhatsApp, toman pedidos, controlan tus compras y organizan tus datos en tiempo real para que tu equipo humano se enfoque en cocinar y atender con excelencia.",
-        icon: <Bot className="w-6 h-6 text-zinc-700" />,
-        microText: "(Toca la tarjeta para conocer a tus agentes ⟳)",
+        icon: <Bot className="w-6 h-6 text-fuchsia-600" />,
+        microText: "Toca para conocer a tus agentes ⟳",
       },
       back: {
         badge: "EQUIPO DIGITAL DISPONIBLE",
@@ -110,7 +113,7 @@ export function ServicesGrid() {
         ],
         deliverable:
           "Infraestructura digital configurada, entrenada y lista para operar de inmediato en tu empresa.",
-        microText: "(Toca para volver al resumen ⟲)",
+        microText: "Toca para volver al resumen ⟲",
       },
       externalCta: {
         label: "2. Sistemas Agénticos Autónomos",
@@ -120,15 +123,16 @@ export function ServicesGrid() {
     },
     {
       id: "infraestructura",
+      stepNumber: "03",
       stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#1DACE3]",
       front: {
-        badge: "PASO 03 // INFRAESTRUCTURA & ESCALABILIDAD",
+        badge: "PASO 03 // INFRAESTRUCTURA",
         title: "Infraestructura & Plataformas FoodTech",
         subtitle: "Tu propia tecnología para vender sin intermediarios ni comisiones.",
         description:
           "Desarrollamos la plataforma digital completa y privada de tu marca. Menús QR interactivos, sistema de pedidos directos para delivery/takeaway, pantallas de cocina (KDS) en tiempo real y paneles de control gerenciales para supervisar tus ventas desde cualquier lugar.",
-        icon: <Server className="w-6 h-6 text-zinc-700" />,
-        microText: "(Toca la tarjeta para ver los módulos de software ⟳)",
+        icon: <Server className="w-6 h-6 text-amber-600" />,
+        microText: "Toca para ver módulos de software ⟳",
       },
       back: {
         badge: "ECOSISTEMA PROPIETARIO",
@@ -149,7 +153,7 @@ export function ServicesGrid() {
         ],
         deliverable:
           "Aplicación web y móvil desplegada bajo tu propio dominio y marca.",
-        microText: "(Toca para volver al resumen ⟲)",
+        microText: "Toca para volver al resumen ⟲",
       },
       externalCta: {
         label: "3. Infraestructura & Plataformas FoodTech",
@@ -160,25 +164,28 @@ export function ServicesGrid() {
   ];
 
   return (
-    <section id="soluciones" className="pt-12 pb-24 sm:pt-16 sm:pb-32 bg-white relative">
+    <section id="soluciones" className="pt-16 pb-24 sm:pt-20 sm:pb-32 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono font-bold text-zinc-800">
-            <Sparkles className="w-3.5 h-3.5 text-zinc-700" />
-            <span>SOLUCIONES OPERATIVAS // HIGH-TICKET B2B</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-mono font-bold text-sky-800 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+            <span>01 // SOLUCIONES OPERATIVAS // HIGH-TICKET B2B</span>
           </div>
-          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900">
-            Soluciones
+          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
+            Soluciones Tecnológicas
           </h2>
-          <p className="text-base sm:text-lg text-zinc-600 leading-relaxed max-w-2xl mx-auto">
-            Arquitectura de servicios y agentes inteligentes diseñados para blindar la rentabilidad y soberanía operativa de tu marca.
+          <p className="text-sm sm:text-base lg:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            Arquitectura de servicios y agentes inteligentes diseñados para blindar la rentabilidad y soberanía operativa de tu marca gastronómica.
           </p>
+          <div className="inline-block md:hidden text-[11px] font-mono text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+            💡 Toca cualquier tarjeta para girarla y ver detalles técnicos
+          </div>
         </div>
 
         {/* 3 Cards Grid with 3D Flip Card */}
-        <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {solutions.map((card) => {
             const isFlipped = !!flippedCards[card.id];
 
@@ -187,7 +194,7 @@ export function ServicesGrid() {
                 {/* 3D Flip Container */}
                 <div
                   onClick={() => toggleFlip(card.id)}
-                  className="perspective-1000 w-full h-[530px] cursor-pointer group"
+                  className="perspective-1000 w-full min-h-[500px] sm:min-h-[530px] cursor-pointer group"
                 >
                   <div
                     className={`relative w-full h-full duration-500 transform-style-3d transform-gpu will-change-transform transition-transform ${
@@ -196,43 +203,45 @@ export function ServicesGrid() {
                   >
                     
                     {/* ── CARA FRONTAL (FRONT) ── */}
-                    <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-zinc-200 bg-white p-7 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.09)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                    <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.05)] group-hover:shadow-[0_12px_35px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                       {/* Top Color Stripe */}
-                      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${card.stripeColor}`} />
+                      <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${card.stripeColor}`} />
                       
                       <div>
                         {/* Header Badge & Icon */}
-                        <div className="flex items-center justify-between gap-2 mb-4">
-                          <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-zinc-100 text-zinc-800 border border-zinc-200">
+                        <div className="flex items-center justify-between gap-2 mb-4 pt-1">
+                          <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
                             {card.front.badge}
                           </span>
-                          <div className="w-10 h-10 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
                             {card.front.icon}
                           </div>
                         </div>
 
                         {/* Title & Subtitle */}
-                        <h3 className="text-xl font-bold text-zinc-900 tracking-tight leading-snug mb-2">
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-snug mb-2">
                           {card.front.title}
                         </h3>
 
                         {card.front.subtitle && (
-                          <p className="text-xs font-semibold text-zinc-700 mb-3">
+                          <p className="text-xs font-semibold text-indigo-600 mb-3">
                             {card.front.subtitle}
                           </p>
                         )}
 
                         {/* Description */}
-                        <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed line-clamp-6">
+                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                           {card.front.description}
                         </p>
                       </div>
 
                       {/* Bottom Micro-text & Action */}
-                      <div className="pt-4 border-t border-zinc-100 space-y-3">
-                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                          <span>{card.front.microText}</span>
-                          <RotateCw className="w-3.5 h-3.5 text-zinc-500" />
+                      <div className="pt-4 border-t border-slate-100 space-y-3">
+                        <div className="flex items-center justify-between text-xs font-mono font-medium text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                          <span className="flex items-center gap-1.5">
+                            <RotateCw className="w-3.5 h-3.5 text-indigo-600 animate-spin-slow" />
+                            {card.front.microText}
+                          </span>
                         </div>
 
                         <button
@@ -240,7 +249,7 @@ export function ServicesGrid() {
                             e.stopPropagation();
                             openModal();
                           }}
-                          className="w-full text-xs font-bold flex items-center justify-center gap-2 cursor-pointer bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+                          className="w-full text-xs font-bold flex items-center justify-center gap-2 cursor-pointer bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
                         >
                           <span>Solicitar Diagnóstico</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -250,17 +259,17 @@ export function ServicesGrid() {
                     </div>
 
                     {/* ── CARA POSTERIOR (BACK) ── */}
-                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-zinc-300 bg-zinc-900 text-white p-7 sm:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
+                    <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl border border-slate-800 bg-slate-950 text-white p-6 sm:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
                       {/* Top Color Stripe */}
-                      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${card.stripeColor}`} />
+                      <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${card.stripeColor}`} />
                       
                       <div>
                         {/* Header Badge */}
-                        <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center justify-between gap-2 mb-3 pt-1">
                           <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-cyan-300 border border-cyan-400/30">
                             {card.back.badge}
                           </span>
-                          <span className="text-[10px] font-mono text-zinc-400">DESGLOSE TÉCNICO</span>
+                          <span className="text-[10px] font-mono text-slate-400 font-bold">DETALLES TÉCNICOS</span>
                         </div>
 
                         <h4 className="text-lg font-bold text-white mb-3">
@@ -271,11 +280,11 @@ export function ServicesGrid() {
                         <div className="space-y-2.5">
                           {card.back.points.map((pt, idx) => (
                             <div key={idx} className="text-left">
-                              <div className="flex items-start gap-1.5 text-xs font-bold text-zinc-200">
+                              <div className="flex items-start gap-1.5 text-xs font-bold text-slate-200">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
                                 <span>{pt.title}</span>
                               </div>
-                              <p className="text-[11px] text-zinc-400 pl-5 leading-relaxed">
+                              <p className="text-[11px] text-slate-400 pl-5 leading-relaxed">
                                 {pt.desc}
                               </p>
                             </div>
@@ -292,9 +301,11 @@ export function ServicesGrid() {
 
                       {/* Bottom Micro-text & Action */}
                       <div className="pt-3 border-t border-white/10 space-y-2.5">
-                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                          <span>{card.back.microText}</span>
-                          <RotateCw className="w-3.5 h-3.5 text-cyan-400" />
+                        <div className="flex items-center justify-between text-xs font-mono font-medium text-cyan-300 bg-white/5 p-2 rounded-xl border border-white/10">
+                          <span className="flex items-center gap-1.5">
+                            <RotateCw className="w-3.5 h-3.5 text-cyan-400" />
+                            {card.back.microText}
+                          </span>
                         </div>
 
                         <button
@@ -302,7 +313,7 @@ export function ServicesGrid() {
                             e.stopPropagation();
                             openModal();
                           }}
-                          className="w-full text-xs font-bold flex items-center justify-center gap-2 cursor-pointer bg-white hover:bg-zinc-100 text-zinc-900 px-5 py-3 rounded-xl shadow-md transition-all font-bold"
+                          className="w-full text-xs font-bold flex items-center justify-center gap-2 cursor-pointer bg-white hover:bg-slate-100 text-slate-950 px-5 py-3 rounded-xl shadow-md transition-all font-bold"
                         >
                           <span>Solicitar Diagnóstico</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -314,12 +325,12 @@ export function ServicesGrid() {
                   </div>
                 </div>
 
-                {/* External Decoupled Button for Card 1 */}
+                {/* External Decoupled Button */}
                 {card.externalCta && (
-                  <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 shadow-sm flex items-center justify-between gap-3">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm flex items-center justify-between gap-3">
                     <div className="text-left">
-                      <div className="text-xs font-bold text-zinc-900">{card.externalCta.label}</div>
-                      <div className="text-sm font-extrabold text-zinc-900 font-mono">{card.externalCta.price}</div>
+                      <div className="text-xs font-bold text-slate-900">{card.externalCta.label}</div>
+                      <div className="text-sm font-extrabold text-slate-900 font-mono">{card.externalCta.price}</div>
                     </div>
                     <button
                       onClick={(e) => {

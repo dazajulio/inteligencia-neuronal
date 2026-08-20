@@ -13,6 +13,8 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
+import { CourseCheckoutModal } from "@/components/ui/CourseCheckoutModal";
 
 interface CourseModule {
   id?: string;
@@ -167,6 +169,7 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
 ];
 
 export default function AcademyPage() {
+  const { openCheckout } = useCheckoutStore();
   const [courses, setCourses] = useState<Course[]>(DEFAULT_COURSES);
   const [resources, setResources] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
   const [selectedCourse, setSelectedCourse] = useState<Course>(DEFAULT_COURSES[0]);
@@ -462,15 +465,23 @@ export default function AcademyPage() {
                       <ShieldCheck className="w-4 h-4 text-emerald-600" />
                       <span>Garantía de satisfacción de 7 días</span>
                     </div>
-                    <a
-                      href={getCourseCta(selectedCourse)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-8 py-3.5 text-sm font-bold text-white transition-all shadow-md shadow-[#971B8D]/25 hover:shadow-[#971B8D]/40 hover:-translate-y-0.5"
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openCheckout({
+                          id: selectedCourse.id,
+                          title: selectedCourse.title,
+                          price: getCoursePrice(selectedCourse),
+                          tagline: selectedCourse.tagline,
+                          badge: selectedCourse.badge,
+                          lemonUrl: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
+                        })
+                      }
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-8 py-3.5 text-sm font-bold text-white transition-all shadow-md shadow-[#971B8D]/25 hover:shadow-[#971B8D]/40 hover:-translate-y-0.5 cursor-pointer"
                     >
                       Inscribirme al Programa
                       <ArrowRight className="w-4 h-4" />
-                    </a>
+                    </button>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -606,6 +617,8 @@ export default function AcademyPage() {
         </div>
       </footer>
 
+      {/* ── COURSE CHECKOUT & PAYMENT MODAL ── */}
+      <CourseCheckoutModal />
     </main>
   );
 }
