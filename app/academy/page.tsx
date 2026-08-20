@@ -170,7 +170,7 @@ export default function AcademyPage() {
   const [resources, setResources] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
   const [selectedCourse, setSelectedCourse] = useState<Course>(DEFAULT_COURSES[0]);
   const [resourceEmails, setResourceEmails] = useState<Record<string, string>>({});
-  const [downloadStates, setDownloadStates] = useState<Record<string, { loading: boolean; success: boolean }>>({});
+  const [downloadStates, setDownloadStates] = useState<Record<string, { loading: boolean; success: boolean; message?: string }>>({});
 
   // Cargar cursos y recursos desde la base de datos Supabase en tiempo real
   useEffect(() => {
