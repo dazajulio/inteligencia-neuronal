@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { leadSchema } from "@/lib/validators/lead";
 import { getSupabaseAdmin, submitLeadToDatabase } from "@/lib/supabase/client";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const db = getSupabaseAdmin();
