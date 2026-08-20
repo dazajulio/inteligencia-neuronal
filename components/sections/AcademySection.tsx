@@ -118,9 +118,9 @@ export function AcademySection() {
         
         {/* Academy Hero */}
         <div className="text-center max-w-4xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-mono font-bold text-emerald-800 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>04 // INTELIGENCIA NEURONAL ACADEMY</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-200/60 border border-zinc-300 text-xs font-bold text-zinc-700 uppercase tracking-widest">
+            <Sparkles className="w-3.5 h-3.5 text-zinc-700" />
+            <span>Inteligencia Neuronal Academy</span>
           </div>
           <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-black text-zinc-900 tracking-tight leading-tight">
             Transferencia de Conocimiento: <br className="hidden sm:block" />

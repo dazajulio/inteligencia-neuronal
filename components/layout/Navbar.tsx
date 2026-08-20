@@ -99,53 +99,46 @@ export function Navbar() {
         <div className="md:hidden bg-white border-b border-slate-200 px-6 py-5 space-y-4 shadow-xl animate-in slide-in-from-top duration-200">
           <div className="flex flex-col space-y-3 text-base font-semibold text-slate-800">
             <a
-              href="#diagnostico"
-              onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-indigo-600 py-1 transition-colors flex items-center justify-between"
-            >
-              <span>00. Diagnóstico</span>
-            </a>
-            <a
               href="#soluciones"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-indigo-600 py-1 transition-colors flex items-center justify-between"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
-              <span>01. Soluciones</span>
+              Soluciones
             </a>
             <a
               href="#desarrollo"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-indigo-600 py-1 transition-colors flex items-center justify-between"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
-              <span>02. Metodología</span>
+              Desarrollo
             </a>
             <a
               href="#agencia"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-indigo-600 py-1 transition-colors flex items-center justify-between"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
-              <span>03. Agencia IA</span>
+              Agencia IA
             </a>
-            <a
-              href="#academy"
+            <Link
+              href="/academy"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-indigo-600 py-1 transition-colors flex items-center justify-between"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
-              <span>04. Academy</span>
-            </a>
+              Academy
+            </Link>
             <a
               href="#grupo"
               onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-indigo-600 py-1 transition-colors flex items-center justify-between"
+              className="hover:text-zinc-500 py-1 transition-colors"
             >
-              <span>05. Grupo</span>
+              Grupo
             </a>
             <Link
               href="/academy/campus"
               onClick={() => setMobileMenuOpen(false)}
               className="text-[#971B8D] font-bold py-1 transition-colors flex items-center justify-between"
             >
-              <span>06. Campus Virtual (Alumnos)</span>
+              <span>Campus Virtual (Alumnos)</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#971B8D]/10">ACCESO</span>
             </Link>
           </div>

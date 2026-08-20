@@ -1,6 +1,5 @@
 import React from "react";
 import { Navbar } from "@/components/layout/Navbar";
-import { MobileSectionNav } from "@/components/layout/MobileSectionNav";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { DiagnosisSection } from "@/components/sections/DiagnosisSection";
@@ -17,7 +16,6 @@ export default function Home() {
     <main className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-800 selection:text-white">
       {/* 1. Header Navigation */}
       <Navbar />
-      <MobileSectionNav />
 
       {/* 2. Hero Section */}
       <HeroSection />
