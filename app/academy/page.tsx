@@ -22,7 +22,8 @@ import {
   Users2,
   Flame,
   Terminal,
-  BadgeCheck
+  BadgeCheck,
+  CreditCard
 } from "lucide-react";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { CourseCheckoutModal } from "@/components/ui/CourseCheckoutModal";
