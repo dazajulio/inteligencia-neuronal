@@ -2799,7 +2799,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-zinc-700 font-mono font-bold mb-1">FORMATO</label>
                     <input
@@ -2810,27 +2810,52 @@ export default function AdminDashboard() {
                       className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
                     />
                   </div>
+
                   <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1">TAG</label>
+                    <label className="block text-zinc-700 font-mono font-bold mb-1">CATEGORÍA / TAG</label>
                     <input
                       type="text"
                       value={resourceFormData.tag}
                       onChange={(e) => setResourceFormData({ ...resourceFormData, tag: e.target.value })}
-                      placeholder="Ej. AEO, HACCP"
+                      placeholder="Ej. FINANZAS / AEO"
                       className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
                     />
                   </div>
+
                   <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1">ACCESO</label>
+                    <label className="block text-zinc-700 font-mono font-bold mb-1">MODELO DE ACCESO</label>
                     <select
-                      value={resourceFormData.access}
-                      onChange={(e) => setResourceFormData({ ...resourceFormData, access: e.target.value })}
-                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                      value={resourceFormData.access || "GRATUITO (LEAD)"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setResourceFormData({
+                          ...resourceFormData,
+                          access: val,
+                          price: val === "PREMIUM (PAGO)" ? (resourceFormData.price && resourceFormData.price !== "GRATIS" ? resourceFormData.price : "$27 USD") : "GRATIS",
+                        });
+                      }}
+                      className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 font-bold focus:border-[#971B8D] focus:outline-none"
                     >
-                      <option value="GRATUITO (LEAD)">GRATUITO (LEAD)</option>
-                      <option value="EXCLUSIVO CURSO">EXCLUSIVO CURSO</option>
-                      <option value="ACCESO PAGO">ACCESO PAGO</option>
+                      <option value="GRATUITO (LEAD)">🎁 GRATUITO (Captura Lead)</option>
+                      <option value="PREMIUM (PAGO)">💎 PREMIUM (De Pago)</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center justify-between">
+                      <span>PRECIO (USD)</span>
+                      {resourceFormData.access === "PREMIUM (PAGO)" && (
+                        <span className="text-[10px] text-amber-600 font-bold">DE PAGO</span>
+                      )}
+                    </label>
+                    <input
+                      type="text"
+                      disabled={resourceFormData.access !== "PREMIUM (PAGO)"}
+                      value={resourceFormData.access === "PREMIUM (PAGO)" ? (resourceFormData.price || "$27 USD") : "GRATIS"}
+                      onChange={(e) => setResourceFormData({ ...resourceFormData, price: e.target.value })}
+                      placeholder="Ej. $27 USD"
+                      className={"w-full rounded-xl border px-3 py-2 text-zinc-900 font-bold focus:outline-none " + (resourceFormData.access === "PREMIUM (PAGO)" ? "border-amber-400 bg-amber-50/50 text-amber-900 focus:border-[#971B8D]" : "border-zinc-300 bg-zinc-100 text-zinc-400 opacity-60")}
+                    />
                   </div>
                 </div>
 
