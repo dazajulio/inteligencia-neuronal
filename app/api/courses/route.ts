@@ -15,7 +15,12 @@ export async function GET() {
           week_label,
           title,
           description,
-          order_index
+          order_index,
+          video_url,
+          summary,
+          prompts,
+          downloads,
+          quiz_data
         )
       `)
       .order("order_index", { ascending: true });
@@ -79,9 +84,14 @@ export async function POST(req: NextRequest) {
     if (body.modules && Array.isArray(body.modules)) {
       const moduleInserts = body.modules.map((m: any, idx: number) => ({
         course_id: id,
-        week_label: m.week_label || `0${idx + 1}`,
+        week_label: m.week_label || m.week || `0${idx + 1}`,
         title: m.title || `Módulo ${idx + 1}`,
-        description: m.description || "",
+        description: m.description || m.desc || "",
+        video_url: m.video_url || m.videoUrl || "",
+        summary: m.summary || m.description || "",
+        prompts: Array.isArray(m.prompts) ? m.prompts : [],
+        downloads: Array.isArray(m.downloads) ? m.downloads : [],
+        quiz_data: m.quiz_data || m.quiz || { enabled: false, passing_score: 80, questions: [] },
         order_index: idx + 1,
       }));
 
@@ -131,6 +141,26 @@ export async function PUT(req: NextRequest) {
 
     if (error) {
       return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+    }
+
+    // Si se enviaron módulos para actualizar
+    if (body.modules && Array.isArray(body.modules)) {
+      await db.from("course_modules").delete().or(`course_id.eq.${id},course_id.eq.${cleanId}`);
+      
+      const moduleInserts = body.modules.map((m: any, idx: number) => ({
+        course_id: cleanId,
+        week_label: m.week_label || m.week || `0${idx + 1}`,
+        title: m.title || `Módulo ${idx + 1}`,
+        description: m.description || m.desc || "",
+        video_url: m.video_url || m.videoUrl || "",
+        summary: m.summary || m.description || "",
+        prompts: Array.isArray(m.prompts) ? m.prompts : [],
+        downloads: Array.isArray(m.downloads) ? m.downloads : [],
+        quiz_data: m.quiz_data || m.quiz || { enabled: false, passing_score: 80, questions: [] },
+        order_index: idx + 1,
+      }));
+
+      await db.from("course_modules").insert(moduleInserts);
     }
 
     return NextResponse.json({ success: true, course: updatedCourse?.[0] });

@@ -42,6 +42,10 @@ import {
   Link2,
   UploadCloud,
   UserPlus,
+  BookOpen,
+  HelpCircle,
+  CheckSquare,
+  Sliders,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -68,6 +72,31 @@ interface ResourceItem {
   description?: string;
 }
 
+export interface QuizQuestionForm {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface ModuleQuizForm {
+  enabled: boolean;
+  passing_score: number;
+  questions: QuizQuestionForm[];
+}
+
+export interface CourseModuleForm {
+  id?: string;
+  week_label: string;
+  title: string;
+  description: string;
+  video_url?: string;
+  summary?: string;
+  prompts?: string[];
+  downloads?: { name: string; type?: string; url: string }[];
+  quiz?: ModuleQuizForm;
+}
+
 interface CourseItem {
   id: string;
   title: string;
@@ -82,6 +111,7 @@ interface CourseItem {
   studentsEnrolled: number;
   ctaUrl: string;
   status: 'ACTIVO' | 'BORRADOR' | 'ARCHIVADO';
+  modules?: CourseModuleForm[];
 }
 
 interface AgentData {
@@ -175,6 +205,17 @@ export default function AdminDashboard() {
               studentsEnrolled: c.students_enrolled || 0,
               ctaUrl: c.cta_url || c.ctaUrl || '#',
               status: c.status || 'ACTIVO',
+              modules: (c.modules || []).map((m: any, idx: number) => ({
+                id: m.id,
+                week_label: m.week_label || `0${idx + 1}`,
+                title: m.title || `Módulo ${idx + 1}`,
+                description: m.description || '',
+                video_url: m.video_url || '',
+                summary: m.summary || '',
+                prompts: Array.isArray(m.prompts) ? m.prompts : [],
+                downloads: Array.isArray(m.downloads) ? m.downloads : [],
+                quiz: m.quiz_data || { enabled: false, passing_score: 80, questions: [] },
+              })),
             }))
           );
         }
@@ -233,7 +274,7 @@ export default function AdminDashboard() {
 
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseItem | null>(null);
-  const [courseFormData, setCourseFormData] = useState<Partial<CourseItem>>({
+  const [courseFormData, setCourseFormData] = useState<Partial<CourseItem> & { modules?: CourseModuleForm[] }>({
     title: '',
     badge: 'NUEVO',
     level: 'Intermedio',
@@ -245,10 +286,16 @@ export default function AdminDashboard() {
     modulesCount: 4,
     ctaUrl: '',
     status: 'ACTIVO',
+    modules: [],
   });
+
+  const [courseModalTab, setCourseModalTab] = useState<'general' | 'modules' | 'quizes'>('general');
+  const [selectedModuleQuizIndex, setSelectedModuleQuizIndex] = useState<number>(0);
 
   const handleOpenAddCourse = () => {
     setEditingCourse(null);
+    setCourseModalTab('general');
+    setSelectedModuleQuizIndex(0);
     setCourseFormData({
       title: '',
       badge: 'NUEVO',
@@ -258,16 +305,55 @@ export default function AdminDashboard() {
       tagline: '',
       previewImage: '',
       tools: ['OpenAI', 'WhatsApp API'],
-      modulesCount: 4,
+      modulesCount: 2,
       ctaUrl: '',
       status: 'ACTIVO',
+      modules: [
+        {
+          week_label: '01',
+          title: 'Módulo 01: Fundamentos & Diagnóstico',
+          description: 'Introducción y diagnóstico inicial',
+          video_url: '',
+          summary: '',
+          prompts: [],
+          downloads: [],
+          quiz: {
+            enabled: true,
+            passing_score: 80,
+            questions: [
+              {
+                question: '¿Cuál es el objetivo principal de este módulo?',
+                options: ['Automatizar procesos', 'Aprender conceptos básicos', 'Configurar infraestructura'],
+                correctIndex: 1,
+                explanation: 'Comprender las bases permite construir flujos escalables.',
+              },
+            ],
+          },
+        },
+      ],
     });
     setIsCourseModalOpen(true);
   };
 
   const handleOpenEditCourse = (course: CourseItem) => {
     setEditingCourse(course);
-    setCourseFormData({ ...course });
+    setCourseModalTab('general');
+    setSelectedModuleQuizIndex(0);
+    setCourseFormData({
+      ...course,
+      modules: course.modules && course.modules.length > 0 ? course.modules : [
+        {
+          week_label: '01',
+          title: 'Módulo 01: Fundamentos',
+          description: '',
+          video_url: '',
+          summary: '',
+          prompts: [],
+          downloads: [],
+          quiz: { enabled: false, passing_score: 80, questions: [] },
+        },
+      ],
+    });
     setIsCourseModalOpen(true);
   };
 
@@ -294,6 +380,7 @@ export default function AdminDashboard() {
             cta_url: courseFormData.ctaUrl,
             status: courseFormData.status,
             students_enrolled: courseFormData.studentsEnrolled,
+            modules: courseFormData.modules,
           }),
         });
       } else {
@@ -312,6 +399,7 @@ export default function AdminDashboard() {
             tools: courseFormData.tools,
             cta_url: courseFormData.ctaUrl || '#',
             status: courseFormData.status || 'ACTIVO',
+            modules: courseFormData.modules,
           }),
         });
       }
@@ -1831,135 +1919,525 @@ export default function AdminDashboard() {
 
         </AnimatePresence>
 
-        {/* ── MODAL: CREAR / EDITAR CURSO ── */}
+        {/* ── MODAL: CREAR / EDITAR CURSO CON CREADOR DE MÓDULOS & QUIZES APROBATORIOS ── */}
         {isCourseModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-2xl rounded-3xl border border-zinc-200 bg-white p-7 sm:p-9 shadow-2xl space-y-5 text-zinc-900 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#EA0C7F]/10 text-[#EA0C7F] flex items-center justify-center">
-                    <GraduationCap className="w-4 h-4" />
+            <div className="w-full max-w-4xl rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-zinc-900 max-h-[92vh] flex flex-col justify-between">
+              
+              {/* Header Modal */}
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-4 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#971B8D] to-[#EA0C7F] text-white flex items-center justify-center shadow-md shadow-[#971B8D]/20">
+                    <GraduationCap className="w-5 h-5" />
                   </div>
-                  <h3 className="text-base font-bold text-zinc-900">
-                    {editingCourse ? 'Editar Programa de Formación' : 'Crear Nuevo Programa'}
-                  </h3>
+                  <div>
+                    <h3 className="text-base font-bold text-zinc-900">
+                      {editingCourse ? 'Configurador de Programa: ' + (courseFormData.title || 'Curso') : 'Crear Nuevo Programa Formativo'}
+                    </h3>
+                    <p className="text-xs text-zinc-500">Configura información general, temario y exámenes con % de aprobación</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsCourseModalOpen(false)}
-                  className="text-zinc-400 hover:text-zinc-900 p-1 rounded-lg"
+                  className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-xl hover:bg-zinc-100 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveCourse} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-zinc-700 font-mono font-bold mb-1">TÍTULO DEL CURSO *</label>
-                  <input
-                    type="text"
-                    required
-                    value={courseFormData.title}
-                    onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })}
-                    placeholder="Ej. Masterclass de IA para Restaurantes"
-                    className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                  />
-                </div>
+              {/* Tabs de Navegación del Modal */}
+              <div className="flex items-center gap-2 border-b border-zinc-200 pb-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setCourseModalTab('general')}
+                  className={'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ' + (courseModalTab === 'general' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100')}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>1. Datos del Programa</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCourseModalTab('modules')}
+                  className={'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ' + (courseModalTab === 'modules' ? 'bg-[#971B8D] text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100')}
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>2. Módulos & Lecciones ({courseFormData.modules?.length || 0})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCourseModalTab('quizes')}
+                  className={'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ' + (courseModalTab === 'quizes' ? 'bg-[#EA0C7F] text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100')}
+                >
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  <span>3. Quizes Evaluativos</span>
+                </button>
+              </div>
 
-                <div>
-                  <label className="block text-zinc-700 font-mono font-bold mb-1">DESCRIPCIÓN / SUBTÍTULO</label>
-                  <textarea
-                    rows={2}
-                    value={courseFormData.tagline}
-                    onChange={(e) => setCourseFormData({ ...courseFormData, tagline: e.target.value })}
-                    placeholder="Aprende a desplegar asistentes y automatizaciones..."
-                    className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none resize-none"
-                  />
-                </div>
+              {/* Contenido scrolleable del Modal */}
+              <form onSubmit={handleSaveCourse} className="flex-1 overflow-y-auto pr-1 space-y-6 text-xs">
+                
+                {/* ── TAB 1: INFORMACIÓN GENERAL ── */}
+                {courseModalTab === 'general' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-zinc-700 font-mono font-bold mb-1">TÍTULO DEL CURSO *</label>
+                      <input
+                        type="text"
+                        required
+                        value={courseFormData.title || ''}
+                        onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })}
+                        placeholder="Ej. Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA"
+                        className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1">PRECIO</label>
-                    <input
-                      type="text"
-                      value={courseFormData.price}
-                      onChange={(e) => setCourseFormData({ ...courseFormData, price: e.target.value })}
-                      placeholder="Ej. $97 USD"
-                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1">DURACIÓN</label>
-                    <input
-                      type="text"
-                      value={courseFormData.duration}
-                      onChange={(e) => setCourseFormData({ ...courseFormData, duration: e.target.value })}
-                      placeholder="Ej. 4 Semanas"
-                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1">NIVEL</label>
-                    <input
-                      type="text"
-                      value={courseFormData.level}
-                      onChange={(e) => setCourseFormData({ ...courseFormData, level: e.target.value })}
-                      placeholder="Ej. Avanzado"
-                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                </div>
+                    <div>
+                      <label className="block text-zinc-700 font-mono font-bold mb-1">DESCRIPCIÓN / SUBTÍTULO</label>
+                      <textarea
+                        rows={2}
+                        value={courseFormData.tagline || ''}
+                        onChange={(e) => setCourseFormData({ ...courseFormData, tagline: e.target.value })}
+                        placeholder="Despliegue de infraestructura soberana sobre VPS dedicado, webhooks reversos..."
+                        className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none resize-none"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center gap-1">
-                      <ImageIcon className="w-3.5 h-3.5 text-[#1DACE3]" /> URL DE VISTA PREVIA (IMAGEN)
-                    </label>
-                    <input
-                      type="url"
-                      value={courseFormData.previewImage}
-                      onChange={(e) => setCourseFormData({ ...courseFormData, previewImage: e.target.value })}
-                      placeholder="https://ejemplo.com/preview.jpg"
-                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center gap-1">
-                      <Link2 className="w-3.5 h-3.5 text-[#86C537]" /> ENLACE DE PAGO / STRIPE
-                    </label>
-                    <input
-                      type="text"
-                      value={courseFormData.ctaUrl}
-                      onChange={(e) => setCourseFormData({ ...courseFormData, ctaUrl: e.target.value })}
-                      placeholder="https://buy.stripe.com/..."
-                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1">PRECIO DE VENTA</label>
+                        <input
+                          type="text"
+                          value={courseFormData.price || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, price: e.target.value })}
+                          placeholder="Ej. $197 USD"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1">DURACIÓN</label>
+                        <input
+                          type="text"
+                          value={courseFormData.duration || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, duration: e.target.value })}
+                          placeholder="Ej. 6 Semanas Intensivas"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1">NIVEL TÉCNICO</label>
+                        <input
+                          type="text"
+                          value={courseFormData.level || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, level: e.target.value })}
+                          placeholder="Ej. Avanzado // En Vivo"
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
 
-                {courseFormData.previewImage && (
-                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
-                    <span className="text-[10px] font-mono text-zinc-400 block mb-1.5 font-bold">VISTA PREVIA CARGADA:</span>
-                    <div className="h-28 w-full rounded-lg overflow-hidden bg-zinc-200">
-                      <img src={courseFormData.previewImage} alt="Preview" className="w-full h-full object-cover" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center gap-1">
+                          <ImageIcon className="w-3.5 h-3.5 text-[#1DACE3]" /> URL DE VISTA PREVIA (IMAGEN)
+                        </label>
+                        <input
+                          type="url"
+                          value={courseFormData.previewImage || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, previewImage: e.target.value })}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center gap-1">
+                          <Link2 className="w-3.5 h-3.5 text-[#86C537]" /> ENLACE DE CHECKOUT
+                        </label>
+                        <input
+                          type="text"
+                          value={courseFormData.ctaUrl || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, ctaUrl: e.target.value })}
+                          placeholder="https://inteligencia-neuronal.lemonsqueezy.com/..."
+                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-100">
-                  <button
-                    type="button"
-                    onClick={() => setIsCourseModalOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition-colors font-semibold"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-[#971B8D] hover:bg-[#801676] text-white font-bold transition-all shadow-md shadow-[#971B8D]/30"
-                  >
-                    Guardar Curso
-                  </button>
+                {/* ── TAB 2: GESTOR DE MÓDULOS & LECCIONES ── */}
+                {courseModalTab === 'modules' && (
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-xs font-bold text-zinc-900 uppercase font-mono">
+                          Módulos & Clases del Programa
+                        </h4>
+                        <p className="text-[11px] text-zinc-500">Agrega o edita las secciones temáticas, videos de YouTube/Loom y resúmenes</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentMods = courseFormData.modules || [];
+                          const nextIdx = currentMods.length + 1;
+                          const newMod: CourseModuleForm = {
+                            week_label: `0${nextIdx}`,
+                            title: `Módulo ${nextIdx}: Nuevo Módulo`,
+                            description: 'Descripción de las lecciones de este módulo',
+                            video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            summary: 'Resumen técnico y objetivos del módulo',
+                            prompts: [],
+                            downloads: [],
+                            quiz: { enabled: true, passing_score: 80, questions: [] },
+                          };
+                          setCourseFormData({ ...courseFormData, modules: [...currentMods, newMod] });
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#971B8D] text-white text-xs font-bold hover:bg-[#801676] shadow-xs"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Agregar Módulo</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {courseFormData.modules?.map((mod, mIdx) => (
+                        <div key={mIdx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[10px] font-bold text-[#971B8D] bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                              MÓDULO #{mIdx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = [...(courseFormData.modules || [])];
+                                updated.splice(mIdx, 1);
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              className="text-red-600 hover:text-red-800 p-1 text-[11px] font-bold"
+                            >
+                              Eliminar Módulo ✕
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div className="sm:col-span-1">
+                              <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">CÓDIGO / ETIQUETA</label>
+                              <input
+                                type="text"
+                                value={mod.week_label || ''}
+                                onChange={(e) => {
+                                  const updated = [...(courseFormData.modules || [])];
+                                  updated[mIdx].week_label = e.target.value;
+                                  setCourseFormData({ ...courseFormData, modules: updated });
+                                }}
+                                placeholder="01"
+                                className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900"
+                              />
+                            </div>
+
+                            <div className="sm:col-span-3">
+                              <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">TÍTULO DEL MÓDULO</label>
+                              <input
+                                type="text"
+                                value={mod.title || ''}
+                                onChange={(e) => {
+                                  const updated = [...(courseFormData.modules || [])];
+                                  updated[mIdx].title = e.target.value;
+                                  setCourseFormData({ ...courseFormData, modules: updated });
+                                }}
+                                placeholder="Módulo 01: Arquitectura & Setup"
+                                className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900 font-bold"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">URL DEL VIDEO (YouTube Embed / Vimeo / MP4)</label>
+                            <input
+                              type="text"
+                              value={mod.video_url || ''}
+                              onChange={(e) => {
+                                const updated = [...(courseFormData.modules || [])];
+                                updated[mIdx].video_url = e.target.value;
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              placeholder="https://www.youtube.com/embed/..."
+                              className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900 font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">RESUMEN & OBJETIVO TÉCNICO</label>
+                            <textarea
+                              rows={2}
+                              value={mod.summary || mod.description || ''}
+                              onChange={(e) => {
+                                const updated = [...(courseFormData.modules || [])];
+                                updated[mIdx].summary = e.target.value;
+                                updated[mIdx].description = e.target.value;
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              placeholder="Resumen de la clase y temas explicados..."
+                              className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900 resize-none"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 3: CONFIGURADOR DE QUIZES APROBATORIOS & % PERSONALIZABLE ── */}
+                {courseModalTab === 'quizes' && (
+                  <div className="space-y-6">
+                    
+                    {/* Selector de Módulo para el Quiz */}
+                    <div className="p-4 rounded-2xl bg-pink-50/50 border border-pink-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <span className="font-mono text-[10px] font-bold text-[#EA0C7F] uppercase tracking-wider block">
+                          MÓDULO A EVALUAR
+                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <select
+                            value={selectedModuleQuizIndex}
+                            onChange={(e) => setSelectedModuleQuizIndex(Number(e.target.value))}
+                            className="px-3 py-1.5 rounded-xl border border-pink-200 bg-white text-xs font-bold text-zinc-900 focus:outline-none"
+                          >
+                            {courseFormData.modules?.map((m, idx) => (
+                              <option key={idx} value={idx}>
+                                {m.title || 'Módulo ' + (idx + 1)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Switch de Activación y Slider de Porcentaje */}
+                      {courseFormData.modules && courseFormData.modules[selectedModuleQuizIndex] && (
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 text-xs font-bold text-zinc-800 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={courseFormData.modules[selectedModuleQuizIndex]?.quiz?.enabled ?? true}
+                              onChange={(e) => {
+                                const updated = [...(courseFormData.modules || [])];
+                                if (!updated[selectedModuleQuizIndex].quiz) {
+                                  updated[selectedModuleQuizIndex].quiz = { enabled: true, passing_score: 80, questions: [] };
+                                }
+                                updated[selectedModuleQuizIndex].quiz!.enabled = e.target.checked;
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              className="rounded text-[#EA0C7F] focus:ring-[#EA0C7F] w-4 h-4"
+                            />
+                            <span>Activar Quiz Aprobatorio</span>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Editor del Quiz del Módulo Seleccionado */}
+                    {courseFormData.modules && courseFormData.modules[selectedModuleQuizIndex] && (
+                      <div className="space-y-6">
+                        
+                        {/* 🎯 CONTROL DEL NIVEL DE APROBACIÓN (% PERSONALIZABLE) */}
+                        <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Sliders className="w-4 h-4 text-[#EA0C7F]" />
+                              <span className="font-mono text-xs font-bold text-zinc-900 uppercase">
+                                Nivel Mínimo de Aprobación Requerido:
+                              </span>
+                            </div>
+                            <span className="font-mono text-sm font-extrabold text-[#EA0C7F] bg-pink-50 px-3 py-1 rounded-full border border-pink-200">
+                              {courseFormData.modules[selectedModuleQuizIndex]?.quiz?.passing_score || 80}% MÍNIMO
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="range"
+                              min={50}
+                              max={100}
+                              step={5}
+                              value={courseFormData.modules[selectedModuleQuizIndex]?.quiz?.passing_score || 80}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const updated = [...(courseFormData.modules || [])];
+                                if (!updated[selectedModuleQuizIndex].quiz) {
+                                  updated[selectedModuleQuizIndex].quiz = { enabled: true, passing_score: 80, questions: [] };
+                                }
+                                updated[selectedModuleQuizIndex].quiz!.passing_score = val;
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#EA0C7F]"
+                            />
+                            <input
+                              type="number"
+                              min={50}
+                              max={100}
+                              value={courseFormData.modules[selectedModuleQuizIndex]?.quiz?.passing_score || 80}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const updated = [...(courseFormData.modules || [])];
+                                if (!updated[selectedModuleQuizIndex].quiz) {
+                                  updated[selectedModuleQuizIndex].quiz = { enabled: true, passing_score: 80, questions: [] };
+                                }
+                                updated[selectedModuleQuizIndex].quiz!.passing_score = val;
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              className="w-16 px-2 py-1 rounded-lg border border-zinc-300 text-center font-mono font-bold text-xs"
+                            />
+                          </div>
+
+                          <p className="text-[11px] text-zinc-500">
+                            El alumno deberá acertar este porcentaje de preguntas para que el módulo cuente como superado y se habilite el certificado.
+                          </p>
+                        </div>
+
+                        {/* Preguntas del Quiz */}
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-xs font-bold text-zinc-900 uppercase">
+                              Preguntas de Evaluación ({courseFormData.modules[selectedModuleQuizIndex]?.quiz?.questions?.length || 0})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = [...(courseFormData.modules || [])];
+                                const currentQuiz = updated[selectedModuleQuizIndex].quiz || { enabled: true, passing_score: 80, questions: [] };
+                                const newQ: QuizQuestionForm = {
+                                  question: 'Nueva Pregunta Técnica',
+                                  options: ['Opción A', 'Opción B', 'Opción C'],
+                                  correctIndex: 0,
+                                  explanation: 'Explicación del por qué es la respuesta correcta.',
+                                };
+                                currentQuiz.questions.push(newQ);
+                                updated[selectedModuleQuizIndex].quiz = currentQuiz;
+                                setCourseFormData({ ...courseFormData, modules: updated });
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EA0C7F] text-white text-xs font-bold hover:bg-[#c7096b] shadow-xs"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Agregar Pregunta</span>
+                            </button>
+                          </div>
+
+                          {courseFormData.modules[selectedModuleQuizIndex]?.quiz?.questions?.map((q, qIdx) => (
+                            <div key={qIdx} className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-mono text-[10px] font-bold text-[#EA0C7F]">
+                                  PREGUNTA #{qIdx + 1}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[selectedModuleQuizIndex].quiz!.questions.splice(qIdx, 1);
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  className="text-red-600 hover:text-red-800 text-[11px] font-bold"
+                                >
+                                  Eliminar Pregunta ✕
+                                </button>
+                              </div>
+
+                              <div>
+                                <label className="block text-zinc-700 font-mono text-[10px] font-bold mb-1">ENUNCIADO DE LA PREGUNTA</label>
+                                <input
+                                  type="text"
+                                  value={q.question}
+                                  onChange={(e) => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[selectedModuleQuizIndex].quiz!.questions[qIdx].question = e.target.value;
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  placeholder="¿Qué parámetro debe enviarse en...?"
+                                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-bold text-zinc-900"
+                                />
+                              </div>
+
+                              {/* Opciones de Respuesta & Radio de Opción Correcta */}
+                              <div className="space-y-2 pt-1">
+                                <label className="block text-zinc-700 font-mono text-[10px] font-bold">
+                                  OPCIONES (Marca con el círculo verde la respuesta correcta):
+                                </label>
+                                {q.options.map((opt, oIdx) => (
+                                  <div key={oIdx} className="flex items-center gap-2">
+                                    <input
+                                      type="radio"
+                                      name={'correct_' + selectedModuleQuizIndex + '_' + qIdx}
+                                      checked={q.correctIndex === oIdx}
+                                      onChange={() => {
+                                        const updated = [...(courseFormData.modules || [])];
+                                        updated[selectedModuleQuizIndex].quiz!.questions[qIdx].correctIndex = oIdx;
+                                        setCourseFormData({ ...courseFormData, modules: updated });
+                                      }}
+                                      className="w-4 h-4 accent-emerald-600 cursor-pointer"
+                                      title="Marcar como respuesta correcta"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={opt}
+                                      onChange={(e) => {
+                                        const updated = [...(courseFormData.modules || [])];
+                                        updated[selectedModuleQuizIndex].quiz!.questions[qIdx].options[oIdx] = e.target.value;
+                                        setCourseFormData({ ...courseFormData, modules: updated });
+                                      }}
+                                      placeholder={'Opción ' + (oIdx + 1)}
+                                      className={'w-full rounded-lg border px-3 py-1.5 text-xs ' + (q.correctIndex === oIdx ? 'border-emerald-400 bg-emerald-50/50 font-semibold text-emerald-900' : 'border-zinc-300 bg-white text-zinc-800')}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div>
+                                <label className="block text-zinc-700 font-mono text-[10px] font-bold mb-1">
+                                  💡 EXPLICACIÓN TÉCNICA (Feedback para el Alumno)
+                                </label>
+                                <textarea
+                                  rows={2}
+                                  value={q.explanation}
+                                  onChange={(e) => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[selectedModuleQuizIndex].quiz!.questions[qIdx].explanation = e.target.value;
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  placeholder="Explica por qué esta es la respuesta correcta para enriquecer el aprendizaje..."
+                                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-800 resize-none"
+                                />
+                              </div>
+
+                            </div>
+                          ))}
+                        </div>
+
+                      </div>
+                    )}
+
+                  </div>
+                )}
+
+                {/* Footer Modal con Botón de Guardar */}
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-100 shrink-0">
+                  <div className="text-[11px] text-zinc-500 font-mono">
+                    Los cambios se sincronizan en tiempo real con Supabase y el Campus.
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsCourseModalOpen(false)}
+                      className="px-4 py-2.5 rounded-xl border border-zinc-300 text-zinc-700 hover:bg-zinc-50 transition-colors font-semibold text-xs"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#971B8D] to-[#EA0C7F] hover:opacity-95 text-white font-bold text-xs transition-all shadow-md shadow-[#971B8D]/30"
+                    >
+                      Guardar Programa & Quizes
+                    </button>
+                  </div>
                 </div>
+
               </form>
             </div>
           </div>
