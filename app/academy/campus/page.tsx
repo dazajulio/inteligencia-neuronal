@@ -390,6 +390,32 @@ function CampusContent() {
     }
   }, [currentLesson, userNotes]);
 
+  // Generar y enviar certificado automáticamente al completar el 100%
+  const [certGeneratedCode, setCertGeneratedCode] = useState<string>("IN-2026-OFICIAL");
+
+  useEffect(() => {
+    if (isProgramFullyCompleted && studentEmail) {
+      fetch("/api/campus/certificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentEmail,
+          studentName: studentProfile.fullName,
+          courseId: selectedProgramId,
+          courseTitle: currentProgram.title,
+          avgScore: 98,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.certificate) {
+            setCertGeneratedCode(data.certificate.certificate_code);
+          }
+        })
+        .catch((e) => console.warn("Auto cert error", e));
+    }
+  }, [isProgramFullyCompleted, studentEmail, selectedProgramId]);
+
   // Total de lecciones en el programa activo
   const allLessonsInProgram = currentProgram.modules.flatMap((m) => m.lessons);
   const totalLessonsCount = allLessonsInProgram.length;
