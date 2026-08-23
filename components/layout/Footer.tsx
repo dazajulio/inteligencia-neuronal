@@ -131,20 +131,20 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5">
               <li>
-                <button
-                  onClick={() => setLegalModal("terms")}
-                  className="hover:text-zinc-900 transition-colors text-left hover:underline"
+                <Link
+                  href="/terminos"
+                  className="hover:text-zinc-900 transition-colors text-left hover:underline block"
                 >
                   Términos y Condiciones de Servicio
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => setLegalModal("privacy")}
-                  className="hover:text-zinc-900 transition-colors text-left hover:underline"
+                <Link
+                  href="/privacidad"
+                  className="hover:text-zinc-900 transition-colors text-left hover:underline block"
                 >
                   Políticas de Privacidad & Datos
-                </button>
+                </Link>
               </li>
               <li>
                 <button
