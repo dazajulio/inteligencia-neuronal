@@ -64,13 +64,60 @@ export default function CertificateValidationPage() {
   };
 
   return (
+    <>
+      {/* ── ESTILOS DE IMPRESIÓN PRO (1 SOLA HOJA HORIZONTAL PERFECTA) ── */}
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: landscape;
+            margin: 0;
+          }
+          html, body {
+            background-color: #0B0F17 !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+          header, nav, footer, .no-print {
+            display: none !important;
+          }
+          main {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          #diploma-card {
+            width: 95vw !important;
+            max-width: 1050px !important;
+            margin: auto !important;
+            border: 2px solid #1DACE3 !important;
+            background: #0E131D !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            page-break-inside: avoid !important;
+            page-break-after: avoid !important;
+            box-shadow: none !important;
+            padding: 24px 36px !important;
+          }
+        }
+      `}</style>
+
     <div className="min-h-screen bg-[#0B0F17] text-white flex flex-col justify-between selection:bg-[#1DACE3] selection:text-white font-sans">
-      <Navbar />
+      <div className="no-print"><Navbar /></div>
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
         
         {/* Banner de Verificación Criptográfica */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="no-print p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
               <ShieldCheck className="w-5 h-5" />
@@ -105,7 +152,7 @@ export default function CertificateValidationPage() {
         </div>
 
         {/* ── DIPLOMA DE VANGUARDIA DIGITAL (DESIGN PRO) ── */}
-        <div className="relative rounded-3xl p-8 sm:p-12 border-2 border-[#1DACE3]/40 bg-gradient-to-b from-[#121824] via-[#0E131D] to-[#080B10] shadow-2xl overflow-hidden text-center space-y-8">
+        <div id="diploma-card" className="relative rounded-3xl p-8 sm:p-12 border-2 border-[#1DACE3]/40 bg-gradient-to-b from-[#121824] via-[#0E131D] to-[#080B10] shadow-2xl overflow-hidden text-center space-y-8">
           
           {/* Guilloche / Borde decorativo de seguridad */}
           <div className="absolute inset-2 sm:inset-4 border border-[#1DACE3]/20 rounded-2xl pointer-events-none" />
@@ -190,7 +237,7 @@ export default function CertificateValidationPage() {
           </div>
 
           {/* Acciones Inferiores */}
-          <div className="pt-4 relative z-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="no-print pt-4 relative z-10 flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => window.print()}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] hover:opacity-95 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2 cursor-pointer"
@@ -211,7 +258,8 @@ export default function CertificateValidationPage() {
 
       </main>
 
-      <Footer />
+      <div className="no-print"><Footer /></div>
     </div>
+    </>
   );
 }

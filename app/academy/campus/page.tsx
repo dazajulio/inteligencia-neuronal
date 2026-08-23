@@ -1335,7 +1335,10 @@ function CampusContent() {
                 <strong className="text-white">Julio Daza</strong>
               </div>
               <button
-                onClick={() => window.print()}
+                onClick={() => {
+                    const certUrl = '/certificados/' + certGeneratedCode;
+                    window.open(certUrl, '_blank');
+                  }}
                 className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] text-white font-bold text-xs shadow-md hover:opacity-95"
               >
                 Imprimir / Guardar PDF
