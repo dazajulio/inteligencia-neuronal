@@ -249,13 +249,79 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
 
 export default function AcademyPage() {
   const { openCheckout } = useCheckoutStore();
-  const [courses] = useState<Course[]>(REAL_COURSES);
-  const [resources] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
+  const [courses, setCourses] = useState<Course[]>(REAL_COURSES);
+  const [resources, setResources] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>("bootcamp-n8n");
   const [expandedModule, setExpandedModule] = useState<string | null>("bootcamp-n8n-Módulo 01");
   const [resourceEmails, setResourceEmails] = useState<Record<string, string>>({});
   const [downloadStates, setDownloadStates] = useState<Record<string, { loading: boolean; success: boolean; message?: string }>>({});
+
+  // Sincronización en vivo con la Base de Datos Supabase (Panel Admin)
+  useEffect(() => {
+    fetch("/api/courses")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.courses && Array.isArray(data.courses) && data.courses.length > 0) {
+          const mapped = data.courses.map((c: any) => ({
+            id: c.id,
+            type: c.badge?.includes("CARRERA") || c.badge?.includes("BOOTCAMP") || c.duration?.includes("Semana") ? "PROGRAMA INTENSIVO" : "MASTERCLASS",
+            badge: c.badge || "PROGRAMA OFICIAL",
+            level: c.level || "Intermedio",
+            title: c.title,
+            tagline: c.tagline || c.description,
+            duration: c.duration || "Acceso de por vida",
+            lessonsCount: c.lessons_count || (c.modules?.length ? `${c.modules.length} Módulos` : "Acceso Completo"),
+            rating: Number(c.rating) || 5.0,
+            reviewsCount: Number(c.reviews_count) || (c.students_enrolled ? Math.round(c.students_enrolled * 0.3) : 48),
+            studentsCount: Number(c.students_enrolled) || 120,
+            instructor: {
+              name: "Julio Daza",
+              role: "Director de Arquitectura",
+              avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+            },
+            price: c.price_display || `$${c.price_usd || 97} USD`,
+            originalPrice: `$${(Number(c.price_usd) || 97) * 2} USD`,
+            previewImage: c.preview_image || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+            stripeColor: c.stripe_color || "from-[#1DACE3] via-[#0284c7] to-[#4f46e5]",
+            accentColor: "#0284c7",
+            tools: Array.isArray(c.tools) ? c.tools : (c.tools ? String(c.tools).split(",") : ["n8n", "Docker", "IA"]),
+            learningOutcomes: [
+              "Despliegue y aseguramiento de infraestructura en producción.",
+              "Conexión con WhatsApp Cloud API y Webhooks en tiempo real.",
+              "Persistencia en bases de datos relacionales con Row-Level Security.",
+              "Orquestación agéntica con mitigación de alucinaciones."
+            ],
+            modules: (c.modules || []).map((m: any) => ({
+              week: m.week_label || "Módulo",
+              title: m.title,
+              desc: m.description,
+              lessons: [m.description || "Implementación práctica y laboratorio"]
+            }))
+          }));
+          setCourses(mapped);
+        }
+      })
+      .catch((err) => console.warn("[Courses DB Sync Fallback]", err));
+
+    fetch("/api/resources")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.resources && Array.isArray(data.resources) && data.resources.length > 0) {
+          const mappedRes = data.resources.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            desc: r.description,
+            tag: r.tag || "RECURSO",
+            format: r.format || "PDF / Plantilla",
+            previewImage: r.preview_image || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+            stripeColor: r.stripe_color || "from-[#1DACE3] to-[#0284c7]",
+          }));
+          setResources(mappedRes);
+        }
+      })
+      .catch((err) => console.warn("[Resources DB Sync Fallback]", err));
+  }, []);
 
   const filteredCourses = courses.filter((c) => {
     if (activeCategory === "BOOTCAMP") return c.type === "PROGRAMA INTENSIVO";
