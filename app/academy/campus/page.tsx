@@ -53,6 +53,7 @@ interface Lesson {
   duration: string;
   videoUrl: string;
   summary: string;
+  content_text?: string;
   prompts?: string[];
   downloads?: { name: string; type: string; url: string }[];
 }
@@ -330,7 +331,7 @@ function CampusContent() {
 
   const [activeModuleIndex, setActiveModuleIndex] = useState(0);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
-  const [activePlayerTab, setActivePlayerTab] = useState<"summary" | "prompts" | "downloads" | "quiz" | "notes">("summary");
+  const [activePlayerTab, setActivePlayerTab] = useState<"summary" | "content" | "prompts" | "downloads" | "quiz" | "notes">("summary");
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null);
 
   // Progress Tracking & Quizes State (Persistente)
@@ -611,7 +612,7 @@ function CampusContent() {
       <Navbar />
 
       {/* ── SUB-HEADER DEL CAMPUS CON NAVEGACIÓN Y PERFIL ── */}
-      <header className="bg-white border-b border-zinc-200 sticky top-20 z-30 shadow-xs">
+      <header className="bg-white border-b border-zinc-200 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] flex items-center justify-center text-white shadow-sm">
@@ -786,9 +787,23 @@ function CampusContent() {
 
                       <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
                         <span className="font-mono text-zinc-500">{prog.modules.length} Módulos</span>
-                        <span className="font-bold text-[#0284c7] flex items-center gap-1">
-                          Entrar al Aula <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProgramId(prog.id);
+                            setActiveModuleIndex(0);
+                            setActiveLessonIndex(0);
+                            setCurrentView("player");
+                            if (typeof window !== "undefined") {
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }
+                          }}
+                          className="font-bold text-white bg-[#0284c7] hover:bg-[#0369a1] px-3.5 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <span>Entrar al Aula</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   );
@@ -911,6 +926,14 @@ function CampusContent() {
                   </button>
 
                   <button
+                    onClick={() => setActivePlayerTab("content")}
+                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "content" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Guía Escrita</span>
+                  </button>
+
+                  <button
                     onClick={() => setActivePlayerTab("prompts")}
                     className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "prompts" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
                   >
@@ -951,14 +974,23 @@ function CampusContent() {
                 {/* Tab: Resumen */}
                 {activePlayerTab === "summary" && (
                   <div className="space-y-4 text-xs text-zinc-700 leading-relaxed">
-                    <p>{currentLesson?.summary}</p>
+                    <p className="text-zinc-800 text-sm leading-relaxed">{currentLesson?.summary}</p>
                     <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
                       <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase block">
                         💡 Objetivo de Aprendizaje:
                       </span>
                       <p className="text-zinc-600">
-                        Aplica los conceptos técnicos y descarga los blueprints asociados para probarlos en tu propio entorno.
+                        Aplica los conceptos técnicos, consulta la pestaña <strong>Guía Escrita</strong> y descarga los blueprints asociados para probarlos en tu propio entorno.
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab: Guía Escrita / Manual de la Unidad */}
+                {activePlayerTab === "content" && (
+                  <div className="space-y-4 text-xs text-zinc-800 leading-relaxed">
+                    <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 whitespace-pre-wrap font-sans text-xs leading-relaxed">
+                      {currentLesson?.content_text || currentLesson?.summary || "Esta lección incluye el reproductor de video interactivo y materiales descargables en las pestañas superiores."}
                     </div>
                   </div>
                 )}

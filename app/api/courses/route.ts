@@ -18,6 +18,7 @@ export async function GET() {
           order_index,
           video_url,
           summary,
+          content_text,
           prompts,
           downloads,
           quiz_data
@@ -89,6 +90,7 @@ export async function POST(req: NextRequest) {
         description: m.description || m.desc || "",
         video_url: m.video_url || m.videoUrl || "",
         summary: m.summary || m.description || "",
+        content_text: m.content_text || "",
         prompts: Array.isArray(m.prompts) ? m.prompts : [],
         downloads: Array.isArray(m.downloads) ? m.downloads : [],
         quiz_data: m.quiz_data || m.quiz || { enabled: false, passing_score: 80, questions: [] },
@@ -154,6 +156,7 @@ export async function PUT(req: NextRequest) {
         description: m.description || m.desc || "",
         video_url: m.video_url || m.videoUrl || "",
         summary: m.summary || m.description || "",
+        content_text: m.content_text || "",
         prompts: Array.isArray(m.prompts) ? m.prompts : [],
         downloads: Array.isArray(m.downloads) ? m.downloads : [],
         quiz_data: m.quiz_data || m.quiz || { enabled: false, passing_score: 80, questions: [] },

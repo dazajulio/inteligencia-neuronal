@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/client";
+import fs from "fs";
+import path from "path";
 
 export const dynamic = "force-dynamic";
 
@@ -43,10 +45,46 @@ const DEFAULT_SETTINGS: PaymentSettings = {
   },
 };
 
-// Variable de memoria para fallback inmediato
-let memorySettings: PaymentSettings = { ...DEFAULT_SETTINGS };
+const LOCAL_STORAGE_FILE = path.join(process.cwd(), "data", "payment_settings.json");
+
+function getLocalSettings(): PaymentSettings {
+  try {
+    if (fs.existsSync(LOCAL_STORAGE_FILE)) {
+      const raw = fs.readFileSync(LOCAL_STORAGE_FILE, "utf8");
+      const parsed = JSON.parse(raw);
+      return {
+        pagoMovil: { ...DEFAULT_SETTINGS.pagoMovil, ...(parsed.pagoMovil || {}) },
+        lemonSqueezy: {
+          ...DEFAULT_SETTINGS.lemonSqueezy,
+          ...(parsed.lemonSqueezy || {}),
+          courseLinks: {
+            ...DEFAULT_SETTINGS.lemonSqueezy.courseLinks,
+            ...(parsed.lemonSqueezy?.courseLinks || {}),
+          },
+        },
+      };
+    }
+  } catch (err) {
+    console.warn("[Settings Local Read Fallback]", err);
+  }
+  return DEFAULT_SETTINGS;
+}
+
+function saveLocalSettings(settings: PaymentSettings) {
+  try {
+    const dir = path.dirname(LOCAL_STORAGE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(LOCAL_STORAGE_FILE, JSON.stringify(settings, null, 2), "utf8");
+  } catch (err) {
+    console.warn("[Settings Local Write Fallback]", err);
+  }
+}
 
 export async function GET() {
+  let settings = getLocalSettings();
+
   try {
     const db = getSupabaseAdmin();
     const { data, error } = await db
@@ -56,14 +94,24 @@ export async function GET() {
       .single();
 
     if (!error && data?.value) {
-      memorySettings = { ...DEFAULT_SETTINGS, ...data.value };
-      return NextResponse.json({ success: true, settings: memorySettings });
+      settings = {
+        pagoMovil: { ...DEFAULT_SETTINGS.pagoMovil, ...(data.value.pagoMovil || {}) },
+        lemonSqueezy: {
+          ...DEFAULT_SETTINGS.lemonSqueezy,
+          ...(data.value.lemonSqueezy || {}),
+          courseLinks: {
+            ...DEFAULT_SETTINGS.lemonSqueezy.courseLinks,
+            ...(data.value.lemonSqueezy?.courseLinks || {}),
+          },
+        },
+      };
+      saveLocalSettings(settings);
     }
   } catch (err) {
     console.warn("[Settings GET Supabase Fallback]", err);
   }
 
-  return NextResponse.json({ success: true, settings: memorySettings });
+  return NextResponse.json({ success: true, settings });
 }
 
 export async function POST(req: NextRequest) {
@@ -84,18 +132,18 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    memorySettings = newSettings;
+    saveLocalSettings(newSettings);
 
-    // Intentar persistir en Supabase
     try {
       const db = getSupabaseAdmin();
-      await db
-        .from("app_settings")
-        .upsert({
+      await db.from("app_settings").upsert(
+        {
           key: "payment_gateways",
           value: newSettings,
           updated_at: new Date().toISOString(),
-        });
+        },
+        { onConflict: "key" }
+      );
     } catch (e) {
       console.warn("[Settings POST Supabase Upsert Warning]", e);
     }

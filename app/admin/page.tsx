@@ -92,6 +92,7 @@ export interface CourseModuleForm {
   description: string;
   video_url?: string;
   summary?: string;
+  content_text?: string;
   prompts?: string[];
   downloads?: { name: string; type?: string; url: string }[];
   quiz?: ModuleQuizForm;
@@ -212,6 +213,7 @@ export default function AdminDashboard() {
                 description: m.description || '',
                 video_url: m.video_url || '',
                 summary: m.summary || '',
+                content_text: m.content_text || '',
                 prompts: Array.isArray(m.prompts) ? m.prompts : [],
                 downloads: Array.isArray(m.downloads) ? m.downloads : [],
                 quiz: m.quiz_data || { enabled: false, passing_score: 80, questions: [] },
@@ -588,6 +590,9 @@ export default function AdminDashboard() {
     e.preventDefault();
     setIsSavingSettings(true);
     setSettingsSuccessMsg(null);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('in_admin_payment_settings', JSON.stringify(paymentSettings));
+    }
     try {
       const res = await fetch("/api/settings", {
         method: "POST",
@@ -1934,7 +1939,7 @@ export default function AdminDashboard() {
                     <h3 className="text-base font-bold text-zinc-900">
                       {editingCourse ? 'Configurador de Programa: ' + (courseFormData.title || 'Curso') : 'Crear Nuevo Programa Formativo'}
                     </h3>
-                    <p className="text-xs text-zinc-500">Configura información general, temario y exámenes con % de aprobación</p>
+                    <p className="text-xs text-zinc-500">Configura datos generales, lecciones en texto, prompts, descargas y quizes</p>
                   </div>
                 </div>
                 <button
@@ -1961,7 +1966,7 @@ export default function AdminDashboard() {
                   className={'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ' + (courseModalTab === 'modules' ? 'bg-[#971B8D] text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100')}
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>2. Módulos & Lecciones ({courseFormData.modules?.length || 0})</span>
+                  <span>2. Módulos, Texto & Recursos ({courseFormData.modules?.length || 0})</span>
                 </button>
                 <button
                   type="button"
@@ -2064,15 +2069,17 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                {/* ── TAB 2: GESTOR DE MÓDULOS & LECCIONES ── */}
+                {/* ── TAB 2: GESTOR DE MÓDULOS, LECCIONES, TEXTO COMPLETO, PROMPTS Y DESCARGAS ── */}
                 {courseModalTab === 'modules' && (
-                  <div className="space-y-5">
+                  <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-xs font-bold text-zinc-900 uppercase font-mono">
-                          Módulos & Clases del Programa
+                          Módulos & Contenido Pedagógico
                         </h4>
-                        <p className="text-[11px] text-zinc-500">Agrega o edita las secciones temáticas, videos de YouTube/Loom y resúmenes</p>
+                        <p className="text-[11px] text-zinc-500">
+                          Redacta el texto de la lección, videos, prompts de IA y adjunta descargables/blueprints
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -2082,11 +2089,12 @@ export default function AdminDashboard() {
                           const newMod: CourseModuleForm = {
                             week_label: `0${nextIdx}`,
                             title: `Módulo ${nextIdx}: Nuevo Módulo`,
-                            description: 'Descripción de las lecciones de este módulo',
+                            description: 'Descripción breve de la sección',
                             video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-                            summary: 'Resumen técnico y objetivos del módulo',
-                            prompts: [],
-                            downloads: [],
+                            summary: 'Resumen técnico de la clase',
+                            content_text: '### Guía Paso a Paso de la Unidad\n\nEscribe aquí la explicación detallada, comandos bash, arquitectura y consideraciones técnicas...',
+                            prompts: ['Actúa como un Ingeniero de Automatización y genera...'],
+                            downloads: [{ name: 'Blueprint_Flujo_n8n.json', type: 'JSON / n8n', url: '#' }],
                             quiz: { enabled: true, passing_score: 80, questions: [] },
                           };
                           setCourseFormData({ ...courseFormData, modules: [...currentMods, newMod] });
@@ -2098,11 +2106,13 @@ export default function AdminDashboard() {
                       </button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {courseFormData.modules?.map((mod, mIdx) => (
-                        <div key={mIdx} className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] font-bold text-[#971B8D] bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                        <div key={mIdx} className="p-5 rounded-2xl border border-zinc-200 bg-zinc-50 space-y-4">
+                          
+                          {/* Header del Módulo */}
+                          <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                            <span className="font-mono text-[10px] font-bold text-[#971B8D] bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">
                               MÓDULO #{mIdx + 1}
                             </span>
                             <button
@@ -2112,15 +2122,16 @@ export default function AdminDashboard() {
                                 updated.splice(mIdx, 1);
                                 setCourseFormData({ ...courseFormData, modules: updated });
                               }}
-                              className="text-red-600 hover:text-red-800 p-1 text-[11px] font-bold"
+                              className="text-red-600 hover:text-red-800 text-[11px] font-bold"
                             >
                               Eliminar Módulo ✕
                             </button>
                           </div>
 
+                          {/* Título y Código */}
                           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                             <div className="sm:col-span-1">
-                              <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">CÓDIGO / ETIQUETA</label>
+                              <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">ETIQUETA</label>
                               <input
                                 type="text"
                                 value={mod.week_label || ''}
@@ -2150,36 +2161,178 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
+                          {/* Video URL & Resumen */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">URL DEL VIDEO (YouTube / Loom / Vimeo)</label>
+                              <input
+                                type="text"
+                                value={mod.video_url || ''}
+                                onChange={(e) => {
+                                  const updated = [...(courseFormData.modules || [])];
+                                  updated[mIdx].video_url = e.target.value;
+                                  setCourseFormData({ ...courseFormData, modules: updated });
+                                }}
+                                placeholder="https://www.youtube.com/embed/..."
+                                className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900 font-mono"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">RESUMEN CORTO</label>
+                              <input
+                                type="text"
+                                value={mod.summary || ''}
+                                onChange={(e) => {
+                                  const updated = [...(courseFormData.modules || [])];
+                                  updated[mIdx].summary = e.target.value;
+                                  setCourseFormData({ ...courseFormData, modules: updated });
+                                }}
+                                placeholder="Breve sinopsis para la cabecera..."
+                                className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900"
+                              />
+                            </div>
+                          </div>
+
+                          {/* 📝 EDITOR DE CONTENIDO ESCRITO / UNIDAD FORMATO TEXTO */}
                           <div>
-                            <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">URL DEL VIDEO (YouTube Embed / Vimeo / MP4)</label>
-                            <input
-                              type="text"
-                              value={mod.video_url || ''}
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-zinc-700 font-mono text-[10px] font-bold uppercase flex items-center gap-1.5">
+                                <FileText className="w-3.5 h-3.5 text-[#1DACE3]" />
+                                <span>Contenido de la Unidad en Formato Texto (Guía / Manual Completo)</span>
+                              </label>
+                              <span className="text-[10px] text-zinc-400 font-mono">Soporta Markdown & Código</span>
+                            </div>
+                            <textarea
+                              rows={5}
+                              value={mod.content_text || ''}
                               onChange={(e) => {
                                 const updated = [...(courseFormData.modules || [])];
-                                updated[mIdx].video_url = e.target.value;
+                                updated[mIdx].content_text = e.target.value;
                                 setCourseFormData({ ...courseFormData, modules: updated });
                               }}
-                              placeholder="https://www.youtube.com/embed/..."
-                              className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900 font-mono"
+                              placeholder="Redacta la guía completa de la lección, comandos, explicaciones y manual paso a paso..."
+                              className="w-full rounded-xl border border-zinc-300 bg-white p-3 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:outline-none"
                             />
                           </div>
 
-                          <div>
-                            <label className="block text-zinc-600 font-mono text-[10px] font-bold mb-1">RESUMEN & OBJETIVO TÉCNICO</label>
-                            <textarea
-                              rows={2}
-                              value={mod.summary || mod.description || ''}
-                              onChange={(e) => {
-                                const updated = [...(courseFormData.modules || [])];
-                                updated[mIdx].summary = e.target.value;
-                                updated[mIdx].description = e.target.value;
-                                setCourseFormData({ ...courseFormData, modules: updated });
-                              }}
-                              placeholder="Resumen de la clase y temas explicados..."
-                              className="w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-xs text-zinc-900 resize-none"
-                            />
+                          {/* 🤖 GESTOR DE PROMPTS DE IA */}
+                          <div className="p-3.5 bg-white rounded-xl border border-zinc-200 space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase">
+                                Prompts de IA ({mod.prompts?.length || 0})
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...(courseFormData.modules || [])];
+                                  const list = updated[mIdx].prompts || [];
+                                  updated[mIdx].prompts = [...list, 'Nuevo prompt para copiar y pegar...'];
+                                  setCourseFormData({ ...courseFormData, modules: updated });
+                                }}
+                                className="text-[11px] font-bold text-[#0284c7] hover:underline"
+                              >
+                                + Agregar Prompt
+                              </button>
+                            </div>
+
+                            {mod.prompts?.map((pr, pIdx) => (
+                              <div key={pIdx} className="flex items-start gap-2">
+                                <textarea
+                                  rows={2}
+                                  value={pr}
+                                  onChange={(e) => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[mIdx].prompts![pIdx] = e.target.value;
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  className="w-full rounded-lg border border-zinc-300 p-2 text-xs font-mono text-zinc-800"
+                                  placeholder="Escribe el prompt aquí..."
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[mIdx].prompts!.splice(pIdx, 1);
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  className="text-red-500 hover:text-red-700 text-xs font-bold p-1"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
                           </div>
+
+                          {/* 📥 GESTOR DE DESCARGAS / BLUEPRINTS */}
+                          <div className="p-3.5 bg-white rounded-xl border border-zinc-200 space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-[10px] font-bold text-emerald-700 uppercase">
+                                Blueprints & Archivos Descargables ({mod.downloads?.length || 0})
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...(courseFormData.modules || [])];
+                                  const list = updated[mIdx].downloads || [];
+                                  updated[mIdx].downloads = [...list, { name: 'Plantilla.xlsx', type: 'Excel', url: '#' }];
+                                  setCourseFormData({ ...courseFormData, modules: updated });
+                                }}
+                                className="text-[11px] font-bold text-emerald-700 hover:underline"
+                              >
+                                + Agregar Archivo
+                              </button>
+                            </div>
+
+                            {mod.downloads?.map((dl, dIdx) => (
+                              <div key={dIdx} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                                <input
+                                  type="text"
+                                  value={dl.name}
+                                  onChange={(e) => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[mIdx].downloads![dIdx].name = e.target.value;
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  placeholder="Nombre del archivo (ej. Flujo_n8n.json)"
+                                  className="sm:col-span-5 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs"
+                                />
+                                <input
+                                  type="text"
+                                  value={dl.type || ''}
+                                  onChange={(e) => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[mIdx].downloads![dIdx].type = e.target.value;
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  placeholder="Tipo (ej. JSON)"
+                                  className="sm:col-span-3 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs"
+                                />
+                                <input
+                                  type="text"
+                                  value={dl.url}
+                                  onChange={(e) => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[mIdx].downloads![dIdx].url = e.target.value;
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  placeholder="URL / Ruta de descarga"
+                                  className="sm:col-span-3 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs font-mono"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...(courseFormData.modules || [])];
+                                    updated[mIdx].downloads!.splice(dIdx, 1);
+                                    setCourseFormData({ ...courseFormData, modules: updated });
+                                  }}
+                                  className="sm:col-span-1 text-red-500 hover:text-red-700 text-xs font-bold text-center"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
                         </div>
                       ))}
                     </div>
@@ -2211,7 +2364,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      {/* Switch de Activación y Slider de Porcentaje */}
+                      {/* Switch de Activación */}
                       {courseFormData.modules && courseFormData.modules[selectedModuleQuizIndex] && (
                         <div className="flex items-center gap-4">
                           <label className="flex items-center gap-2 text-xs font-bold text-zinc-800 cursor-pointer">
