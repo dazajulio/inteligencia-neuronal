@@ -390,6 +390,18 @@ function CampusContent() {
     }
   }, [currentLesson, userNotes]);
 
+  // Total de lecciones en el programa activo
+  const allLessonsInProgram = currentProgram.modules.flatMap((m) => m.lessons);
+  const totalLessonsCount = allLessonsInProgram.length;
+  const completedInProgram = completedLessons.filter((id) =>
+    allLessonsInProgram.some((l) => l.id === id)
+  ).length;
+  const progressPercentage = totalLessonsCount > 0
+    ? Math.round((completedInProgram / totalLessonsCount) * 100)
+    : 0;
+
+  const isProgramFullyCompleted = progressPercentage === 100;
+
   // Generar y enviar certificado automáticamente al completar el 100%
   const [certGeneratedCode, setCertGeneratedCode] = useState<string>("IN-2026-OFICIAL");
 
@@ -415,18 +427,6 @@ function CampusContent() {
         .catch((e) => console.warn("Auto cert error", e));
     }
   }, [isProgramFullyCompleted, studentEmail, selectedProgramId]);
-
-  // Total de lecciones en el programa activo
-  const allLessonsInProgram = currentProgram.modules.flatMap((m) => m.lessons);
-  const totalLessonsCount = allLessonsInProgram.length;
-  const completedInProgram = completedLessons.filter((id) =>
-    allLessonsInProgram.some((l) => l.id === id)
-  ).length;
-  const progressPercentage = totalLessonsCount > 0
-    ? Math.round((completedInProgram / totalLessonsCount) * 100)
-    : 0;
-
-  const isProgramFullyCompleted = progressPercentage === 100;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
