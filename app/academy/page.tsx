@@ -791,43 +791,74 @@ export default function AcademyPage() {
               </div>
             </div>
 
-            {/* Mockup del Diploma Oficial */}
+            {/* Mockup del Diploma Oficial de Vanguardia */}
             <div className="lg:col-span-6">
-              <div className="relative p-6 sm:p-8 rounded-3xl bg-zinc-900/90 border border-zinc-700/80 shadow-2xl space-y-6 text-center backdrop-blur-md">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-[#121824] via-[#0E131D] to-[#080B10] border-2 border-[#1DACE3]/40 shadow-2xl space-y-6 text-center backdrop-blur-md overflow-hidden">
                 
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                {/* Guilloche decorativo */}
+                <div className="absolute inset-2 border border-[#1DACE3]/20 rounded-2xl pointer-events-none" />
+                <div className="absolute inset-3 border border-dashed border-[#EA0C7F]/20 rounded-2xl pointer-events-none" />
+
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3 relative z-10">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 relative">
                       <Image src="/logo.png" alt="Logo" fill className="object-contain" />
                     </div>
-                    <span className="font-heading font-bold text-sm tracking-tight">Inteligencia Neuronal Academy</span>
+                    <span className="font-heading font-bold text-sm tracking-tight text-white">Inteligencia Neuronal Academy</span>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-500">ID: CERT-2026-IN</span>
+                  <span className="text-[10px] font-mono font-bold text-[#FEAD2B] bg-[#FEAD2B]/10 px-2.5 py-0.5 rounded-full border border-[#FEAD2B]/20">ID: IN-2026-OFICIAL</span>
                 </div>
 
-                <div className="space-y-2 py-4">
-                  <span className="text-[11px] font-mono tracking-widest text-[#1DACE3] uppercase font-bold">
-                    DIPLOMA DE EXCELENCIA PROFESIONAL
+                <div className="space-y-2 py-2 relative z-10">
+                  <span className="text-[10px] font-mono tracking-widest text-[#1DACE3] uppercase font-bold bg-[#1DACE3]/10 px-3 py-1 rounded-full border border-[#1DACE3]/30 inline-block">
+                    DIPLOMA DE EXCELENCIA & ACREDITACIÓN PROFESIONAL
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-serif text-zinc-100 font-bold italic">
-                    Nombre del Graduado
+                  <h3 className="text-2xl sm:text-3xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 via-white to-zinc-300 font-extrabold italic pt-2">
+                    Julio Alberto Daza
                   </h3>
-                  <p className="text-xs text-zinc-400 max-w-md mx-auto pt-1">
-                    Por haber superado con distinción los requisitos teóricos y la implementación en vivo del programa:
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto pt-1 leading-relaxed">
+                    Por haber superado con distinción técnica el 100% de los laboratorios en producción y quizes del programa:
                   </p>
-                  <p className="text-sm font-bold text-white pt-1">
-                    Arquitecto de Pipelines n8n & Agentes IA
+                  <p className="text-sm font-extrabold text-[#1DACE3] pt-1">
+                    Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-zinc-800 pt-4 text-[10px] font-mono text-zinc-400">
-                  <div>
-                    <span className="block font-bold text-zinc-200">Julio Daza</span>
-                    <span>Director de Arquitectura</span>
+                {/* Reseña de Competencias */}
+                <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 text-left text-[11px] text-zinc-300 space-y-1.5 relative z-10">
+                  <span className="text-[9px] font-mono font-bold text-[#FEAD2B] uppercase tracking-wider block">COMPETENCIAS CERTIFICADAS:</span>
+                  <div className="grid grid-cols-2 gap-1 text-[10px]">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span className="truncate">VPS & Docker Hardening</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span className="truncate">Meta Cloud API Webhooks</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span className="truncate">PostgreSQL con RLS</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span className="truncate">Agentes Autónomos LLM</span>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-white p-1 rounded-lg flex items-center justify-center">
-                    <div className="w-full h-full bg-zinc-950 flex items-center justify-center text-[8px] text-white font-bold">
-                      QR OK
+                </div>
+
+                <div className="flex items-center justify-between border-t border-zinc-800 pt-4 text-[10px] font-mono text-zinc-400 relative z-10">
+                  <div className="text-left">
+                    <span className="block font-bold text-zinc-100 font-serif italic text-xs">Julio Daza</span>
+                    <span className="text-[9px] text-zinc-500">Director de Arquitectura</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-12 h-12 bg-white p-1 rounded-xl flex items-center justify-center">
+                      <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://www.inteligencianeuronal.com/certificados/IN-2026-OFICIAL"
+                        alt="QR Demo"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                   </div>
                 </div>
