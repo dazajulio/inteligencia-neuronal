@@ -834,80 +834,112 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      {/* ── TOOLKIT GRATIS: RECURSOS DESCARGABLES PARA LEADS ── */}
+      {/* ── TOOLKIT: RECURSOS DESCARGABLES GRATUITOS & PREMIUM (DE PAGO) ── */}
       <section id="toolkit" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <span className="text-xs font-mono font-bold text-[#EA0C7F] uppercase tracking-wider bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
-            Recursos Abiertos & Blueprints
+            Recursos Operativos & Blueprints
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight font-heading">
-            Descarga Nuestro Toolkit Operativo Gratis
+            Toolkit de Automatización & Plantillas
           </h2>
           <p className="text-sm text-zinc-600 leading-relaxed">
-            Herramientas reales utilizadas en nuestras consultorías B2B. Descarga las plantillas en Excel, frameworks de Notion y guías de arquitectura sin costo.
+            Herramientas reales utilizadas en nuestras consultorías B2B. Descarga las plantillas gratuitas o adquiere blueprints avanzados listos para producción.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {resources.map((res) => {
+            const isPremium = res.access?.includes("PREMIUM") || (res.price && res.price !== "GRATIS" && !res.price.includes("$0"));
             const state = downloadStates[res.id] || { loading: false, success: false, message: "" };
 
             return (
               <div
                 key={res.id}
-                className="rounded-2xl border border-zinc-200 bg-white p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all space-y-4"
+                className={"rounded-3xl border bg-white p-6 flex flex-col justify-between transition-all space-y-5 " + (isPremium ? "border-[#FEAD2B]/60 shadow-md ring-1 ring-[#FEAD2B]/20" : "border-zinc-200 shadow-sm hover:shadow-md")}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-800">
+                    <span className={"px-2.5 py-0.5 rounded text-[10px] font-mono font-bold " + (isPremium ? "bg-amber-100 text-amber-900" : "bg-zinc-100 text-zinc-800")}>
                       {res.tag}
                     </span>
-                    <FileCode2 className="w-4 h-4 text-zinc-400" />
+                    {isPremium ? (
+                      <span className="font-mono text-xs font-extrabold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        {res.price || "$27 USD"}
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        GRATIS
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-sm font-bold text-zinc-900 leading-snug">
                     {res.title}
                   </h3>
 
-                  <p className="text-xs text-zinc-500 leading-relaxed">
+                  <p className="text-xs text-zinc-500 leading-relaxed line-clamp-3">
                     {res.desc}
                   </p>
                 </div>
 
-                <form onSubmit={(e) => handleResourceSubmit(e, res.id)} className="space-y-2 pt-2 border-t border-zinc-100">
-                  {state.success ? (
-                    <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium text-center flex items-center justify-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{state.message}</span>
-                    </div>
+                <div className="pt-3 border-t border-zinc-100">
+                  {isPremium ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openCheckout({
+                          id: res.id,
+                          title: res.title,
+                          price: res.price || "$27 USD",
+                          tagline: res.desc,
+                          duration: "Descarga Inmediata + Licencia",
+                          badge: "BLUEPRINT PREMIUM",
+                        })
+                      }
+                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FEAD2B] to-[#EA0C7F] hover:opacity-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <CreditCard className="w-3.5 h-3.5" />
+                      <span>Comprar por {res.price || "$27 USD"}</span>
+                    </button>
                   ) : (
-                    <>
-                      <input
-                        type="email"
-                        required
-                        placeholder="tu@empresa.com"
-                        value={resourceEmails[res.id] || ""}
-                        onChange={(e) => setResourceEmails((prev) => ({ ...prev, [res.id]: e.target.value }))}
-                        className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
-                      />
-                      <button
-                        type="submit"
-                        disabled={state.loading}
-                        className="w-full py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        {state.loading ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <>
-                            <Download className="w-3.5 h-3.5" />
-                            <span>Descargar Gratis</span>
-                          </>
-                        )}
-                      </button>
-                    </>
+                    <form onSubmit={(e) => handleResourceSubmit(e, res.id)} className="space-y-2">
+                      {state.success ? (
+                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium text-center flex items-center justify-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{state.message}</span>
+                        </div>
+                      ) : (
+                        <>
+                          <input
+                            type="email"
+                            required
+                            placeholder="tu@empresa.com"
+                            value={resourceEmails[res.id] || ""}
+                            onChange={(e) => setResourceEmails((prev) => ({ ...prev, [res.id]: e.target.value }))}
+                            className="w-full px-3 py-2 rounded-xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                          />
+                          <button
+                            type="submit"
+                            disabled={state.loading}
+                            className="w-full py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            {state.loading ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <>
+                                <Download className="w-3.5 h-3.5 text-[#1DACE3]" />
+                                <span>Descargar Gratis</span>
+                              </>
+                            )}
+                          </button>
+                        </>
+                      )}
+                    </form>
                   )}
-                </form>
+                </div>
+
               </div>
             );
           })}

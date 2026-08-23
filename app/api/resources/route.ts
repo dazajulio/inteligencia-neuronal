@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
           stripe_color: body.stripe_color || body.stripeColor || "from-[#1DACE3] to-[#0284c7]",
           file_url: body.file_url || body.fileUrl || "#",
           access_type: body.access_type || body.access || "GRATUITO (LEAD)",
+          price_display: body.price_display || body.price || (body.access_type?.includes('PREMIUM') || body.access?.includes('PREMIUM') ? "$27 USD" : "GRATIS"),
+          price_usd: Number(body.price_usd) || (body.access_type?.includes('PREMIUM') || body.access?.includes('PREMIUM') ? 27 : 0),
           downloads_count: Number(body.downloads_count || body.downloads) || 0,
           is_active: body.is_active !== undefined ? body.is_active : true,
           order_index: Number(body.order_index) || 0,
@@ -84,6 +86,8 @@ export async function PUT(req: NextRequest) {
       stripe_color: body.stripe_color || body.stripeColor,
       file_url: body.file_url || body.fileUrl,
       access_type: body.access_type || body.access,
+      price_display: body.price_display || body.price,
+      price_usd: body.price_usd !== undefined ? Number(body.price_usd) : undefined,
       is_active: body.is_active,
     };
 

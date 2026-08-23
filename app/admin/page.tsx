@@ -64,7 +64,8 @@ interface ResourceItem {
   id: string;
   name: string;
   format: string;
-  access: string;
+  access: 'GRATUITO (LEAD)' | 'PREMIUM (PAGO)';
+  price?: string;
   downloads: number;
   tag: string;
   fileUrl?: string;
@@ -235,6 +236,7 @@ export default function AdminDashboard() {
               name: r.title || r.name,
               format: r.format,
               access: r.access_type || r.access || 'GRATUITO (LEAD)',
+              price: r.price_display || r.price || (r.access_type?.includes('PREMIUM') ? '$27 USD' : 'GRATIS'),
               downloads: r.downloads_count || r.downloads || 0,
               tag: r.tag,
               fileUrl: r.file_url || r.fileUrl,
@@ -557,6 +559,7 @@ export default function AdminDashboard() {
     name: '',
     format: 'PDF / Documento',
     access: 'GRATUITO (LEAD)',
+    price: 'GRATIS',
     tag: 'RECURSO',
     downloads: 0,
     fileUrl: '',
@@ -570,6 +573,7 @@ export default function AdminDashboard() {
       name: '',
       format: 'PDF / Documento',
       access: 'GRATUITO (LEAD)',
+      price: 'GRATIS',
       tag: 'RECURSO',
       downloads: 0,
       fileUrl: '',
@@ -600,6 +604,7 @@ export default function AdminDashboard() {
             title: resourceFormData.name,
             format: resourceFormData.format,
             access_type: resourceFormData.access,
+            price_display: resourceFormData.access === 'PREMIUM (PAGO)' ? (resourceFormData.price || '$27 USD') : 'GRATIS',
             tag: resourceFormData.tag,
             downloads_count: resourceFormData.downloads,
             file_url: resourceFormData.fileUrl,
@@ -616,6 +621,7 @@ export default function AdminDashboard() {
             title: resourceFormData.name,
             format: resourceFormData.format || 'PDF / Documento',
             access_type: resourceFormData.access || 'GRATUITO (LEAD)',
+            price_display: resourceFormData.access === 'PREMIUM (PAGO)' ? (resourceFormData.price || '$27 USD') : 'GRATIS',
             tag: resourceFormData.tag || 'RECURSO',
             downloads_count: resourceFormData.downloads || 0,
             file_url: resourceFormData.fileUrl || '#',
