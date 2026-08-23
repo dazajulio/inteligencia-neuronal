@@ -78,6 +78,10 @@ interface ResourceItem {
   format: string;
   previewImage: string;
   stripeColor: string;
+  access?: string;
+  price?: string;
+  fileUrl?: string;
+  downloads?: string;
 }
 
 // ── EXACTAMENTE LOS 2 PRODUCTOS EDUCATIVOS ACTIVOS (1 PROGRAMA Y 1 CURSO) ──
