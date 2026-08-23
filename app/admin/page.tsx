@@ -64,7 +64,7 @@ interface ResourceItem {
   id: string;
   name: string;
   format: string;
-  access: 'GRATUITO (LEAD)' | 'PREMIUM (PAGO)';
+  access: string;
   price?: string;
   downloads: number;
   tag: string;
