@@ -487,10 +487,12 @@ export default function AcademyPage() {
                       <button
                         onClick={() =>
                           openCheckout({
-                            courseId: course.id,
-                            courseTitle: course.title,
-                            priceDisplay: course.price,
-                            stripeUrl: course.ctaUrl || ("https://buy.stripe.com/test_" + course.id),
+                            id: course.id,
+                            title: course.title,
+                            price: course.price,
+                            tagline: course.tagline,
+                            duration: course.duration,
+                            badge: course.badge,
                           })
                         }
                         className={"w-full py-4 rounded-xl text-white font-bold text-sm tracking-wide transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 bg-gradient-to-r " + course.stripeColor + " hover:opacity-95 active:scale-[0.99]"}
