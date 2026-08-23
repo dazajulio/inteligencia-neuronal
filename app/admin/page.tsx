@@ -272,7 +272,132 @@ export default function AdminDashboard() {
   }, []);
 
   // ── 2. GESTOR DE CURSOS STATE & CRUD ──
-  const [coursesList, setCoursesList] = useState<CourseItem[]>([]);
+  const [coursesList, setCoursesList] = useState<CourseItem[]>([
+    {
+      id: 'bootcamp-n8n',
+      title: 'Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA',
+      badge: 'PROGRAMA TÉCNICO // EN VIVO',
+      level: 'Intermedio a Avanzado',
+      price: '$197 USD',
+      duration: '6 Semanas Intensivas',
+      tagline: 'Despliegue de infraestructura soberana sobre VPS dedicado, webhooks reversos y orquestación de agentes con PostgreSQL.',
+      previewImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+      tools: ['n8n Self-Hosted', 'Docker & Caddy', 'PostgreSQL', 'Meta Cloud API', 'LangChain / LLMs'],
+      modulesCount: 6,
+      studentsEnrolled: 140,
+      ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
+      status: 'ACTIVO',
+      modules: [
+        {
+          week_label: '01',
+          title: 'Módulo 01: Despliegue VPS con Docker & Caddy SSL',
+          description: 'Aprovisionamiento Linux VPS, Docker Compose, volúmenes y certificados automáticos HTTPS.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Configuración de servidor Linux en Hetzner/DigitalOcean, firewall UFW y Caddy Reverse Proxy.',
+          content_text: '### Laboratorio 01: Hardening de VPS y Docker Compose\n\n1. Instalar paquetes esenciales: `sudo apt update && sudo apt install docker.io docker-compose -y`\n2. Configurar el archivo Caddyfile con tu dominio de producción.\n3. Desplegar n8n con persistencia en volumen host.',
+          prompts: ['Genera un script bash de aprovisionamiento seguro para Ubuntu 24.04 con Docker, Caddy y puertos 80/443 abiertos.'],
+          downloads: [
+            { name: 'docker-compose-n8n-caddy.yml', type: 'Docker YAML', url: '#' },
+            { name: 'Script_Setup_VPS_Ubuntu.sh', type: 'Bash Script', url: '#' },
+          ],
+          quiz: {
+            enabled: true,
+            passing_score: 75,
+            questions: [
+              {
+                question: '¿Por qué es crucial vincular un volumen persistente en el contenedor de n8n?',
+                options: [
+                  'Para evitar que se borren los flujos y credenciales al reiniciar o actualizar la imagen Docker.',
+                  'Para aumentar la velocidad de la memoria RAM del servidor.',
+                  'Para poder ejecutar comandos de Windows en Linux.',
+                ],
+                correctIndex: 0,
+                explanation: 'Los contenedores Docker son efímeros por defecto; el volumen garantiza que los flujos y credenciales se conserven.',
+              },
+              {
+                question: '¿Qué ventaja ofrece Caddy frente a Nginx en este despliegue?',
+                options: [
+                  'Genera y renueva certificados SSL Let\'s Encrypt automáticamente.',
+                  'Es un lenguaje de programación compilado.',
+                  'No requiere abrir el puerto 443.',
+                ],
+                correctIndex: 0,
+                explanation: 'Caddy incluye gestión automática de certificados HTTPS por defecto con solo declarar el dominio.',
+              },
+            ],
+          },
+        },
+        {
+          week_label: '02',
+          title: 'Módulo 02: Meta Cloud API & Webhooks Reversos',
+          description: 'Recepción y validación de eventos transaccionales de WhatsApp.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Configuración del nodo Webhook en n8n para responder al token de verificación GET y procesar eventos entrantes POST.',
+          content_text: '### Laboratorio 02: Handshake con Meta Developers\n\nConfigura el nodo Code en n8n para responder con hub.challenge a las peticiones GET de Meta.',
+          prompts: ['Construye un nodo Code en JavaScript que extraiga hub.challenge de los query parameters de Meta.'],
+          downloads: [{ name: 'Meta_Webhook_Handshake_Node.json', type: 'n8n Sub-Flow', url: '#' }],
+          quiz: {
+            enabled: true,
+            passing_score: 100,
+            questions: [
+              {
+                question: '¿Cuál es el código de respuesta HTTP requerido por Meta para validar un Webhook?',
+                options: ['HTTP 200 con el hub.challenge en el cuerpo', 'HTTP 301 Redirect', 'HTTP 500 Error'],
+                correctIndex: 0,
+                explanation: 'Meta exige que el endpoint devuelva exactamente el valor de hub.challenge con status 200.',
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      id: 'ia-restaurantes',
+      title: 'Masterclass: Automatización Agéntica con IA para Restaurantes',
+      badge: 'ALTA DEMANDA // ACCESO INMEDIATO',
+      level: 'Operativo & Estratégico',
+      price: '$97 USD',
+      duration: '4 Módulos Grabados',
+      tagline: 'Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos y calculan escandallos sin alucinaciones.',
+      previewImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+      tools: ['WhatsApp Cloud API', 'Gemini Pro', 'Airtable', 'Escandallos XLSX', 'KDS Prompts'],
+      modulesCount: 4,
+      studentsEnrolled: 380,
+      ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
+      status: 'ACTIVO',
+      modules: [
+        {
+          week_label: '01',
+          title: 'Módulo 01: Fundamentos de Arquitectura & Diagnóstico de Fugas',
+          description: 'Control de costos, ingeniería de menú y calibración de recetas sin error.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Aprende a mapear la cadena de suministro de tu restaurante, identificar variaciones entre compras y consumo real.',
+          content_text: '### Guía 01: Auditoría de Food Cost y Fugas de Margen\n\n1. Mapear compras semanales vs comandas emitidas en el POS.\n2. Aplicar factor de merma por ingrediente limpio.\n3. Aislar platos con margen bruto menor al 68%.',
+          prompts: ['Actúa como un Director de Operaciones Gastronómicas y analiza el siguiente listado de compras semanales...'],
+          downloads: [
+            { name: 'Matriz_Diagnostico_FoodCost.xlsx', type: 'Excel', url: '#' },
+            { name: 'Checklist_Auditoria_Recepcion.pdf', type: 'PDF', url: '#' },
+          ],
+          quiz: {
+            enabled: true,
+            passing_score: 75,
+            questions: [
+              {
+                question: '¿Cómo se calcula correctamente el Food Cost Teórico de una receta?',
+                options: [
+                  'Costo de ingredientes limpios considerando merma dividido entre el precio de venta sin IVA.',
+                  'Multiplicando el precio de compra del ingrediente por 3.',
+                  'Restando el alquiler del local al ticket promedio.',
+                ],
+                correctIndex: 0,
+                explanation: 'El Food Cost Teórico debe contemplar el factor de rendimiento y la merma técnica.',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ]);
 
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseItem | null>(null);
@@ -701,9 +826,9 @@ export default function AdminDashboard() {
 
   // Filtered lists
   const filteredCourses = coursesList.filter((c) =>
-    c.title.toLowerCase().includes(searchCourse.toLowerCase()) ||
-    c.badge.toLowerCase().includes(searchCourse.toLowerCase()) ||
-    c.level.toLowerCase().includes(searchCourse.toLowerCase())
+    (c.title || '').toLowerCase().includes(searchCourse.toLowerCase()) ||
+    (c.badge || '').toLowerCase().includes(searchCourse.toLowerCase()) ||
+    (c.level || '').toLowerCase().includes(searchCourse.toLowerCase())
   );
 
   const filteredResources = resourcesList.filter((r) =>
