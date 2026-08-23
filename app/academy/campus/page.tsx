@@ -13,37 +13,40 @@ import {
   Check,
   Sparkles,
   ArrowRight,
-  MessageCircle,
+  ArrowLeft,
   FileText,
   Code2,
   Layers,
-  ChevronRight,
   LogOut,
   ExternalLink,
   BookOpen,
   HelpCircle,
-  Search,
-  User,
-  CreditCard,
-  Bell,
-  Key,
-  ShieldCheck,
   TrendingUp,
-  Clock,
   Award,
-  DollarSign,
-  Receipt,
   ChevronDown,
-  Phone,
-  Building,
-  RefreshCw,
   Eye,
   EyeOff,
+  RotateCcw,
+  AlertCircle,
+  StickyNote
 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
-// ── DATA DE MÓDULOS Y LECCIONES REALES DEL PROGRAMA ──
+// ── MODELOS DE DATOS ──
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+interface ModuleQuiz {
+  enabled: boolean;
+  passingScore: number;
+  questions: QuizQuestion[];
+}
+
 interface Lesson {
   id: string;
   title: string;
@@ -58,201 +61,242 @@ interface Module {
   id: string;
   title: string;
   lessons: Lesson[];
+  quiz?: ModuleQuiz;
 }
 
-const COURSE_MODULES: Module[] = [
-  {
-    id: "mod-1",
-    title: "Módulo 01: Fundamentos de Arquitectura & Diagnóstico de Fugas",
-    lessons: [
-      {
-        id: "les-1-1",
-        title: "1.1 Diagnóstico de Food Cost y Fugas Ocultas de Margen",
-        duration: "28 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Aprende a mapear la cadena de suministro de tu restaurante, identificar variaciones entre compras y consumo real, y aislar los cuellos de botella que erosionan el EBITDA.",
-        prompts: [
-          `Actúa como un Director de Operaciones Gastronómicas y Auditor Financiero. Analiza el siguiente listado de compras semanales y compáralo con las ventas registradas para calcular la varianza de Food Cost y detectar potenciales fugas en inventario:\n[PEGA AQUÍ TUS DATOS DE COMPRAS Y VENTAS]`,
-        ],
-        downloads: [
-          { name: "Matriz_Diagnostico_FoodCost.xlsx", type: "Excel", url: "#" },
-          { name: "Checklist_Auditoria_Recepcion_MateriaPrima.pdf", type: "PDF", url: "#" },
-        ],
-      },
-      {
-        id: "les-1-2",
-        title: "1.2 Configuración del Ecosistema de Inteligencia de Datos",
-        duration: "35 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Estructura de bases de datos operativas en Supabase / Google Sheets y conexión de webhooks para ingesta automática de comandas.",
-        prompts: [
-          `Genera una estructura de base de datos normalizada para un restaurante que gestione: Platos, Ingredientes con factor de merma, Recetas base (sub-recetas) y Proveedores con precios actualizados.`,
-        ],
-        downloads: [
-          { name: "Esquema_Base_Datos_Restaurante.sql", type: "SQL / Supabase", url: "#" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "mod-2",
-    title: "Módulo 02: Prompt Engineering & Escandallos Predictivos con IA",
-    lessons: [
-      {
-        id: "les-2-1",
-        title: "2.1 Modelado de Fichas Técnicas Dinámicas con GPT-4o",
-        duration: "42 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Cómo crear un asistente de escandallos que actualice automáticamente el coste teórico de cada plato ante fluctuaciones de precios de proveedores.",
-        prompts: [
-          `Eres un Chef Ejecutivo e Ingeniero de Costes. Toma la siguiente receta tradicional y genera una Ficha Técnica Profesional con: Gramaje neto, % de merma cocción/limpieza, Coste unitario y Precio de venta recomendado con margen bruto del 72%:\nPlato: [NOMBRE DEL PLATO]\nIngredientes: [LISTA CON PRECIOS]`,
-        ],
-        downloads: [
-          { name: "Plantilla_Ficha_Tecnica_Dinamica.xlsx", type: "Excel", url: "#" },
-          { name: "System_Prompt_Chef_Costos_GPT4.txt", type: "Prompt Blueprint", url: "#" },
-        ],
-      },
-      {
-        id: "les-2-2",
-        title: "2.2 Predicción de Demanda y Optimización de Compras",
-        duration: "38 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Uso de modelos predictivos y series temporales para estimar compras según histórico de ventas, días de la semana y eventos meteorológicos.",
-        prompts: [
-          `Analiza la serie temporal de ventas de las últimas 12 semanas y proyecta la orden de compra semanal para carnes y vegetales considerando un buffer de seguridad del 8%:\n[DATOS]`,
-        ],
-        downloads: [
-          { name: "Algoritmo_Prediccion_Compras_n8n.json", type: "n8n Blueprint", url: "#" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "mod-3",
-    title: "Módulo 03: Agentes Autónomos en n8n & WhatsApp API",
-    lessons: [
-      {
-        id: "les-3-1",
-        title: "3.1 Montaje del Agente de Ventas y Menú en n8n",
-        duration: "55 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Construcción paso a paso del flujo de automatización en n8n que conecta Meta WhatsApp Cloud API con OpenAI para atención y toma de pedidos sin intervención humana.",
-        prompts: [
-          `Eres el asistente virtual de [NOMBRE RESTAURANTE]. Responde a los clientes con tono cálido, presenta el menú segmentado, sugiere maridajes o postres (upselling) y toma los datos de entrega de forma estructurada en formato JSON.`,
-        ],
-        downloads: [
-          { name: "Workflow_Completo_Agente_WhatsApp_n8n.json", type: "n8n JSON Flow", url: "#" },
-          { name: "Guia_Setup_Meta_Cloud_API.pdf", type: "PDF Guía", url: "#" },
-        ],
-      },
-      {
-        id: "les-3-2",
-        title: "3.2 Integración con KDS, Notificaciones y Alertas",
-        duration: "48 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Enrutamiento de pedidos automáticos a cocina (KDS/Impresora térmica) y envío de confirmaciones transaccionales con enlaces de pago.",
-        downloads: [
-          { name: "Template_Notificaciones_Telegram_Cocina.json", type: "n8n Flow", url: "#" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "mod-4",
-    title: "Módulo 04: Auditoría, Despliegue & Escalado Multisede",
-    lessons: [
-      {
-        id: "les-4-1",
-        title: "4.1 Auditoría de Resultados y Control de Margen EBITDA",
-        duration: "30 min",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-        summary: "Cuadro de mando en tiempo real para visualizar ahorro de horas/hombre, incremento en ticket promedio y reducción del Food Cost en 30 días.",
-        downloads: [
-          { name: "Dashboard_KPIs_Operaciones_LookerStudio.pdf", type: "Template", url: "#" },
-        ],
-      },
-    ],
-  },
-];
+interface ProgramData {
+  id: string;
+  title: string;
+  badge: string;
+  tagline: string;
+  duration: string;
+  modules: Module[];
+}
 
-const AVAILABLE_COURSES = [
-  {
-    id: "masterclass-ia-restaurantes",
-    title: "Masterclass: Inteligencia Artificial para Restaurantes & Food Cost",
-    badge: "PROGRAMA MATRICULADO",
-    isEnrolled: true,
-    progress: 65,
-    lessonsCount: 7,
-    duration: "4 Semanas",
-    tagline: "Estandarización de escandallos predictivos, agentes de pedidos en WhatsApp y control de mermas.",
-    image: "/courses/ia-restaurantes.jpg",
+// ── PROGRAMAS OFICIALES CON MÓDULOS, LECCIONES Y QUIZES APROBATORIOS ──
+const PROGRAMS: Record<string, ProgramData> = {
+  "bootcamp-n8n": {
+    id: "bootcamp-n8n",
+    title: "Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA",
+    badge: "PROGRAMA TÉCNICO // EN VIVO",
+    tagline: "Despliegue de infraestructura soberana sobre VPS dedicado, webhooks reversos y orquestación de agentes con PostgreSQL.",
+    duration: "6 Semanas Intensivas",
+    modules: [
+      {
+        id: "n8n-mod-1",
+        title: "Módulo 01: Despliegue VPS con Docker & Caddy SSL",
+        lessons: [
+          {
+            id: "n8n-1-1",
+            title: "1.1 Aprovisionamiento de Servidor Linux y Hardening",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Configuración inicial de VPS en Hetzner/DigitalOcean, firewall UFW, creación de usuario sin privilegios root y llaves SSH.",
+            prompts: [
+              "Genera un script bash de aprovisionamiento seguro para Ubuntu 24.04 que instale Docker, Docker Compose y configure el firewall con puertos 80, 443 y 22."
+            ],
+            downloads: [
+              { name: "docker-compose-n8n-caddy.yml", type: "Docker YAML", url: "#" },
+              { name: "Script_Setup_VPS_Ubuntu.sh", type: "Bash Script", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-1-2",
+            title: "1.2 Docker Compose, Volúmenes y Proxy Inverso Caddy",
+            duration: "34 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Persistencia de datos en volúmenes Docker, configuración de variables de entorno y emisión automática de certificados HTTPS con Caddy.",
+            prompts: [
+              "Configura un Caddyfile para enrutar el subdominio n8n.miempresa.com hacia el puerto interno 5678 con compresión gzip y headers de seguridad HSTS."
+            ],
+            downloads: [
+              { name: "Caddyfile_Production_Template.txt", type: "Caddy Config", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Por qué es crucial vincular un volumen persistente (volume mount) en el contenedor de n8n?",
+              options: [
+                "Para evitar que se borren los flujos y credenciales al reiniciar o actualizar la imagen Docker.",
+                "Para aumentar la velocidad de la memoria RAM del servidor.",
+                "Para poder ejecutar comandos de Windows en Linux."
+              ],
+              correctIndex: 0,
+              explanation: "Los contenedores Docker son efímeros por defecto; el volumen garantiza que los flujos y base de datos SQLite/PostgreSQL se conserven en el disco del host."
+            },
+            {
+              question: "¿Qué ventaja ofrece Caddy frente a Nginx en este despliegue?",
+              options: [
+                "Genera y renueva certificados SSL Let's Encrypt automáticamente sin necesidad de certbot.",
+                "Es un lenguaje de programación compilado.",
+                "No requiere abrir el puerto 443."
+              ],
+              correctIndex: 0,
+              explanation: "Caddy incluye gestión automática de certificados HTTPS por defecto con solo declarar el dominio en el Caddyfile."
+            }
+          ]
+        }
+      },
+      {
+        id: "n8n-mod-2",
+        title: "Módulo 02: Meta Cloud API & Webhooks Reversos",
+        lessons: [
+          {
+            id: "n8n-2-1",
+            title: "2.1 Handshake de Verificación con Meta Developers",
+            duration: "40 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Configuración del nodo Webhook en n8n para responder al token de verificación GET y procesar eventos entrantes POST de WhatsApp e Instagram.",
+            prompts: [
+              "Construye un nodo Code en JavaScript que extraiga el 'hub.challenge' de los query parameters de Meta y lo devuelva como entero para validar el webhook."
+            ],
+            downloads: [
+              { name: "Meta_Webhook_Handshake_Node.json", type: "n8n Sub-Flow", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 100,
+          questions: [
+            {
+              question: "¿Cuál es el código de respuesta HTTP requerido por Meta para validar un Webhook?",
+              options: [
+                "HTTP 200 con el hub.challenge en el cuerpo",
+                "HTTP 301 Redirect",
+                "HTTP 500 Error"
+              ],
+              correctIndex: 0,
+              explanation: "Meta exige que el endpoint devuelva exactamente el valor de hub.challenge con status 200 durante la suscripción inicial."
+            }
+          ]
+        }
+      }
+    ]
   },
-  {
-    id: "bootcamp-n8n-ia",
-    title: "Bootcamp Técnico: Arquitectura de Agentes & n8n",
-    badge: "AVANZADO",
-    isEnrolled: false,
-    price: "$197 USD",
-    duration: "6 Semanas",
-    tagline: "Diseño y despliegue de pipelines de integración de datos, OCR de facturas y orquestación con webhooks.",
-    image: "/courses/bootcamp-n8n.jpg",
-  },
-  {
-    id: "crecimiento-aeo-local",
-    title: "Dominio Local: Posicionamiento GEO & Motores de IA (AEO)",
-    badge: "DISPONIBLE",
-    isEnrolled: false,
-    price: "$67 USD",
-    duration: "2 Semanas",
-    tagline: "Optimización de visibilidad en Google Maps, Perplexity y ChatGPT Search para marcas gastronómicas.",
-    image: "/courses/aeo-local.jpg",
-  },
-];
-
-const NOTIFICATIONS_LIST = [
-  {
-    id: "notif-1",
-    title: "Nueva Clase en Vivo: Despliegue de Agentes de Compras con n8n",
-    date: "Hoy, 10:30 AM",
-    description: "Este jueves a las 19:00 (GMT-4) tendremos sesión de Q&A en vivo para auditar los flujos de WhatsApp API.",
-    type: "live",
-    unread: true,
-  },
-  {
-    id: "notif-2",
-    title: "Actualización de Blueprint: Plantilla de Escandallo v2.4",
-    date: "Ayer",
-    description: "Se ha añadido la fórmula de predicción automática de mermas estacionales a la matriz de Excel descargable.",
-    type: "update",
-    unread: false,
-  },
-  {
-    id: "notif-3",
-    title: "Bienvenido al Campus Virtual",
-    date: "15 Ago, 2026",
-    description: "Tu matrícula para la Masterclass de IA para Restaurantes ha sido activada con éxito.",
-    type: "system",
-    unread: false,
-  },
-];
+  "ia-restaurantes": {
+    id: "ia-restaurantes",
+    title: "Masterclass: Automatización Agéntica con IA para Restaurantes",
+    badge: "PROGRAMA MATRICULADO // ACCESO TOTAL",
+    tagline: "Estandarización de escandallos predictivos, prompts de ingeniería de costos y montaje de agentes de ventas en WhatsApp con n8n.",
+    duration: "4 Módulos Grabados",
+    modules: [
+      {
+        id: "mod-1",
+        title: "Módulo 01: Fundamentos de Arquitectura & Diagnóstico de Fugas",
+        lessons: [
+          {
+            id: "les-1-1",
+            title: "1.1 Diagnóstico de Food Cost y Fugas Ocultas de Margen",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprende a mapear la cadena de suministro de tu restaurante, identificar variaciones entre compras y consumo real, y aislar los cuellos de botella que erosionan el EBITDA.",
+            prompts: [
+              "Actúa como un Director de Operaciones Gastronómicas y Auditor Financiero. Analiza el siguiente listado de compras semanales y compáralo con las ventas registradas para calcular la varianza de Food Cost."
+            ],
+            downloads: [
+              { name: "Matriz_Diagnostico_FoodCost.xlsx", type: "Excel", url: "#" },
+              { name: "Checklist_Auditoria_Recepcion_MateriaPrima.pdf", type: "PDF", url: "#" }
+            ]
+          },
+          {
+            id: "les-1-2",
+            title: "1.2 Configuración del Ecosistema de Inteligencia de Datos",
+            duration: "35 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Estructura de bases de datos operativas en Supabase / Google Sheets y conexión de webhooks para ingesta automática de comandas.",
+            prompts: [
+              "Genera una estructura de base de datos normalizada para un restaurante que gestione: Platos, Ingredientes con factor de merma y Proveedores con precios actualizados."
+            ],
+            downloads: [
+              { name: "Esquema_Base_Datos_Restaurante.sql", type: "SQL / Supabase", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cómo se calcula correctamente el Food Cost Teórico de una receta?",
+              options: [
+                "Costo de ingredientes limpios (peso neto) considerando el % de merma dividido entre el precio de venta sin IVA.",
+                "Multiplicando el precio de compra del ingrediente por 3.",
+                "Restando el alquiler del local al ticket promedio."
+              ],
+              correctIndex: 0,
+              explanation: "El Food Cost Teórico debe contemplar el factor de rendimiento y la merma técnica para conocer el costo real por porción servida."
+            },
+            {
+              question: "¿Qué indicador revela una fuga operativa en cocina?",
+              options: [
+                "Una varianza superior al 3% entre el Food Cost Teórico y el Food Cost Real de inventario.",
+                "Que los meseros registren propinas.",
+                "Que aumente la cantidad de comensales en horario nocturno."
+              ],
+              correctIndex: 0,
+              explanation: "Una brecha mayor al 2-3% entre lo teórico y lo real indica mermas no registradas, porciones sobredimensionadas o desperdicio."
+            }
+          ]
+        }
+      },
+      {
+        id: "mod-2",
+        title: "Módulo 02: Prompt Engineering & Escandallos Predictivos con IA",
+        lessons: [
+          {
+            id: "les-2-1",
+            title: "2.1 Modelado de Fichas Técnicas Dinámicas con GPT-4o",
+            duration: "42 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo crear un asistente de escandallos que actualice automáticamente el coste teórico de cada plato ante fluctuaciones de precios de proveedores.",
+            prompts: [
+              "Eres un Chef Ejecutivo e Ingeniero de Costes. Toma la siguiente receta tradicional y genera una Ficha Técnica Profesional con: Gramaje neto, % de merma y Precio de venta recomendado con margen bruto del 72%."
+            ],
+            downloads: [
+              { name: "Plantilla_Ficha_Tecnica_Dinamica.xlsx", type: "Excel", url: "#" },
+              { name: "System_Prompt_Chef_Costos_GPT4.txt", type: "Prompt Blueprint", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 100,
+          questions: [
+            {
+              question: "¿Cuál es el rol de un 'Guardrail de Precios' en un agente conversacional?",
+              options: [
+                "Impedir que el modelo invente descuentos o altere precios oficiales ante prompts de manipulación de clientes.",
+                "Bloquear el acceso a internet.",
+                "Apagar el servidor a medianoche."
+              ],
+              correctIndex: 0,
+              explanation: "Los guardrails protegen la integridad comercial restringiendo los parámetros de negociación del LLM."
+            }
+          ]
+        }
+      }
+    ]
+  }
+};
 
 const FAQ_LIST = [
   {
     q: "¿Cómo descargo los archivos y blueprints de n8n?",
-    a: "Dentro de cada lección en el reproductor de clases, encontrarás la pestaña 'Blueprints & Archivos'. Haz clic en el botón 'Descargar' para obtener el archivo .json o .xlsx listo para importar.",
+    a: "Dentro de cada lección en el reproductor de clases, encontrarás la pestaña 'Blueprints & Archivos'. Haz clic en el botón 'Descargar' para obtener el archivo .json o .xlsx listo para importar."
+  },
+  {
+    q: "¿Cómo obtengo mi certificado digital oficial?",
+    a: "Debes completar el 100% de las lecciones del programa y aprobar los quizes evaluativos de cada módulo. Al lograrlo, se habilitará el botón de descarga con tu código de validación único."
   },
   {
     q: "¿Tengo acceso a las grabaciones para siempre?",
-    a: "Sí, tu matrícula incluye acceso vitalicio e ilimitado al contenido grabado del programa y a todas sus futuras actualizaciones.",
-  },
-  {
-    q: "¿Cómo me uno a las sesiones de asesoría en vivo?",
-    a: "Los enlaces de Zoom y recordatorios se publican en el Centro de Notificaciones y en el Grupo VIP de WhatsApp exclusivo para alumnos.",
-  },
-  {
-    q: "¿Puedo solicitar una auditoría técnica de mis flujos?",
-    a: "Sí, puedes contactar a Julio Daza y al equipo de soporte directamente a través del botón 'Soporte VIP' en WhatsApp.",
-  },
+    a: "Sí, tu matrícula incluye acceso vitalicio e ilimitado al contenido grabado del programa y a todas sus futuras actualizaciones."
+  }
 ];
 
 function CampusContent() {
@@ -269,68 +313,93 @@ function CampusContent() {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Student Profile Data
-  const [studentProfile, setStudentProfile] = useState({
+  const [studentProfile] = useState({
     fullName: "Julio Alberto Daza",
     email: "dazajulio@gmail.com",
     phone: "+58 414-881-7137",
     company: "Grupo Gastronómico El Velero",
     role: "Director de Operaciones & Fundador",
   });
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [profileSuccessMsg, setProfileSuccessMsg] = useState<string | null>(null);
-
-  // Password Change State
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [passwordMsg, setPasswordMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Navigation State
-  const [currentView, setCurrentView] = useState<"dashboard" | "player" | "profile" | "payments" | "notifications" | "help">("dashboard");
+  const [currentView, setCurrentView] = useState<"dashboard" | "player" | "help">("dashboard");
 
-  // Lesson Player State
+  // Selected Program & Lesson State
+  const [selectedProgramId, setSelectedProgramId] = useState<string>("bootcamp-n8n");
+  const currentProgram = PROGRAMS[selectedProgramId] || PROGRAMS["bootcamp-n8n"];
+
   const [activeModuleIndex, setActiveModuleIndex] = useState(0);
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
-  const [activePlayerTab, setActivePlayerTab] = useState<"summary" | "prompts" | "downloads">("summary");
+  const [activePlayerTab, setActivePlayerTab] = useState<"summary" | "prompts" | "downloads" | "quiz" | "notes">("summary");
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null);
-  const [completedLessons, setCompletedLessons] = useState<string[]>(["les-1-1", "les-1-2"]);
+
+  // Progress Tracking & Quizes State (Persistente)
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [passedQuizes, setPassedQuizes] = useState<string[]>([]);
+  const [userNotes, setUserNotes] = useState<Record<string, string>>({});
+  const [currentNote, setCurrentNote] = useState("");
+
+  // Quiz Engine State
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState<number | null>(null);
+
+  // Certificate Modal State
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   // FAQ Accordion State
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
-  // Auto-verificar si existe sesión previa
+  // Cargar progreso guardado en LocalStorage
   useEffect(() => {
     const savedEmail = localStorage.getItem("in_student_email") || initialEmail;
     if (savedEmail) {
       setStudentEmail(savedEmail);
-      // Validar sesión rápida
-      fetch("/api/campus/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: savedEmail }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.authenticated) {
-            setIsAuthenticated(true);
-            if (data.fullName) {
-              setStudentProfile((prev) => ({
-                ...prev,
-                fullName: data.fullName,
-                email: data.email,
-                phone: data.phone || prev.phone,
-                company: data.company || prev.company,
-                role: data.role || prev.role,
-              }));
-            }
-          }
-        })
-        .catch(() => {});
+      setIsAuthenticated(true);
+      
+      const storedCompleted = localStorage.getItem("in_completed_" + savedEmail + "_" + selectedProgramId);
+      if (storedCompleted) {
+        try { setCompletedLessons(JSON.parse(storedCompleted)); } catch {}
+      } else {
+        setCompletedLessons(["n8n-1-1"]);
+      }
+
+      const storedQuizes = localStorage.getItem("in_quizes_" + savedEmail + "_" + selectedProgramId);
+      if (storedQuizes) {
+        try { setPassedQuizes(JSON.parse(storedQuizes)); } catch {}
+      }
+
+      const storedNotes = localStorage.getItem("in_notes_" + savedEmail);
+      if (storedNotes) {
+        try { setUserNotes(JSON.parse(storedNotes)); } catch {}
+      }
     }
-  }, [initialEmail]);
+  }, [initialEmail, selectedProgramId]);
+
+  const currentModule = currentProgram.modules[activeModuleIndex];
+  const currentLesson = currentModule?.lessons[activeLessonIndex];
+
+  // Actualizar nota al cambiar de lección
+  useEffect(() => {
+    if (currentLesson) {
+      setCurrentNote(userNotes[currentLesson.id] || "");
+      setQuizAnswers({});
+      setQuizSubmitted(false);
+      setQuizScore(null);
+    }
+  }, [currentLesson, userNotes]);
+
+  // Total de lecciones en el programa activo
+  const allLessonsInProgram = currentProgram.modules.flatMap((m) => m.lessons);
+  const totalLessonsCount = allLessonsInProgram.length;
+  const completedInProgram = completedLessons.filter((id) =>
+    allLessonsInProgram.some((l) => l.id === id)
+  ).length;
+  const progressPercentage = totalLessonsCount > 0
+    ? Math.round((completedInProgram / totalLessonsCount) * 100)
+    : 0;
+
+  const isProgramFullyCompleted = progressPercentage === 100;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -338,7 +407,6 @@ function CampusContent() {
       setAuthError("Por favor ingresa un correo electrónico válido");
       return;
     }
-
     setIsVerifying(true);
     setAuthError(null);
 
@@ -352,36 +420,22 @@ function CampusContent() {
           setInitialPassword: needsPasswordSetup,
         }),
       });
-
       const data = await res.json();
-
       if (data.needsPasswordSetup) {
         setNeedsPasswordSetup(true);
         setAuthError("Primera vez: Por favor define una contraseña para proteger tu cuenta.");
         setIsVerifying(false);
         return;
       }
-
       if (data.success && data.authenticated) {
         setIsAuthenticated(true);
         localStorage.setItem("in_student_email", studentEmail.trim().toLowerCase());
-        if (data.fullName) {
-          setStudentProfile((prev) => ({
-            ...prev,
-            fullName: data.fullName,
-            email: data.email,
-            phone: data.phone || prev.phone,
-            company: data.company || prev.company,
-            role: data.role || prev.role,
-          }));
-        }
       } else {
-        setAuthError(data.message || "Credenciales incorrectas o matrícula no encontrada.");
+        setAuthError(data.message || "Credenciales incorrectas.");
       }
-    } catch (err) {
-      console.error("[Login error]", err);
-      // Fallback
+    } catch {
       setIsAuthenticated(true);
+      localStorage.setItem("in_student_email", studentEmail.trim().toLowerCase());
     } finally {
       setIsVerifying(false);
     }
@@ -395,71 +449,21 @@ function CampusContent() {
     setCurrentView("dashboard");
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSavingProfile(true);
-    setProfileSuccessMsg(null);
-    try {
-      const res = await fetch("/api/campus/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(studentProfile),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setProfileSuccessMsg("¡Perfil actualizado con éxito!");
-        setTimeout(() => setProfileSuccessMsg(null), 3000);
-      }
-    } catch (err) {
-      console.error("[Profile save error]", err);
-    } finally {
-      setIsSavingProfile(false);
-    }
+  const toggleLessonCompleted = (lessonId: string) => {
+    const updated = completedLessons.includes(lessonId)
+      ? completedLessons.filter((id) => id !== lessonId)
+      : [...completedLessons, lessonId];
+    setCompletedLessons(updated);
+    localStorage.setItem("in_completed_" + studentEmail + "_" + selectedProgramId, JSON.stringify(updated));
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordMsg(null);
-
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordMsg({ type: "error", text: "Las nuevas contraseñas no coinciden." });
-      return;
-    }
-
-    if (passwordForm.newPassword.length < 6) {
-      setPasswordMsg({ type: "error", text: "La nueva contraseña debe tener al menos 6 caracteres." });
-      return;
-    }
-
-    setIsChangingPassword(true);
-    try {
-      const res = await fetch("/api/campus/password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: studentProfile.email,
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setPasswordMsg({ type: "success", text: "¡Contraseña modificada exitosamente!" });
-        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-        setTimeout(() => setPasswordMsg(null), 4000);
-      } else {
-        setPasswordMsg({ type: "error", text: data.message || "Error al cambiar la contraseña." });
-      }
-    } catch (err) {
-      console.error("[Password change error]", err);
-      setPasswordMsg({ type: "error", text: "Error de conexión." });
-    } finally {
-      setIsChangingPassword(false);
-    }
+  const handleSaveNote = (text: string) => {
+    setCurrentNote(text);
+    if (!currentLesson) return;
+    const updated = { ...userNotes, [currentLesson.id]: text };
+    setUserNotes(updated);
+    localStorage.setItem("in_notes_" + studentEmail, JSON.stringify(updated));
   };
-
-  const currentLesson = COURSE_MODULES[activeModuleIndex]?.lessons[activeLessonIndex];
 
   const handleCopyPrompt = (promptText: string, idx: number) => {
     navigator.clipboard.writeText(promptText);
@@ -467,382 +471,366 @@ function CampusContent() {
     setTimeout(() => setCopiedPromptIndex(null), 2500);
   };
 
-  const toggleLessonCompleted = (lessonId: string) => {
-    setCompletedLessons((prev) =>
-      prev.includes(lessonId) ? prev.filter((id) => id !== lessonId) : [...prev, lessonId]
-    );
+  // Navegación secuencial de lecciones (Udemy style)
+  const handleNextLesson = () => {
+    if (activeLessonIndex < currentModule.lessons.length - 1) {
+      setActiveLessonIndex(activeLessonIndex + 1);
+    } else if (activeModuleIndex < currentProgram.modules.length - 1) {
+      setActiveModuleIndex(activeModuleIndex + 1);
+      setActiveLessonIndex(0);
+    }
   };
 
-  // ── PANTALLA DE LOGIN CON CONTRASEÑA (LIGHT THEME EJECUTIVO) ──
+  const handlePrevLesson = () => {
+    if (activeLessonIndex > 0) {
+      setActiveLessonIndex(activeLessonIndex - 1);
+    } else if (activeModuleIndex > 0) {
+      setActiveModuleIndex(activeModuleIndex - 1);
+      setActiveLessonIndex(currentProgram.modules[activeModuleIndex - 1].lessons.length - 1);
+    }
+  };
+
+  // Evaluación de Quiz
+  const handleAnswerSelect = (qIdx: number, oIdx: number) => {
+    if (quizSubmitted) return;
+    setQuizAnswers((prev) => ({ ...prev, [qIdx]: oIdx }));
+  };
+
+  const handleEvaluateQuiz = () => {
+    if (!currentModule?.quiz) return;
+    const questions = currentModule.quiz.questions;
+    let correct = 0;
+    questions.forEach((q, idx) => {
+      if (quizAnswers[idx] === q.correctIndex) {
+        correct++;
+      }
+    });
+
+    const calculatedScore = Math.round((correct / questions.length) * 100);
+    setQuizScore(calculatedScore);
+    setQuizSubmitted(true);
+
+    if (calculatedScore >= currentModule.quiz.passingScore) {
+      const updatedQuizes = Array.from(new Set([...passedQuizes, currentModule.id]));
+      setPassedQuizes(updatedQuizes);
+      localStorage.setItem("in_quizes_" + studentEmail + "_" + selectedProgramId, JSON.stringify(updatedQuizes));
+    }
+  };
+
+  const handleResetQuiz = () => {
+    setQuizAnswers({});
+    setQuizSubmitted(false);
+    setQuizScore(null);
+  };
+
+  // Pantalla de Login si no está autenticado
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#EA0C7F] selection:text-white">
+      <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#0284c7] selection:text-white">
         <Navbar />
-
         <main className="flex-1 flex items-center justify-center p-4 sm:p-6 py-24">
           <div className="w-full max-w-md p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200 shadow-xl space-y-6 text-left relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1DACE3] via-[#971B8D] to-[#EA0C7F]" />
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1DACE3] via-[#EA0C7F] to-[#FEAD2B]" />
 
             <div className="space-y-2">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#971B8D] to-[#EA0C7F] flex items-center justify-center text-white shadow-lg shadow-[#971B8D]/30 mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] flex items-center justify-center text-white shadow-lg mb-3">
                 <GraduationCap className="w-6 h-6" />
               </div>
-              <div className="font-mono text-[10px] font-bold text-[#971B8D] uppercase tracking-wider">
+              <div className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider">
                 Portal del Alumno // Inteligencia Neuronal Academy
               </div>
               <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">
-                {needsPasswordSetup ? "Crea tu Contraseña de Acceso" : "Iniciar Sesión en el Campus"}
+                {needsPasswordSetup ? "Crea tu Contraseña" : "Ingresar al Campus Virtual"}
               </h1>
               <p className="text-xs text-zinc-600 leading-relaxed">
                 {needsPasswordSetup
-                  ? "Define una contraseña segura para proteger tus módulos y recursos exclusivos."
-                  : "Ingresa con tu correo registrado y tu contraseña para acceder al aula virtual."}
+                  ? "Define tu contraseña para acceder a tus lecciones y evaluaciones."
+                  : "Ingresa con tu correo registrado para continuar con tus clases."}
               </p>
             </div>
 
-            {authError && (
-              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
-                {authError}
-              </div>
-            )}
-
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-mono font-bold text-zinc-700 uppercase mb-1.5">
-                  Correo Electrónico
-                </label>
+                <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CORREO DEL ALUMNO</label>
                 <input
                   type="email"
                   required
+                  placeholder="alumno@empresa.com"
                   value={studentEmail}
                   onChange={(e) => setStudentEmail(e.target.value)}
-                  placeholder="ejemplo@restaurante.com"
-                  className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none transition-all font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-mono font-bold text-zinc-700 uppercase">
-                    {needsPasswordSetup ? "Nueva Contraseña" : "Contraseña"}
-                  </label>
-                  {!needsPasswordSetup && (
-                    <a
-                      href="https://wa.me/584148817137?text=Hola%20Julio,%20olvidé%20mi%20contraseña%20del%20Campus%20Virtual."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[11px] font-semibold text-[#1DACE3] hover:underline"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </a>
-                  )}
-                </div>
-
+                <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CONTRASEÑA</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     required
+                    placeholder="••••••••"
                     value={studentPassword}
                     onChange={(e) => setStudentPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3 pr-10 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 text-xs"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
+              {authError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{authError}</span>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="w-full py-3.5 px-6 rounded-xl bg-[#971B8D] hover:bg-[#801676] text-white text-xs font-bold shadow-lg shadow-[#971B8D]/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+                className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
               >
-                {isVerifying ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Autenticando...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{needsPasswordSetup ? "Guardar y Entrar al Campus" : "Ingresar al Campus"}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
+                <span>{isVerifying ? "Verificando..." : "Ingresar a mis Clases"}</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </form>
-
-            <div className="pt-4 border-t border-zinc-100 text-center">
-              <p className="text-[11px] text-zinc-500">
-                ¿Aún no te has matriculado?{" "}
-                <Link href="/academy" className="text-[#971B8D] font-bold hover:underline">
-                  Ver Programas y Precios →
-                </Link>
-              </p>
-            </div>
           </div>
         </main>
-
         <Footer />
       </div>
     );
   }
 
-  // ── DASHBOARD COMPLETO DEL ALUMNO (LIGHT THEME EJECUTIVO) ──
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#EA0C7F] selection:text-white">
-      {/* ── TOP EXECUTIVE BAR ── */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-200 px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#971B8D] to-[#EA0C7F] flex items-center justify-center text-white shadow-md shadow-[#971B8D]/30">
+    <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#0284c7] selection:text-white font-sans">
+      <Navbar />
+
+      {/* ── SUB-HEADER DEL CAMPUS CON NAVEGACIÓN Y PERFIL ── */}
+      <header className="bg-white border-b border-zinc-200 sticky top-20 z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] flex items-center justify-center text-white shadow-sm">
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-heading text-base font-extrabold text-zinc-900 block leading-tight">
-                Inteligencia Neuronal <span className="text-[#971B8D]">Campus</span>
-              </span>
-              <span className="font-mono text-[9px] font-bold text-zinc-500 block uppercase">
-                Portal Ejecutivo del Alumno
-              </span>
+              <div className="text-xs font-extrabold text-zinc-900 flex items-center gap-1.5">
+                <span>Campus Virtual</span>
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-emerald-100 text-emerald-800">
+                  ALUMNO ACTIVO
+                </span>
+              </div>
+              <div className="text-[11px] text-zinc-500 font-mono">
+                {studentProfile.fullName} • {studentProfile.company}
+              </div>
             </div>
-          </Link>
-        </div>
-
-        {/* User Badge & Quick Links */}
-        <div className="flex items-center gap-4 text-xs">
-          <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-zinc-100 border border-zinc-200 font-sans font-medium text-zinc-800">
-            <span className="w-2 h-2 rounded-full bg-[#86C537] animate-pulse" />
-            <span>{studentProfile.fullName}</span>
-            <span className="text-zinc-400 font-mono text-[10px]">({studentProfile.role})</span>
           </div>
 
-          <a
-            href="https://wa.me/584148817137?text=Hola%20Julio,%20tengo%20una%20duda%20sobre%20mi%20avance%20en%20el%20Campus."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold transition-colors"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span>Soporte VIP</span>
-          </a>
-
-          <button
-            onClick={handleLogout}
-            className="p-2 rounded-xl text-zinc-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-            title="Cerrar Sesión"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentView("dashboard")}
+              className={"px-3.5 py-2 rounded-xl text-xs font-bold transition-all " + (currentView === "dashboard" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100")}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setCurrentView("player")}
+              className={"px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 " + (currentView === "player" ? "bg-[#0284c7] text-white" : "text-zinc-600 hover:bg-zinc-100")}
+            >
+              <PlayCircle className="w-3.5 h-3.5" />
+              <span>Aula Virtual</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              title="Cerrar Sesión"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* ── SUB-HEADER NAVIGATION BAR (TABS) ── */}
-      <div className="bg-white border-b border-zinc-200 px-4 sm:px-8 py-2 sticky top-[57px] z-30 overflow-x-auto scrollbar-none shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center gap-2">
-          {[
-            { id: "dashboard", label: "Dashboard & Avance", icon: TrendingUp },
-            { id: "player", label: "Aula / Reproductor", icon: PlayCircle, badge: "Masterclass" },
-            { id: "profile", label: "Mi Cuenta & Perfil", icon: User },
-            { id: "payments", label: "Historial de Pagos", icon: CreditCard },
-            { id: "notifications", label: "Notificaciones", icon: Bell, badge: "3" },
-            { id: "help", label: "Centro de Ayuda & FAQ", icon: HelpCircle },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = currentView === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setCurrentView(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-[#971B8D] text-white shadow-sm shadow-[#971B8D]/30"
-                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : "text-zinc-500"}`} />
-                <span>{tab.label}</span>
-                {tab.badge && (
-                  <span
-                    className={`font-mono text-[9px] px-2 py-0.5 rounded-full font-bold ${
-                      isActive ? "bg-white/20 text-white" : "bg-zinc-200 text-zinc-700"
-                    }`}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── MAIN WORKSPACE CONTENT ── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 text-left">
+      {/* ── CONTENIDO PRINCIPAL SEGÚN VISTA ── */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* ════════ TAB 1: DASHBOARD & AVANCE ════════ */}
+        {/* ════════ TAB 1: DASHBOARD DEL ALUMNO ════════ */}
         {currentView === "dashboard" && (
           <div className="space-y-8 animate-in fade-in duration-200">
-            {/* Header Greeting */}
-            <div className="p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#971B8D] via-[#EA0C7F] to-[#1DACE3]" />
-              
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[#971B8D] uppercase">CAMPUS VIRTUAL // DASHBOARD</span>
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
-                  ¡Hola de nuevo, {studentProfile.fullName.split(" ")[0]}! 👋
+            
+            {/* Header del Dashboard */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+              <div className="space-y-2">
+                <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider">
+                  Panel de Aprendizaje
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight font-heading">
+                  Bienvenido de nuevo, {studentProfile.fullName.split(" ")[0]}
                 </h1>
                 <p className="text-xs text-zinc-600">
-                  Empresa registrada: <strong>{studentProfile.company}</strong> • Progreso global en programas: <strong>65%</strong>
+                  Programa seleccionado: <strong>{currentProgram.title}</strong>
                 </p>
               </div>
 
-              <button
-                onClick={() => setCurrentView("player")}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#971B8D] to-[#EA0C7F] text-white text-xs font-bold shadow-md shadow-[#EA0C7F]/30 hover:opacity-95 transition-all shrink-0 cursor-pointer"
-              >
-                <PlayCircle className="w-4 h-4" />
-                <span>Continuar Aprendiendo</span>
-              </button>
+              <div className="flex items-center gap-3">
+                {isProgramFullyCompleted && (
+                  <button
+                    onClick={() => setShowCertificateModal(true)}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer animate-bounce"
+                  >
+                    <Award className="w-4 h-4" />
+                    <span>Ver Certificado Oficial</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setCurrentView("player")}
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+                >
+                  <PlayCircle className="w-4 h-4" />
+                  <span>Continuar Clases</span>
+                </button>
+              </div>
             </div>
 
-            {/* Metric KPI Cards */}
+            {/* KPIs Calculados Matemáticamente en Tiempo Real */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-xs space-y-2">
+              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
                 <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Cursos Matriculados</span>
-                  <BookOpen className="w-4 h-4 text-[#1DACE3]" />
+                  <span className="font-mono text-[10px] font-bold uppercase">Progreso Global</span>
+                  <TrendingUp className="w-4 h-4 text-[#0284c7]" />
                 </div>
-                <div className="text-2xl font-extrabold text-zinc-900">1 Programa Activo</div>
-                <div className="text-[11px] text-zinc-500 font-medium">Masterclass IA para Restaurantes</div>
+                <div className="text-2xl font-extrabold text-zinc-900">{progressPercentage}%</div>
+                <div className="w-full h-2 rounded-full bg-zinc-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[#0284c7] transition-all duration-500"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-xs space-y-2">
+              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
                 <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Lecciones Completadas</span>
-                  <CheckCircle2 className="w-4 h-4 text-[#86C537]" />
+                  <span className="font-mono text-[10px] font-bold uppercase">Lecciones Vistas</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div className="text-2xl font-extrabold text-zinc-900">
-                  {completedLessons.length} / 7 Lecciones
+                  {completedInProgram} / {totalLessonsCount}
                 </div>
-                <div className="text-[11px] text-[#86C537] font-bold font-mono">65% del temario visto</div>
+                <div className="text-[11px] text-zinc-500">Registradas con persistencia</div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-xs space-y-2">
+              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
                 <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Blueprints Descargados</span>
-                  <Download className="w-4 h-4 text-[#FEAD2B]" />
+                  <span className="font-mono text-[10px] font-bold uppercase">Quizes Aprobados</span>
+                  <Award className="w-4 h-4 text-[#EA0C7F]" />
                 </div>
-                <div className="text-2xl font-extrabold text-zinc-900">5 Archivos</div>
-                <div className="text-[11px] text-zinc-500 font-medium">n8n Flows & Matrices Excel</div>
+                <div className="text-2xl font-extrabold text-zinc-900">
+                  {passedQuizes.length} Evaluaciones
+                </div>
+                <div className="text-[11px] text-zinc-500">Aprobadas con ≥ 75%</div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-xs space-y-2">
+              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
                 <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Certificación Final</span>
-                  <Award className="w-4 h-4 text-[#971B8D]" />
+                  <span className="font-mono text-[10px] font-bold uppercase">Diploma Oficial</span>
+                  <Award className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-2xl font-extrabold text-zinc-900">En Progreso</div>
-                <div className="text-[11px] text-zinc-500 font-medium">Emitido al completar 100%</div>
+                <div className="text-2xl font-extrabold text-zinc-900">
+                  {isProgramFullyCompleted ? "Desbloqueado" : "En Progreso"}
+                </div>
+                <div className="text-[11px] text-zinc-500">
+                  {isProgramFullyCompleted ? "Listo para descargar" : "Requiere 100% de avance"}
+                </div>
               </div>
             </div>
 
-            {/* Mis Cursos Activos & Barra de Avance */}
+            {/* Selector de Programa / Mis Cursos */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-zinc-900">Mis Programas de Formación</h2>
-                <span className="text-xs font-mono font-bold text-zinc-500">Acceso Vitalicio</span>
-              </div>
-
-              <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="space-y-2">
-                    <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#971B8D]/10 text-[#971B8D] border border-[#971B8D]/20">
-                      EN CURSO • ACCESO COMPLETO
-                    </span>
-                    <h3 className="text-xl font-bold text-zinc-900">
-                      Masterclass: Inteligencia Artificial para Restaurantes & Food Cost
-                    </h3>
-                    <p className="text-xs text-zinc-600 max-w-2xl leading-relaxed">
-                      Domina la estandarización de escandallos predictivos, prompts de ingeniería de costos y montaje de agentes de ventas en WhatsApp con n8n.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setCurrentView("player")}
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#971B8D] hover:bg-[#801676] text-white text-xs font-bold shadow-md shadow-[#971B8D]/20 transition-all shrink-0 cursor-pointer"
-                  >
-                    <span>Ir a las Clases</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="space-y-2 pt-2 border-t border-zinc-100">
-                  <div className="flex justify-between text-xs font-mono">
-                    <span className="text-zinc-600 font-bold">Avance del Curso:</span>
-                    <span className="font-bold text-[#971B8D]">{completedLessons.length} de 7 lecciones (65%)</span>
-                  </div>
-                  <div className="w-full h-3 rounded-full bg-zinc-100 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#971B8D] to-[#EA0C7F] transition-all duration-500"
-                      style={{ width: "65%" }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Catálogo de Otros Cursos Disponibles */}
-            <div className="space-y-4 pt-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-zinc-900">Explorar Otros Programas de la Academia</h2>
-                  <p className="text-xs text-zinc-500">Expande tu stack de automatización y gobernanza de datos</p>
-                </div>
-              </div>
+              <h2 className="text-base font-bold text-zinc-900 uppercase font-mono tracking-wider">
+                Mis Programas Matriculados
+              </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {AVAILABLE_COURSES.filter((c) => !c.isEnrolled).map((course) => (
-                  <div
-                    key={course.id}
-                    className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm flex flex-col justify-between space-y-5 relative overflow-hidden"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#1DACE3]/10 text-[#1DACE3] border border-[#1DACE3]/20">
-                          {course.badge}
-                        </span>
-                        <span className="font-mono text-sm font-extrabold text-zinc-900">{course.price}</span>
-                      </div>
-                      <h3 className="text-base font-bold text-zinc-900">{course.title}</h3>
-                      <p className="text-xs text-zinc-600 leading-relaxed">{course.tagline}</p>
-                    </div>
+                {Object.values(PROGRAMS).map((prog) => {
+                  const isSelected = prog.id === selectedProgramId;
 
-                    <Link
-                      href="/academy"
-                      className="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-zinc-300 hover:border-[#971B8D] hover:text-[#971B8D] text-zinc-800 text-xs font-bold transition-all"
+                  return (
+                    <div
+                      key={prog.id}
+                      onClick={() => {
+                        setSelectedProgramId(prog.id);
+                        setActiveModuleIndex(0);
+                        setActiveLessonIndex(0);
+                      }}
+                      className={"p-6 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 " + (isSelected ? "bg-white border-[#0284c7] ring-2 ring-[#0284c7]/20 shadow-md" : "bg-zinc-50/50 border-zinc-200 hover:bg-white hover:border-zinc-300")}
                     >
-                      <span>Ver Detalles del Programa</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">
+                            {prog.badge}
+                          </span>
+                          {isSelected && (
+                            <span className="font-mono text-[10px] font-bold text-[#0284c7] flex items-center gap-1">
+                              <Check className="w-3.5 h-3.5" />
+                              ACTIVO AHORA
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-base font-bold text-zinc-900">{prog.title}</h3>
+                        <p className="text-xs text-zinc-600 line-clamp-2">{prog.tagline}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
+                        <span className="font-mono text-zinc-500">{prog.modules.length} Módulos</span>
+                        <span className="font-bold text-[#0284c7] flex items-center gap-1">
+                          Entrar al Aula <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Preguntas Frecuentes */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-[#0284c7]" />
+                <span>Preguntas Frecuentes del Alumno</span>
+              </h2>
+
+              <div className="space-y-2">
+                {FAQ_LIST.map((faq, idx) => (
+                  <div key={idx} className="border border-zinc-200 rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
+                      className="w-full p-4 text-left text-xs font-bold text-zinc-800 flex justify-between items-center hover:bg-zinc-50"
+                    >
+                      <span>{faq.q}</span>
+                      <ChevronDown className={"w-4 h-4 text-zinc-400 transition-transform " + (expandedFaq === idx ? "rotate-180" : "")} />
+                    </button>
+                    {expandedFaq === idx && (
+                      <div className="p-4 bg-zinc-50 border-t border-zinc-200 text-xs text-zinc-600 leading-relaxed">
+                        {faq.a}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
+
           </div>
         )}
 
-        {/* ════════ TAB 2: AULA / REPRODUCTOR DE CLASES ════════ */}
+        {/* ════════ TAB 2: AULA / REPRODUCTOR DE CLASES & QUIZES ════════ */}
         {currentView === "player" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-200">
-            {/* Left: Video Player + Tabs (8 cols) */}
+            
+            {/* Columna Izquierda: Video Player + Controles + Tabs (8 cols) */}
             <div className="lg:col-span-8 space-y-6">
               
               {/* Video Player Box */}
@@ -863,84 +851,113 @@ function CampusContent() {
                 )}
               </div>
 
-              {/* Lesson Title & Complete Button */}
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Controles de Navegación Rápida (Udemy style) */}
+              <div className="p-5 rounded-3xl bg-white border border-zinc-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <span className="font-mono text-[10px] font-bold text-[#1DACE3] uppercase tracking-wider block mb-1">
-                    {COURSE_MODULES[activeModuleIndex]?.title}
+                  <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider block mb-1">
+                    {currentModule?.title}
                   </span>
-                  <h2 className="text-lg font-bold text-zinc-900 leading-snug">
+                  <h2 className="text-base sm:text-lg font-bold text-zinc-900 leading-snug">
                     {currentLesson?.title}
                   </h2>
                 </div>
 
-                <button
-                  onClick={() => currentLesson && toggleLessonCompleted(currentLesson.id)}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                    currentLesson && completedLessons.includes(currentLesson.id)
-                      ? "bg-emerald-50 border border-emerald-300 text-emerald-700"
-                      : "bg-zinc-100 border border-zinc-300 text-zinc-700 hover:bg-zinc-200"
-                  }`}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>
-                    {currentLesson && completedLessons.includes(currentLesson.id)
-                      ? "Lección Completada"
-                      : "Marcar como Completada"}
-                  </span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={handlePrevLesson}
+                    disabled={activeModuleIndex === 0 && activeLessonIndex === 0}
+                    className="p-2.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    title="Lección Anterior"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => currentLesson && toggleLessonCompleted(currentLesson.id)}
+                    className={"inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all " + (currentLesson && completedLessons.includes(currentLesson.id) ? "bg-emerald-50 border border-emerald-300 text-emerald-700" : "bg-zinc-900 text-white hover:bg-zinc-800")}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>
+                      {currentLesson && completedLessons.includes(currentLesson.id)
+                        ? "Completada"
+                        : "Marcar Completada"}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={handleNextLesson}
+                    disabled={
+                      activeModuleIndex === currentProgram.modules.length - 1 &&
+                      activeLessonIndex === currentModule.lessons.length - 1
+                    }
+                    className="p-2.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    title="Siguiente Lección"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* Tabs: Resumen, Prompts, Blueprints */}
+              {/* Tabs: Resumen, Prompts, Blueprints, Quiz del Módulo, Notas */}
               <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
+                
                 <div className="flex items-center gap-2 border-b border-zinc-100 pb-3 overflow-x-auto">
                   <button
                     onClick={() => setActivePlayerTab("summary")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                      activePlayerTab === "summary"
-                        ? "bg-[#971B8D] text-white shadow-sm"
-                        : "text-zinc-600 hover:bg-zinc-100"
-                    }`}
+                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "summary" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
                   >
                     <BookOpen className="w-3.5 h-3.5" />
-                    <span>Resumen & Conceptos</span>
+                    <span>Resumen</span>
                   </button>
 
                   <button
                     onClick={() => setActivePlayerTab("prompts")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                      activePlayerTab === "prompts"
-                        ? "bg-[#971B8D] text-white shadow-sm"
-                        : "text-zinc-600 hover:bg-zinc-100"
-                    }`}
+                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "prompts" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
                   >
                     <Code2 className="w-3.5 h-3.5" />
-                    <span>Prompts de IA ({currentLesson?.prompts?.length || 0})</span>
+                    <span>Prompts ({currentLesson?.prompts?.length || 0})</span>
                   </button>
 
                   <button
                     onClick={() => setActivePlayerTab("downloads")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                      activePlayerTab === "downloads"
-                        ? "bg-[#971B8D] text-white shadow-sm"
-                        : "text-zinc-600 hover:bg-zinc-100"
-                    }`}
+                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "downloads" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Blueprints & Archivos ({currentLesson?.downloads?.length || 0})</span>
+                    <span>Descargas ({currentLesson?.downloads?.length || 0})</span>
+                  </button>
+
+                  {currentModule?.quiz?.enabled && (
+                    <button
+                      onClick={() => setActivePlayerTab("quiz")}
+                      className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "quiz" ? "bg-[#EA0C7F] text-white shadow-xs" : "bg-pink-50 text-[#EA0C7F] hover:bg-pink-100")}
+                    >
+                      <Award className="w-3.5 h-3.5" />
+                      <span>Quiz Aprobatorio</span>
+                      {passedQuizes.includes(currentModule.id) && (
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500 ml-1" />
+                      )}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setActivePlayerTab("notes")}
+                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "notes" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                  >
+                    <StickyNote className="w-3.5 h-3.5" />
+                    <span>Mis Apuntes</span>
                   </button>
                 </div>
 
-                {/* Tab: Summary */}
+                {/* Tab: Resumen */}
                 {activePlayerTab === "summary" && (
                   <div className="space-y-4 text-xs text-zinc-700 leading-relaxed">
                     <p>{currentLesson?.summary}</p>
                     <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
-                      <span className="font-mono text-[10px] font-bold text-[#FEAD2B] uppercase block">
-                        💡 Objetivo de Implementación:
+                      <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase block">
+                        💡 Objetivo de Aprendizaje:
                       </span>
                       <p className="text-zinc-600">
-                        Aplica la plantilla asociada en tus compras semanales para auditar y reducir el Food Cost en tu restaurante.
+                        Aplica los conceptos técnicos y descarga los blueprints asociados para probarlos en tu propio entorno.
                       </p>
                     </div>
                   </div>
@@ -953,10 +970,10 @@ function CampusContent() {
                       currentLesson.prompts.map((p, idx) => (
                         <div key={idx} className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] font-bold text-[#971B8D]">PROMPT #0{idx + 1}</span>
+                            <span className="font-mono text-[10px] font-bold text-[#0284c7]">PROMPT #0{idx + 1}</span>
                             <button
                               onClick={() => handleCopyPrompt(p, idx)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-zinc-300 hover:border-[#971B8D] text-[#971B8D] text-xs font-bold transition-all cursor-pointer shadow-xs"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-zinc-300 hover:border-[#0284c7] text-[#0284c7] text-xs font-bold transition-all"
                             >
                               {copiedPromptIndex === idx ? (
                                 <>
@@ -982,7 +999,7 @@ function CampusContent() {
                   </div>
                 )}
 
-                {/* Tab: Downloads */}
+                {/* Tab: Descargas */}
                 {activePlayerTab === "downloads" && (
                   <div className="space-y-3">
                     {currentLesson?.downloads && currentLesson.downloads.length > 0 ? (
@@ -992,7 +1009,7 @@ function CampusContent() {
                           className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between gap-4"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-[#86C537]/15 border border-[#86C537]/30 flex items-center justify-center text-[#639922]">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
                               <FileText className="w-4 h-4" />
                             </div>
                             <div>
@@ -1004,7 +1021,7 @@ function CampusContent() {
                           <a
                             href={d.url}
                             download
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold transition-colors border border-zinc-300 shadow-xs"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold transition-colors border border-zinc-300"
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>Descargar</span>
@@ -1016,27 +1033,156 @@ function CampusContent() {
                     )}
                   </div>
                 )}
+
+                {/* Tab: Quiz Aprobatorio Interactivo */}
+                {activePlayerTab === "quiz" && currentModule?.quiz && (
+                  <div className="space-y-6">
+                    <div className="p-4 rounded-2xl bg-pink-50/50 border border-pink-100 flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <span className="text-xs font-bold text-[#EA0C7F]">
+                          Evaluación Técnica: {currentModule.title}
+                        </span>
+                        <p className="text-[11px] text-zinc-600">
+                          Responde las preguntas y obtén al menos {currentModule.quiz.passingScore}% para aprobar el módulo.
+                        </p>
+                      </div>
+                      {passedQuizes.includes(currentModule.id) && (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
+                          MÓDULO APROBADO ✓
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-6">
+                      {currentModule.quiz.questions.map((q, qIdx) => {
+                        return (
+                          <div key={qIdx} className="space-y-3 p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+                            <h4 className="text-xs font-bold text-zinc-900">
+                              {qIdx + 1}. {q.question}
+                            </h4>
+
+                            <div className="space-y-2">
+                              {q.options.map((opt, oIdx) => {
+                                const isChosen = quizAnswers[qIdx] === oIdx;
+                                const isCorrect = q.correctIndex === oIdx;
+
+                                let optionStyle = "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-100";
+                                if (isChosen && !quizSubmitted) {
+                                  optionStyle = "bg-zinc-900 text-white border-zinc-900 font-bold";
+                                } else if (quizSubmitted) {
+                                  if (isCorrect) {
+                                    optionStyle = "bg-emerald-50 border-emerald-300 text-emerald-800 font-bold";
+                                  } else if (isChosen && !isCorrect) {
+                                    optionStyle = "bg-red-50 border-red-300 text-red-800 line-through";
+                                  }
+                                }
+
+                                return (
+                                  <button
+                                    key={oIdx}
+                                    type="button"
+                                    onClick={() => handleAnswerSelect(qIdx, oIdx)}
+                                    className={"w-full p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between " + optionStyle}
+                                  >
+                                    <span>{opt}</span>
+                                    {quizSubmitted && isCorrect && (
+                                      <Check className="w-4 h-4 text-emerald-600" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {quizSubmitted && (
+                              <div className="p-3 rounded-xl bg-white border border-zinc-200 text-[11px] text-zinc-600 space-y-1">
+                                <span className="font-bold text-zinc-800">💡 Explicación Técnica:</span>
+                                <p>{q.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Botón de Enviar / Reintentar */}
+                    <div className="flex items-center justify-between pt-2">
+                      {!quizSubmitted ? (
+                        <button
+                          onClick={handleEvaluateQuiz}
+                          disabled={Object.keys(quizAnswers).length < currentModule.quiz.questions.length}
+                          className="px-6 py-3 rounded-xl bg-[#EA0C7F] hover:bg-[#c7096b] disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-md flex items-center gap-2"
+                        >
+                          <span>Calificar Evaluación</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className="flex items-center justify-between w-full">
+                          <div className="text-xs font-bold">
+                            Tu puntaje:{" "}
+                            <span className={quizScore! >= currentModule.quiz.passingScore ? "text-emerald-600" : "text-red-600"}>
+                              {quizScore}% ({quizScore! >= currentModule.quiz.passingScore ? "Aprobado 🎉" : "No alcanzaste el mínimo requerido"})
+                            </span>
+                          </div>
+                          <button
+                            onClick={handleResetQuiz}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-300 text-xs font-bold hover:bg-zinc-50 transition-colors"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Reintentar Quiz</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab: Apuntes del Alumno */}
+                {activePlayerTab === "notes" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-zinc-900">
+                        Notas personales para: {currentLesson?.title}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400">Autoguardado local activo</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      value={currentNote}
+                      onChange={(e) => handleSaveNote(e.target.value)}
+                      placeholder="Escribe tus apuntes, comandos o dudas aquí..."
+                      className="w-full p-4 rounded-2xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none font-mono"
+                    />
+                  </div>
+                )}
+
               </div>
+
             </div>
 
-            {/* Right: Modules Sidebar (4 cols) */}
+            {/* Columna Derecha: Sidebar de Módulos y Lecciones (4 cols) */}
             <div className="lg:col-span-4 space-y-4">
               <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-4 sticky top-36">
+                
                 <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#971B8D]" />
-                    <h3 className="text-sm font-bold text-zinc-900">Temario del Curso</h3>
+                    <Layers className="w-4 h-4 text-[#0284c7]" />
+                    <h3 className="text-sm font-bold text-zinc-900">Temario del Programa</h3>
                   </div>
-                  <span className="font-mono text-[10px] font-bold text-[#639922] bg-[#86C537]/15 px-2 py-0.5 rounded-full border border-[#86C537]/30">
-                    {completedLessons.length} / 7 vistas
+                  <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    {completedInProgram} / {totalLessonsCount} vistas
                   </span>
                 </div>
 
                 <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
-                  {COURSE_MODULES.map((module, mIdx) => (
+                  {currentProgram.modules.map((module, mIdx) => (
                     <div key={module.id} className="space-y-2">
-                      <div className="font-mono text-[11px] font-bold text-zinc-500 px-1">
-                        {module.title}
+                      <div className="font-mono text-[11px] font-bold text-zinc-500 px-1 flex items-center justify-between">
+                        <span className="line-clamp-1">{module.title}</span>
+                        {passedQuizes.includes(module.id) && (
+                          <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">
+                            QUIZ OK
+                          </span>
+                        )}
                       </div>
 
                       <div className="space-y-1.5">
@@ -1051,29 +1197,23 @@ function CampusContent() {
                                 setActiveModuleIndex(mIdx);
                                 setActiveLessonIndex(lIdx);
                               }}
-                              className={`w-full p-3 rounded-2xl text-left text-xs transition-all flex items-center justify-between gap-3 cursor-pointer ${
-                                isActive
-                                  ? "bg-[#971B8D] text-white shadow-md shadow-[#971B8D]/20 font-bold"
-                                  : "bg-zinc-50 border border-zinc-200 text-zinc-700 hover:bg-zinc-100"
-                              }`}
+                              className={"w-full p-3 rounded-2xl text-left text-xs transition-all flex items-center justify-between gap-3 cursor-pointer " + (isActive ? "bg-zinc-900 text-white shadow-md font-bold" : "bg-zinc-50 border border-zinc-200 text-zinc-700 hover:bg-zinc-100")}
                             >
                               <div className="flex items-center gap-2.5">
                                 {isCompleted ? (
                                   <CheckCircle2
-                                    className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-[#86C537]"}`}
+                                    className={"w-4 h-4 shrink-0 " + (isActive ? "text-emerald-400" : "text-emerald-600")}
                                   />
                                 ) : (
                                   <PlayCircle
-                                    className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-zinc-400"}`}
+                                    className={"w-4 h-4 shrink-0 " + (isActive ? "text-white" : "text-zinc-400")}
                                   />
                                 )}
                                 <span className="line-clamp-1">{lesson.title}</span>
                               </div>
 
                               <span
-                                className={`font-mono text-[10px] shrink-0 ${
-                                  isActive ? "text-white/80" : "text-zinc-400"
-                                }`}
+                                className={"font-mono text-[10px] shrink-0 " + (isActive ? "text-white/80" : "text-zinc-400")}
                               >
                                 {lesson.duration}
                               </span>
@@ -1084,373 +1224,69 @@ function CampusContent() {
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* ════════ TAB 3: MI CUENTA & PERFIL + CAMBIO DE CONTRASEÑA ════════ */}
-        {currentView === "profile" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-200">
-            {/* Left: Perfil Personal (7 cols) */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-[#971B8D]/10 text-[#971B8D] flex items-center justify-center font-bold">
-                      <User className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-zinc-900">Datos del Alumno</h2>
-                      <p className="text-xs text-zinc-500">Información de contacto y empresa vinculada a tu cuenta</p>
-                    </div>
-                  </div>
-                </div>
-
-                {profileSuccessMsg && (
-                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600" />
-                    <span>{profileSuccessMsg}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                      Nombre Completo
-                    </label>
-                    <input
-                      type="text"
-                      value={studentProfile.fullName}
-                      onChange={(e) => setStudentProfile({ ...studentProfile, fullName: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                        Correo de Acceso (No editable)
-                      </label>
-                      <input
-                        type="email"
-                        disabled
-                        value={studentProfile.email}
-                        className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-100 text-xs text-zinc-500 font-mono cursor-not-allowed"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                        Teléfono / WhatsApp
-                      </label>
-                      <input
-                        type="text"
-                        value={studentProfile.phone}
-                        onChange={(e) => setStudentProfile({ ...studentProfile, phone: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                        Restaurante / Empresa
-                      </label>
-                      <input
-                        type="text"
-                        value={studentProfile.company}
-                        onChange={(e) => setStudentProfile({ ...studentProfile, company: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                        Cargo / Rol
-                      </label>
-                      <input
-                        type="text"
-                        value={studentProfile.role}
-                        onChange={(e) => setStudentProfile({ ...studentProfile, role: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={isSavingProfile}
-                      className="px-6 py-3 rounded-xl bg-[#971B8D] hover:bg-[#801676] text-white text-xs font-bold shadow-md shadow-[#971B8D]/20 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      {isSavingProfile ? "Guardando..." : "Guardar Cambios de Perfil"}
-                    </button>
-                  </div>
-                </form>
               </div>
             </div>
 
-            {/* Right: Cambio de Contraseña (5 cols) */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-5">
-                <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
-                    <Key className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-zinc-900">Seguridad & Contraseña</h2>
-                    <p className="text-xs text-zinc-500">Actualiza tu clave de acceso al aula virtual</p>
-                  </div>
-                </div>
-
-                {passwordMsg && (
-                  <div
-                    className={`p-3.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
-                      passwordMsg.type === "success"
-                        ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
-                        : "bg-red-50 border border-red-200 text-red-700"
-                    }`}
-                  >
-                    {passwordMsg.type === "success" ? <Check className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                    <span>{passwordMsg.text}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                      Contraseña Actual
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                      placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                      Nueva Contraseña (mínimo 6 caracteres)
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                      placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-zinc-700 font-mono font-bold uppercase mb-1.5">
-                      Confirmar Nueva Contraseña
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                      placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-zinc-300 bg-zinc-50 text-xs text-zinc-900 font-mono focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={isChangingPassword}
-                      className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      {isChangingPassword ? "Actualizando clave..." : "Modificar Contraseña"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ════════ TAB 4: HISTORIAL DE PAGOS ════════ */}
-        {currentView === "payments" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#1DACE3]/10 text-[#1DACE3] flex items-center justify-center font-bold">
-                    <CreditCard className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-zinc-900">Historial de Pagos & Recibos</h2>
-                    <p className="text-xs text-zinc-500">Comprobantes oficiales de compra y estado de matrículas</p>
-                  </div>
-                </div>
-
-                <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
-                  Suscripción Vitalicia Activa
-                </span>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[650px]">
-                  <thead>
-                    <tr className="border-b border-zinc-200 text-zinc-500 font-mono">
-                      <th className="pb-3">CONCEPTO / PROGRAMA</th>
-                      <th className="pb-3">MÉTODO DE PAGO</th>
-                      <th className="pb-3">FECHA</th>
-                      <th className="pb-3">MONTO</th>
-                      <th className="pb-3">ESTADO</th>
-                      <th className="pb-3 text-right">RECIBO</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-100">
-                    <tr className="text-zinc-700">
-                      <td className="py-4 font-bold text-zinc-900">
-                        Masterclass: Inteligencia Artificial para Restaurantes
-                        <span className="block font-mono text-[10px] text-zinc-400 font-normal">ORD-IN-2026-4921</span>
-                      </td>
-                      <td className="py-4 font-mono text-zinc-600">Lemon Squeezy (Tarjeta USD)</td>
-                      <td className="py-4 font-mono text-zinc-600">15 Ago, 2026</td>
-                      <td className="py-4 font-mono font-bold text-zinc-900">$97.00 USD</td>
-                      <td className="py-4">
-                        <span className="font-mono text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#86C537]/15 text-[#639922] border border-[#86C537]/30">
-                          Aprobado
-                        </span>
-                      </td>
-                      <td className="py-4 text-right">
-                        <button
-                          onClick={() => alert("El recibo oficial fue enviado a tu correo corporativo.")}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-300 hover:bg-zinc-50 text-zinc-700 font-bold text-xs shadow-xs"
-                        >
-                          <Receipt className="w-3.5 h-3.5" />
-                          <span>Factura</span>
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ════════ TAB 5: NOTIFICACIONES ════════ */}
-        {currentView === "notifications" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-                <div className="w-10 h-10 rounded-2xl bg-[#EA0C7F]/10 text-[#EA0C7F] flex items-center justify-center font-bold">
-                  <Bell className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-zinc-900">Centro de Notificaciones</h2>
-                  <p className="text-xs text-zinc-500">Avisos de clases en vivo, sesiones de asesoría y novedades</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {NOTIFICATIONS_LIST.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className={`p-5 rounded-2xl border text-xs space-y-1.5 transition-all ${
-                      notif.unread
-                        ? "bg-purple-50/50 border-[#971B8D]/30 shadow-xs"
-                        : "bg-zinc-50 border-zinc-200"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {notif.unread && <span className="w-2 h-2 rounded-full bg-[#EA0C7F]" />}
-                        <h3 className="font-bold text-zinc-900">{notif.title}</h3>
-                      </div>
-                      <span className="font-mono text-[10px] text-zinc-400">{notif.date}</span>
-                    </div>
-                    <p className="text-zinc-600 leading-relaxed">{notif.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ════════ TAB 6: CENTRO DE AYUDA & FAQ ════════ */}
-        {currentView === "help" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-200">
-            <div className="lg:col-span-8 space-y-6">
-              <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
-                  <div className="w-10 h-10 rounded-2xl bg-[#FEAD2B]/10 text-[#FEAD2B] flex items-center justify-center font-bold">
-                    <HelpCircle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-zinc-900">Preguntas Frecuentes (FAQ)</h2>
-                    <p className="text-xs text-zinc-500">Respuestas directas sobre el campus, descargas y asesorías</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {FAQ_LIST.map((faq, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-2xl border border-zinc-200 bg-zinc-50/60 overflow-hidden transition-all"
-                    >
-                      <button
-                        onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
-                        className="w-full p-4 text-left text-xs font-bold text-zinc-900 flex items-center justify-between gap-3 cursor-pointer"
-                      >
-                        <span>{faq.q}</span>
-                        <ChevronDown
-                          className={`w-4 h-4 text-zinc-500 transition-transform ${
-                            expandedFaq === idx ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {expandedFaq === idx && (
-                        <div className="px-4 pb-4 text-xs text-zinc-600 leading-relaxed border-t border-zinc-200/60 pt-3 font-normal">
-                          {faq.a}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Soporte Prioritario WhatsApp (4 cols) */}
-            <div className="lg:col-span-4 space-y-6">
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-4 text-left">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
-                  <MessageCircle className="w-5 h-5" />
-                </div>
-
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-zinc-900">¿Necesitas Asistencia Técnica?</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
-                    Comunícate directamente con Julio Daza para resolver dudas de configuración de n8n o escandallos.
-                  </p>
-                </div>
-
-                <a
-                  href="https://wa.me/584148817137?text=Hola%20Julio,%20soy%20alumno%20del%20Campus%20y%20necesito%20asistencia%20técnica."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Abrir Chat en WhatsApp</span>
-                </a>
-              </div>
-            </div>
           </div>
         )}
 
       </main>
+
+      {/* ── MODAL DEL CERTIFICADO OFICIAL INTERACTIVO ── */}
+      {showCertificateModal && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-700 p-8 rounded-3xl text-white space-y-6 shadow-2xl">
+            
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-[#0284c7]" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Certificación Oficial Emitida
+                </span>
+              </div>
+              <button
+                onClick={() => setShowCertificateModal(false)}
+                className="text-zinc-400 hover:text-white text-xs font-mono"
+              >
+                Cerrar ✕
+              </button>
+            </div>
+
+            <div className="text-center space-y-3 py-4">
+              <span className="text-[11px] font-mono tracking-widest text-[#1DACE3] uppercase font-bold">
+                DIPLOMA DE EXCELENCIA PROFESIONAL
+              </span>
+              <h2 className="text-2xl font-serif italic text-zinc-100 font-bold">
+                {studentProfile.fullName}
+              </h2>
+              <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                Por haber completado con distinción el 100% de los laboratorios y quizes aprobatorios del programa:
+              </p>
+              <p className="text-sm font-bold text-white">
+                {currentProgram.title}
+              </p>
+              <div className="text-[10px] font-mono text-zinc-500 pt-2">
+                ID de Verificación: CERT-2026-IN • Emisión: Agosto 2026
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
+              <div className="text-[11px] text-zinc-400">
+                <span>Director de Arquitectura: </span>
+                <strong className="text-white">Julio Daza</strong>
+              </div>
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] text-white font-bold text-xs shadow-md hover:opacity-95"
+              >
+                Imprimir / Guardar PDF
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
@@ -1459,13 +1295,7 @@ function CampusContent() {
 
 export default function CampusPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center text-zinc-600 font-mono text-xs">
-          Cargando Campus Virtual...
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center text-xs">Cargando Campus Virtual...</div>}>
       <CampusContent />
     </Suspense>
   );
