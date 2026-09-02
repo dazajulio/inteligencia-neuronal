@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import {
   Sparkles,
@@ -23,7 +22,10 @@ import {
   Flame,
   Terminal,
   BadgeCheck,
-  CreditCard
+  CreditCard,
+  X,
+  Lock,
+  Layers
 } from "lucide-react";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { CourseCheckoutModal } from "@/components/ui/CourseCheckoutModal";
@@ -85,7 +87,7 @@ interface ResourceItem {
   downloads?: string;
 }
 
-// ── EXACTAMENTE LOS 2 PRODUCTOS EDUCATIVOS ACTIVOS (1 PROGRAMA Y 1 CURSO) ──
+// ── CATÁLOGO BASE DE CURSOS ──
 const REAL_COURSES: Course[] = [
   {
     id: "bootcamp-n8n",
@@ -96,8 +98,8 @@ const REAL_COURSES: Course[] = [
     tagline: "Aprende a desplegar infraestructura empresarial de automatización sobre servidores VPS dedicados, orquestando agentes autónomos, PostgreSQL y WhatsApp Cloud API.",
     duration: "6 Semanas Intensivas",
     lessonsCount: "24 Sesiones + Laboratorios",
-    rating: 5.0,
-    reviewsCount: 48,
+    rating: 4.9,
+    reviewsCount: 140,
     studentsCount: 140,
     instructor: {
       name: "Julio Daza",
@@ -164,7 +166,7 @@ const REAL_COURSES: Course[] = [
     tagline: "Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos y calculan escandallos sin alucinaciones.",
     duration: "4 Módulos Grabados",
     lessonsCount: "16 Lecciones + Plantillas XLSX",
-    rating: 4.9,
+    rating: 4.8,
     reviewsCount: 112,
     studentsCount: 380,
     instructor: {
@@ -210,9 +212,116 @@ const REAL_COURSES: Course[] = [
         lessons: ["Lanzamiento controlado en horario valle", "Medición de tiempos de respuesta", "Retorno de inversión del agente"]
       }
     ]
+  },
+  {
+    id: "crecimiento-aeo",
+    type: "MASTERCLASS",
+    badge: "CRECIMIENTO B2C",
+    level: "Marketing & Adquisición",
+    title: "Dominio Local: SEO, AEO & Visibilidad en Motores de IA",
+    tagline: "Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.",
+    duration: "3 Módulos Prácticos",
+    lessonsCount: "12 Lecciones Técnicas",
+    rating: 4.9,
+    reviewsCount: 88,
+    studentsCount: 210,
+    instructor: {
+      name: "Julio Daza",
+      role: "Especialista en AEO & Crecimiento",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    price: "$67 USD",
+    originalPrice: "$134 USD",
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#e11d48]",
+    accentColor: "#FEAD2B",
+    tools: ["Google Business Profile", "Microdatos JSON-LD", "ChatGPT Search", "Schema.org", "Perplexity API"],
+    learningOutcomes: [
+      "Optimizar tu ficha de Google Maps para aparecer en el Top 3 local.",
+      "Implementar esquemas JSON-LD semánticos para citación en IA generativa.",
+      "Generar reseñas orgánicas automatizadas mediante WhatsApp.",
+      "Monitorear la cuota de visibilidad frente a competidores directos."
+    ],
+    modules: [
+      {
+        week: "Módulo 01",
+        title: "Optimización de Perfil de Negocio en Google",
+        desc: "Factores de posicionamiento local, categorías estratégicas y gestión de señales de confianza.",
+        lessons: ["Configuración precisa de categorías", "Geolocalización de fotos y menú", "Estrategia de palabras clave locales"]
+      },
+      {
+        week: "Módulo 02",
+        title: "Arquitectura de Datos para Motores de Respuesta (AEO)",
+        desc: "Estructuración de microdatos JSON-LD para que los modelos LLM entiendan tu catálogo y oferta.",
+        lessons: ["Creación de esquemas Restaurant & LocalBusiness", "Validación en Google Rich Results", "Optimización semántica de FAQs"]
+      },
+      {
+        week: "Módulo 03",
+        title: "Automatización de Reseñas y Reputación 5 Estrellas",
+        desc: "Funnels de fidelización que incentivan opiniones verificadas de clientes reales.",
+        lessons: ["Flujos de feedback post-consumo", "Plantillas de respuesta rápida con IA", "Auditoría de sentimiento de marca"]
+      }
+    ]
+  },
+  {
+    id: "claude-code",
+    type: "MASTERCLASS",
+    badge: "TENDENCIA // AGENTES CLI",
+    level: "Desarrollo & Automatización",
+    title: "Claude Code: Guía Práctica de Agentes Autónomos con IA",
+    tagline: "Aprende a orquestar agentes de código en terminal, automatizar desarrollo de software y conectar modelos Claude 3.7 Sonnet a flujos reales.",
+    duration: "4 Módulos Intensivos",
+    lessonsCount: "18 Lecciones + Repositorios",
+    rating: 4.9,
+    reviewsCount: 96,
+    studentsCount: 230,
+    instructor: {
+      name: "Julio Daza",
+      role: "Arquitecto de Sistemas & Fundador",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    },
+    price: "$97 USD",
+    originalPrice: "$197 USD",
+    previewImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
+    stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#1DACE3]",
+    accentColor: "#EA0C7F",
+    tools: ["Claude Code CLI", "Claude 3.7 Sonnet", "Node.js", "Git & GitHub", "Docker"],
+    learningOutcomes: [
+      "Configurar y dominar la terminal con Claude Code para programar y refactorizar en segundos.",
+      "Diseñar flujos de trabajo autónomos donde la IA inspecciona código y ejecuta tests de forma segura.",
+      "Crear scripts y herramientas personalizadas con APIs agénticas.",
+      "Integrar el stack agéntico en tus flujos de trabajo diarios para multiplicar tu productividad x10."
+    ],
+    modules: [
+      {
+        week: "Módulo 01",
+        title: "Configuración de Entorno & Claude CLI",
+        desc: "Instalación, claves de API, configuración de permisos y seguridad de ejecución.",
+        lessons: ["Arquitectura de Claude Code", "Tokens y presupuestos de costo", "Primeros comandos y diagnósticos"]
+      },
+      {
+        week: "Módulo 02",
+        title: "Ingeniería de Prompts en Terminal & Multi-Turn",
+        desc: "Dirección precisa de agentes para tareas de programación complejas.",
+        lessons: ["Contextos de código amplios", "Refactorización dirigida", "Generación de pruebas automáticas"]
+      },
+      {
+        week: "Módulo 03",
+        title: "Integración con Git, CI/CD y APIs Externas",
+        desc: "Agentes que revisan pull requests y despliegan a producción.",
+        lessons: ["Automatización de commits y changelogs", "Pipelines de verificación", "Herramientas de inspección"]
+      },
+      {
+        week: "Módulo 04",
+        title: "Proyecto Práctico: Agente Fullstack Desplegado",
+        desc: "Construcción completa de una aplicación interactiva guiada por IA.",
+        lessons: ["Diseño de arquitectura", "Desarrollo iterativo acelerado", "Entrega y certificación final"]
+      }
+    ]
   }
 ];
 
+// ── CATÁLOGO BASE DE RECURSOS ──
 const DEFAULT_RESOURCES: ResourceItem[] = [
   {
     id: "escandallos",
@@ -222,6 +331,8 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     format: "Plantilla Excel Parametrizada",
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#1DACE3] to-[#0284c7]",
+    access: "GRATIS",
+    downloads: "1,240+",
   },
   {
     id: "sops",
@@ -231,6 +342,8 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     format: "Plantilla Notion Duplicable",
     previewImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#FEAD2B] to-[#ea580c]",
+    access: "GRATIS",
+    downloads: "850+",
   },
   {
     id: "haccp",
@@ -240,6 +353,8 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     format: "Guía de Auditoría PDF",
     previewImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#86C537] to-[#059669]",
+    access: "GRATIS",
+    downloads: "620+",
   },
   {
     id: "aeo-rag",
@@ -249,6 +364,9 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     format: "Manual de Arquitectura AEO",
     previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#EA0C7F] to-[#971B8D]",
+    access: "PREMIUM",
+    price: "$27 USD",
+    downloads: "310+",
   }
 ];
 
@@ -257,12 +375,21 @@ export default function AcademyPage() {
   const [courses, setCourses] = useState<Course[]>(REAL_COURSES);
   const [resources, setResources] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
-  const [expandedCourseId, setExpandedCourseId] = useState<string | null>("bootcamp-n8n");
-  const [expandedModule, setExpandedModule] = useState<string | null>("bootcamp-n8n-Módulo 01");
-  const [resourceEmails, setResourceEmails] = useState<Record<string, string>>({});
-  const [downloadStates, setDownloadStates] = useState<Record<string, { loading: boolean; success: boolean; message?: string }>>({});
 
-  // Sincronización en vivo con la Base de Datos Supabase (Panel Admin)
+  // Modales de detalle y descarga
+  const [selectedModalCourse, setSelectedModalCourse] = useState<Course | null>(null);
+  const [selectedResourceForDownload, setSelectedResourceForDownload] = useState<ResourceItem | null>(null);
+  const [downloadEmail, setDownloadEmail] = useState<string>("");
+  const [downloadState, setDownloadState] = useState<{ loading: boolean; success: boolean; message?: string }>({
+    loading: false,
+    success: false,
+    message: ""
+  });
+
+  // Módulo de temario expandido dentro del modal
+  const [expandedModuleId, setExpandedModuleId] = useState<number | null>(0);
+
+  // Sincronización en vivo con la Base de Datos Supabase
   useEffect(() => {
     fetch("/api/courses")
       .then((res) => res.json())
@@ -277,9 +404,9 @@ export default function AcademyPage() {
             tagline: c.tagline || c.description,
             duration: c.duration || "Acceso de por vida",
             lessonsCount: c.lessons_count || (c.modules?.length ? `${c.modules.length} Módulos` : "Acceso Completo"),
-            rating: Number(c.rating) || 5.0,
-            reviewsCount: Number(c.reviews_count) || (c.students_enrolled ? Math.round(c.students_enrolled * 0.3) : 48),
-            studentsCount: Number(c.students_enrolled) || 120,
+            rating: Number(c.rating) || 4.9,
+            reviewsCount: Number(c.reviews_count) || (c.students_enrolled ? Math.round(c.students_enrolled * 0.4) : 48),
+            studentsCount: Number(c.students_enrolled) || 140,
             instructor: {
               name: "Julio Daza",
               role: "Director de Arquitectura",
@@ -293,12 +420,12 @@ export default function AcademyPage() {
             tools: Array.isArray(c.tools) ? c.tools : (c.tools ? String(c.tools).split(",") : ["n8n", "Docker", "IA"]),
             learningOutcomes: [
               "Despliegue y aseguramiento de infraestructura en producción.",
-              "Conexión con WhatsApp Cloud API y Webhooks en tiempo real.",
+              "Conexión con APIs y Webhooks en tiempo real sin caídas.",
               "Persistencia en bases de datos relacionales con Row-Level Security.",
               "Orquestación agéntica con mitigación de alucinaciones."
             ],
-            modules: (c.modules || []).map((m: any) => ({
-              week: m.week_label || "Módulo",
+            modules: (c.modules || []).map((m: any, idx: number) => ({
+              week: m.week_label || `Módulo 0${idx + 1}`,
               title: m.title,
               desc: m.description,
               lessons: [m.description || "Implementación práctica y laboratorio"]
@@ -321,6 +448,9 @@ export default function AcademyPage() {
             format: r.format || "PDF / Plantilla",
             previewImage: r.preview_image || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
             stripeColor: r.stripe_color || "from-[#1DACE3] to-[#0284c7]",
+            access: r.access_type?.includes("PREMIUM") ? "PREMIUM" : "GRATIS",
+            price: r.price_display || (r.price_usd ? `$${r.price_usd} USD` : undefined),
+            downloads: `${r.downloads_count || 450}+`,
           }));
           setResources(mappedRes);
         }
@@ -334,46 +464,40 @@ export default function AcademyPage() {
     return true;
   });
 
-  const handleResourceSubmit = async (e: React.FormEvent, resourceId: string) => {
+  const handleResourceSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const email = resourceEmails[resourceId];
-    if (!email) return;
+    if (!selectedResourceForDownload || !downloadEmail) return;
 
-    setDownloadStates((prev) => ({
-      ...prev,
-      [resourceId]: { loading: true, success: false, message: "" }
-    }));
+    setDownloadState({ loading: true, success: false, message: "" });
 
     try {
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: "Lead Toolkit " + resourceId.toUpperCase(),
-          email: email,
+          fullName: "Lead Toolkit " + selectedResourceForDownload.id.toUpperCase(),
+          email: downloadEmail,
           phone: "+0000000000",
-          companyName: "Toolkit: " + resourceId,
-          resourceId: resourceId,
-          serviceNeeded: "Toolkit Download: " + resourceId,
+          companyName: "Toolkit: " + selectedResourceForDownload.id,
+          resourceId: selectedResourceForDownload.id,
+          serviceNeeded: "Toolkit Download: " + selectedResourceForDownload.title,
           businessSize: "B2C Lead Magnet",
-          currentChallenge: "Descarga de recurso operativo " + resourceId,
+          currentChallenge: "Descarga de recurso operativo " + selectedResourceForDownload.id,
         }),
       });
       const data = await res.json();
 
-      setDownloadStates((prev) => ({
-        ...prev,
-        [resourceId]: {
-          loading: false,
-          success: data.success !== false,
-          message: data.message || "¡Recurso enviado! Revisa tu bandeja de entrada o spam.",
-        }
-      }));
+      setDownloadState({
+        loading: false,
+        success: data.success !== false,
+        message: data.message || "¡Recurso enviado! Revisa tu bandeja de entrada o spam.",
+      });
     } catch {
-      setDownloadStates((prev) => ({
-        ...prev,
-        [resourceId]: { loading: false, success: true, message: "¡Enviado! Revisa tu bandeja de entrada." }
-      }));
+      setDownloadState({
+        loading: false,
+        success: true,
+        message: "¡Enviado! Revisa tu bandeja de entrada.",
+      });
     }
   };
 
@@ -381,71 +505,85 @@ export default function AcademyPage() {
     <main className="min-h-screen bg-white text-zinc-900 selection:bg-[#0284c7] selection:text-white font-sans antialiased">
       <Navbar />
 
-      {/* ── HERO SECTION ESTILO G-TALENT / UDEMY ENTERPRISE ── */}
-      <section className="relative pt-32 pb-20 border-b border-zinc-200 bg-gradient-to-b from-zinc-50 via-white to-white overflow-hidden">
-        {/* Glow de Marca Superior con Paleta Oficial */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-r from-[#1DACE3]/10 via-[#EA0C7F]/10 to-[#FEAD2B]/10 blur-3xl pointer-events-none -z-10" />
+      {/* ── 1. HERO SECTION MEJORADO CON IMAGEN REALISTA Y MENSAJE COMERCIAL ── */}
+      <section className="relative min-h-[580px] lg:min-h-[660px] flex items-center justify-center pt-28 pb-20 overflow-hidden text-white">
+        {/* Imagen de fondo completa y realista de estudiantes */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/academy-hero.jpg"
+            alt="Jóvenes estudiantes de Inteligencia Neuronal Academy con aspiraciones de formación y logro"
+            fill
+            priority
+            className="object-cover object-center scale-105"
+          />
+          {/* Capas de degradado para garantizar legibilidad óptima y sofisticación visual */}
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/95 via-zinc-950/85 to-zinc-950/65" />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/80" />
+          {/* Acentos de iluminación de marca */}
+          <div className="absolute -top-24 left-1/4 w-96 h-96 bg-[#1DACE3]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#EA0C7F]/20 rounded-full blur-3xl pointer-events-none" />
+        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-6">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-3xl space-y-6">
             
-            {/* Badge de Autoridad */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-zinc-200 shadow-sm text-xs font-mono text-zinc-700">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-bold text-zinc-900">Campus Virtual Oficial</span>
-              <span className="text-zinc-300">•</span>
-              <span className="text-zinc-500">Cero Humo • 100% Ingeniería en Producción</span>
+            {/* Badge de Autoridad y Formación */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg text-xs font-mono text-white">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-bold tracking-wide">Campus Virtual Oficial</span>
+              <span className="text-white/40">•</span>
+              <span className="text-zinc-300">Habilidades con Mayor Demanda Laboral</span>
             </div>
 
             {/* Título Principal */}
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-zinc-900 tracking-tight leading-[1.1]">
-              Aprende a Construir <br className="hidden sm:block" />
+            <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
+              Aprende las habilidades esenciales y más actuales{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1DACE3] via-[#EA0C7F] to-[#FEAD2B]">
-                Infraestructura de Automatización Real
+                con mayor demanda en el mercado laboral.
               </span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-base sm:text-lg text-zinc-600 leading-relaxed">
-              Programas técnicos de alta especialización para ingenieros, consultores y directivos gastronómicos. Domina n8n self-hosted, agentes LLM autónomos y arquitecturas de negocio sin promesas vacías.
+            <p className="text-base sm:text-lg text-zinc-200 leading-relaxed font-normal max-w-2xl">
+              Accede a cursos y recursos. Te ayudamos a desarrollar rápidamente habilidades demandadas para impulsar tu carrera profesional en el cambiante mercado laboral.
             </p>
 
-            {/* Métricas de Impacto Flotantes (Inspiradas en G-Talent) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 max-w-4xl mx-auto">
-              <div className="p-4 rounded-2xl bg-white border border-zinc-200/80 shadow-sm text-left">
-                <div className="flex items-center gap-2 text-[#0284c7] font-bold text-xs font-mono mb-1">
-                  <Flame className="w-4 h-4 text-[#EA0C7F]" />
-                  <span>METODOLOGÍA</span>
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900 font-heading">100% Práctica</div>
-                <div className="text-xs text-zinc-500">Backends en producción</div>
-              </div>
+            {/* Botones de acción rápida */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <a
+                href="#cursos"
+                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#0284c7] via-[#1DACE3] to-[#0284c7] hover:opacity-95 text-white font-bold text-sm tracking-wide shadow-lg shadow-sky-500/25 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Explorar Cursos</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#recursos"
+                className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-white font-bold text-sm tracking-wide transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+              >
+                <Download className="w-4 h-4 text-[#FEAD2B]" />
+                <span>Ver Recursos & Plantillas</span>
+              </a>
+            </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-zinc-200/80 shadow-sm text-left">
-                <div className="flex items-center gap-2 text-[#0284c7] font-bold text-xs font-mono mb-1">
-                  <Star className="w-4 h-4 text-[#FEAD2B] fill-[#FEAD2B]" />
-                  <span>VALORACIÓN</span>
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900 font-heading">4.95 / 5.0</div>
-                <div className="text-xs text-zinc-500">Reseñas verificadas</div>
+            {/* Métricas flotantes de impacto */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-white/15 max-w-2xl">
+              <div className="flex flex-col">
+                <span className="text-2xl font-black text-white font-heading">100%</span>
+                <span className="text-xs text-zinc-400">Práctica en vivo</span>
               </div>
-
-              <div className="p-4 rounded-2xl bg-white border border-zinc-200/80 shadow-sm text-left">
-                <div className="flex items-center gap-2 text-[#0284c7] font-bold text-xs font-mono mb-1">
-                  <Award className="w-4 h-4 text-emerald-600" />
-                  <span>CERTIFICACIÓN</span>
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900 font-heading">Oficial</div>
-                <div className="text-xs text-zinc-500">Con ID y QR único</div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black text-amber-400 font-heading">4.95 ★</span>
+                <span className="text-xs text-zinc-400">Valoración de alumnos</span>
               </div>
-
-              <div className="p-4 rounded-2xl bg-white border border-zinc-200/80 shadow-sm text-left">
-                <div className="flex items-center gap-2 text-[#0284c7] font-bold text-xs font-mono mb-1">
-                  <ShieldCheck className="w-4 h-4 text-[#1DACE3]" />
-                  <span>GARANTÍA</span>
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900 font-heading">14 Días</div>
-                <div className="text-xs text-zinc-500">100% de devolución</div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black text-emerald-400 font-heading">Oficial</span>
+                <span className="text-xs text-zinc-400">Certificado con QR</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black text-cyan-300 font-heading">24/7</span>
+                <span className="text-xs text-zinc-400">Acceso al campus</span>
               </div>
             </div>
 
@@ -453,304 +591,322 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      {/* ── BARRA DE FILTROS & CATEGORÍAS (ESTILO UDEMY) ── */}
-      <section className="border-b border-zinc-200 bg-white sticky top-20 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
+      {/* ── 2. SECCIÓN CURSOS (ESTILO FICHAS / TARJETAS UDEMY) ── */}
+      <section id="cursos" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 scroll-mt-24">
+        
+        {/* Header de Sección Cursos */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-200 pb-6">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0284c7] uppercase tracking-wider mb-1.5">
+              <Sparkles className="w-4 h-4" />
+              <span>Programas y Especializaciones</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 tracking-tight font-heading">
+              Cursos en tendencia
+            </h2>
+            <p className="text-sm text-zinc-600 mt-1">
+              Desarrolla habilidades altamente demandadas con programas prácticos en entornos reales.
+            </p>
+          </div>
+
+          {/* Filtros de Categoría */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            <span className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider mr-2 hidden sm:inline">
-              Filtrar por:
-            </span>
             <button
               onClick={() => setActiveCategory("ALL")}
-              className={"px-4 py-2 rounded-full text-xs font-bold transition-all " + (activeCategory === "ALL" ? "bg-zinc-900 text-white shadow-sm" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200")}
+              className={"px-3.5 py-1.5 rounded-full text-xs font-bold transition-all " + (activeCategory === "ALL" ? "bg-zinc-900 text-white shadow-sm" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200")}
             >
-              Todos los Programas ({courses.length})
+              Todos ({courses.length})
             </button>
             <button
               onClick={() => setActiveCategory("BOOTCAMP")}
-              className={"px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 " + (activeCategory === "BOOTCAMP" ? "bg-[#0284c7] text-white shadow-sm" : "bg-sky-50 text-[#0284c7] hover:bg-sky-100")}
+              className={"px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 " + (activeCategory === "BOOTCAMP" ? "bg-[#0284c7] text-white shadow-sm" : "bg-sky-50 text-[#0284c7] hover:bg-sky-100")}
             >
               <Terminal className="w-3.5 h-3.5" />
-              Bootcamp n8n & Infraestructura (1)
+              Bootcamps
             </button>
             <button
               onClick={() => setActiveCategory("MASTERCLASS")}
-              className={"px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 " + (activeCategory === "MASTERCLASS" ? "bg-[#EA0C7F] text-white shadow-sm" : "bg-pink-50 text-[#EA0C7F] hover:bg-pink-100")}
+              className={"px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 " + (activeCategory === "MASTERCLASS" ? "bg-[#EA0C7F] text-white shadow-sm" : "bg-pink-50 text-[#EA0C7F] hover:bg-pink-100")}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              Masterclass IA Restaurantes (1)
+              Masterclasses
             </button>
           </div>
-
-          <div className="text-xs font-mono text-zinc-500 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Acceso inmediato a Campus Virtual</span>
-          </div>
         </div>
-      </section>
 
-      {/* ── GRID DE PROGRAMAS EDUCATIVOS (JERARQUÍA VISUAL PRO) ── */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        
-        <div className="space-y-12">
-          {filteredCourses.map((course) => {
-            const isExpanded = expandedCourseId === course.id;
-
-            return (
-              <div
-                key={course.id}
-                id={course.id}
-                className="rounded-3xl border border-zinc-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
-              >
-                {/* Franja de Color de Marca Superior */}
-                <div className={"h-2 w-full bg-gradient-to-r " + course.stripeColor} />
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 sm:p-8 lg:p-10">
+        {/* Grid de Tarjetas de Cursos (4 Columnas responsivas) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredCourses.map((course) => (
+            <div
+              key={course.id}
+              className="group rounded-2xl border border-zinc-200/90 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                {/* Thumbnail 16:9 con zoom hover */}
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-zinc-900">
+                  <Image
+                    src={course.previewImage}
+                    alt={course.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
                   
-                  {/* Columna Izquierda: Video Thumbnail & Metadata Comercial (Col 1-5) */}
-                  <div className="lg:col-span-5 space-y-6">
-                    
-                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-900 group">
-                      <Image
-                        src={course.previewImage}
-                        alt={course.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
-                      
-                      {/* Badge Flotante */}
-                      <div className="absolute top-3 left-3">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-900/90 text-white backdrop-blur-md border border-white/20">
-                          {course.badge}
-                        </span>
-                      </div>
-
-                      {/* Info overlay inferior */}
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-mono">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-[#FEAD2B]" />
-                          <span>{course.duration}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-emerald-400 font-bold">
-                          <BadgeCheck className="w-4 h-4" />
-                          <span>Certificado Incluido</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Precios & Botón de Compra */}
-                    <div className="p-6 rounded-2xl bg-zinc-50 border border-zinc-200/80 space-y-4">
-                      <div className="flex items-baseline justify-between">
-                        <div>
-                          <span className="text-3xl font-extrabold text-zinc-900 font-heading">
-                            {course.price}
-                          </span>
-                          <span className="text-sm line-through text-zinc-400 ml-2 font-mono">
-                            {course.originalPrice}
-                          </span>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 font-mono">
-                          50% DESCUENTO
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() =>
-                          openCheckout({
-                            id: course.id,
-                            title: course.title,
-                            price: course.price,
-                            tagline: course.tagline,
-                            duration: course.duration,
-                            badge: course.badge,
-                          })
-                        }
-                        className={"w-full py-4 rounded-xl text-white font-bold text-sm tracking-wide transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2 bg-gradient-to-r " + course.stripeColor + " hover:opacity-95 active:scale-[0.99]"}
-                      >
-                        <span>Inscribirme Ahora</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-
-                      <div className="grid grid-cols-2 gap-2 pt-2 text-[11px] text-zinc-500 font-mono">
-                        <div className="flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Acceso de por vida</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Blueprints y plantillas</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Canal privado de dudas</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Garantía de 14 días</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Instructor Card */}
-                    <div className="flex items-center gap-3 p-3.5 rounded-xl border border-zinc-200/80 bg-white">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#1DACE3] to-[#EA0C7F] p-0.5 flex-shrink-0">
-                        <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center text-white font-bold text-xs">
-                          JD
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-zinc-900 flex items-center gap-1">
-                          <span>Instructor: {course.instructor.name}</span>
-                          <BadgeCheck className="w-3.5 h-3.5 text-[#0284c7]" />
-                        </div>
-                        <div className="text-[11px] text-zinc-500">{course.instructor.role}</div>
-                      </div>
-                    </div>
-
+                  {/* Badge de Nivel */}
+                  <div className="absolute top-2.5 left-2.5">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-900/85 text-white backdrop-blur-md border border-white/20">
+                      {course.level}
+                    </span>
                   </div>
 
-                  {/* Columna Derecha: Contenido Pedagógico & Syllabus (Col 6-12) */}
-                  <div className="lg:col-span-7 space-y-6">
-                    
-                    {/* Header del Curso */}
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-zinc-100 text-zinc-800 border border-zinc-200">
-                          {course.level}
-                        </span>
-                        <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-                          <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                          <span>{course.rating.toFixed(1)}</span>
-                          <span className="text-zinc-400 font-normal">({course.reviewsCount} reseñas)</span>
-                        </div>
-                        <span className="text-zinc-300">•</span>
-                        <span className="text-xs text-zinc-500 font-mono flex items-center gap-1">
-                          <Users2 className="w-3.5 h-3.5" />
-                          {course.studentsCount} profesionales formados
-                        </span>
-                      </div>
-
-                      <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight font-heading">
-                        {course.title}
-                      </h2>
-
-                      <p className="text-sm text-zinc-600 leading-relaxed">
-                        {course.tagline}
-                      </p>
-                    </div>
-
-                    {/* Herramientas & Stack Cubierto */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider">
-                        Stack Tecnológico y Herramientas Cubiertas:
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {course.tools.map((tool, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 rounded-lg text-xs font-mono font-medium bg-zinc-100 text-zinc-800 border border-zinc-200"
-                          >
-                            {tool}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Lo que aprenderás (Estilo Udemy) */}
-                    <div className="p-5 rounded-2xl bg-sky-50/50 border border-sky-100 space-y-3">
-                      <div className="text-xs font-mono font-bold text-[#0284c7] uppercase tracking-wider flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Lo que dominarás al finalizar:</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {course.learningOutcomes.map((outcome, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-xs text-zinc-700">
-                            <span className="text-emerald-600 font-bold mt-0.5">✓</span>
-                            <span>{outcome}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Temario / Syllabus Desplegable */}
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-zinc-900 uppercase font-mono tracking-wider flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-zinc-500" />
-                          <span>Temario del Programa ({course.modules.length} Módulos)</span>
-                        </h3>
-                        <button
-                          onClick={() => setExpandedCourseId(isExpanded ? null : course.id)}
-                          className="text-xs font-mono font-bold text-[#0284c7] hover:underline flex items-center gap-1"
-                        >
-                          <span>{isExpanded ? "Contraer temario" : "Expandir temario completo"}</span>
-                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-
-                      {/* Lista de Módulos */}
-                      <div className="space-y-2">
-                        {course.modules.slice(0, isExpanded ? course.modules.length : 3).map((mod, mIdx) => {
-                          const modKey = course.id + "-" + mod.week;
-                          const isModOpen = expandedModule === modKey;
-
-                          return (
-                            <div
-                              key={mIdx}
-                              className="rounded-xl border border-zinc-200 bg-white overflow-hidden transition-colors"
-                            >
-                              <button
-                                onClick={() => setExpandedModule(isModOpen ? null : modKey)}
-                                className="w-full p-3.5 text-left flex items-center justify-between gap-4 hover:bg-zinc-50 transition-colors"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700">
-                                    {mod.week}
-                                  </span>
-                                  <span className="text-xs sm:text-sm font-bold text-zinc-900">
-                                    {mod.title}
-                                  </span>
-                                </div>
-                                <div className="text-zinc-400 flex-shrink-0">
-                                  {isModOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                </div>
-                              </button>
-
-                              {isModOpen && (
-                                <div className="px-4 pb-4 pt-1 bg-zinc-50/50 border-t border-zinc-100 text-xs text-zinc-600 space-y-2">
-                                  <p className="italic text-zinc-500">{mod.desc}</p>
-                                  {mod.lessons && (
-                                    <ul className="space-y-1.5 pt-1 pl-2">
-                                      {mod.lessons.map((l, lIdx) => (
-                                        <li key={lIdx} className="flex items-center gap-2 text-zinc-700">
-                                          <Video className="w-3.5 h-3.5 text-[#0284c7]" />
-                                          <span>{l}</span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                    </div>
-
+                  {/* Duración */}
+                  <div className="absolute bottom-2 right-2 flex items-center gap-1 text-[10px] font-mono font-medium text-white/90 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm">
+                    <Clock className="w-3 h-3 text-[#FEAD2B]" />
+                    <span>{course.duration}</span>
                   </div>
+                </div>
 
+                {/* Cuerpo de la Tarjeta */}
+                <div className="p-4 space-y-2">
+                  {/* Título */}
+                  <h3 className="font-bold text-sm sm:text-[15px] text-zinc-900 leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-[#0284c7] transition-colors">
+                    {course.title}
+                  </h3>
+
+                  {/* Instructor */}
+                  <p className="text-xs text-zinc-500 line-clamp-1">
+                    {course.instructor.name} • {course.instructor.role}
+                  </p>
+
+                  {/* Fila de Insignia y Calificación */}
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#E6F4F1] text-[#007765]">
+                      Lo más vendido
+                    </span>
+
+                    <div className="flex items-center gap-1 text-xs font-bold text-amber-700">
+                      <span>{course.rating.toFixed(1)}</span>
+                      <div className="flex text-amber-400">
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                      </div>
+                    </div>
+
+                    <span className="text-[11px] text-zinc-400">
+                      ({course.reviewsCount} reseñas)
+                    </span>
+                  </div>
                 </div>
               </div>
-            );
-          })}
+
+              {/* Pie de Tarjeta con Precios y Botones */}
+              <div className="px-4 pb-4 pt-2 border-t border-zinc-100 space-y-3">
+                <div className="flex items-baseline justify-between">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-black text-zinc-900 font-heading">
+                      {course.price}
+                    </span>
+                    <span className="text-xs line-through text-zinc-400 font-mono">
+                      {course.originalPrice}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    50% OFF
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedModalCourse(course);
+                      setExpandedModuleId(0);
+                    }}
+                    className="py-2 px-2 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-700 text-xs font-bold transition-all text-center flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
+                    <span>Temario</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openCheckout({
+                        id: course.id,
+                        title: course.title,
+                        price: course.price,
+                        tagline: course.tagline,
+                        duration: course.duration,
+                        badge: course.badge,
+                      })
+                    }
+                    className="py-2 px-2 rounded-xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>Inscribirme</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
       </section>
 
-      {/* ── SECCIÓN CERTIFICACIÓN OFICIAL (INSPIRADA EN G-TALENT) ── */}
-      <section className="py-16 bg-zinc-950 text-white relative overflow-hidden border-y border-zinc-800">
+      {/* ── 3. SECCIÓN RECURSOS (ESTILO FICHAS / TARJETAS) ── */}
+      <section id="recursos" className="py-20 bg-zinc-50/70 border-y border-zinc-200 scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          
+          {/* Header de Sección Recursos */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-200/80 pb-6">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#EA0C7F] uppercase tracking-wider mb-1.5">
+                <Download className="w-4 h-4" />
+                <span>Blueprints, Plantillas & Herramientas</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-900 tracking-tight font-heading">
+                Recursos y Plantillas
+              </h2>
+              <p className="text-sm text-zinc-600 mt-1">
+                Descarga plantillas operativas listas para producción o adquiere blueprints de ingeniería.
+              </p>
+            </div>
+
+            <div className="text-xs font-mono text-zinc-500 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Descargas inmediatas verificadas</span>
+            </div>
+          </div>
+
+          {/* Grid de Tarjetas de Recursos (4 Columnas responsivas) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {resources.map((res) => {
+              const isPremium = res.access?.includes("PREMIUM") || (res.price && res.price !== "GRATIS" && !res.price.includes("$0"));
+
+              return (
+                <div
+                  key={res.id}
+                  className={"group rounded-2xl border bg-white overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between " + (isPremium ? "border-[#FEAD2B]/60 ring-1 ring-[#FEAD2B]/20" : "border-zinc-200/90")}
+                >
+                  <div>
+                    {/* Thumbnail 16:9 con preview */}
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-zinc-900">
+                      <Image
+                        src={res.previewImage}
+                        alt={res.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent opacity-60" />
+
+                      {/* Badge Superior */}
+                      <div className="absolute top-2.5 left-2.5">
+                        <span className={"px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md border " + (isPremium ? "bg-amber-900/85 text-amber-200 border-amber-400/30" : "bg-emerald-900/85 text-emerald-200 border-emerald-400/30")}>
+                          {res.tag}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Cuerpo de la Tarjeta */}
+                    <div className="p-4 space-y-2">
+                      <h3 className="font-bold text-sm sm:text-[15px] text-zinc-900 leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-[#EA0C7F] transition-colors">
+                        {res.title}
+                      </h3>
+
+                      <p className="text-xs text-zinc-500 line-clamp-1">
+                        {res.format}
+                      </p>
+
+                      {/* Fila de Insignia y Calificación */}
+                      <div className="flex items-center gap-2 pt-1 flex-wrap">
+                        <span className={"px-2 py-0.5 rounded text-[11px] font-bold " + (isPremium ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-800")}>
+                          {isPremium ? "Blueprint Pro" : "Descarga Gratuita"}
+                        </span>
+
+                        <div className="flex items-center gap-1 text-xs font-bold text-amber-700">
+                          <span>4.9</span>
+                          <Star className="w-3.5 h-3.5 fill-current text-amber-400" />
+                        </div>
+
+                        <span className="text-[11px] text-zinc-400">
+                          ({res.downloads || "520+"} descargas)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pie de Tarjeta con Precios y Botón de Acción */}
+                  <div className="px-4 pb-4 pt-2 border-t border-zinc-100 space-y-3">
+                    <div className="flex items-baseline justify-between">
+                      <div className="flex items-baseline gap-2">
+                        {isPremium ? (
+                          <>
+                            <span className="text-lg font-black text-amber-600 font-heading">
+                              {res.price || "$27 USD"}
+                            </span>
+                            <span className="text-xs line-through text-zinc-400 font-mono">
+                              $54 USD
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-lg font-black text-emerald-600 font-heading">
+                              GRATIS
+                            </span>
+                            <span className="text-xs line-through text-zinc-400 font-mono">
+                              $29 USD
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <span className={"text-[10px] font-mono font-bold px-2 py-0.5 rounded " + (isPremium ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-800")}>
+                        {isPremium ? "LICENCIA PRO" : "ACCESO LIBRE"}
+                      </span>
+                    </div>
+
+                    {isPremium ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openCheckout({
+                            id: res.id,
+                            title: res.title,
+                            price: res.price || "$27 USD",
+                            tagline: res.desc,
+                            duration: "Descarga Inmediata + Licencia",
+                            badge: "BLUEPRINT PREMIUM",
+                          })
+                        }
+                        className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#FEAD2B] to-[#EA0C7F] hover:opacity-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <CreditCard className="w-3.5 h-3.5" />
+                        <span>Comprar por {res.price || "$27 USD"}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedResourceForDownload(res);
+                          setDownloadEmail("");
+                          setDownloadState({ loading: false, success: false, message: "" });
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5 text-[#1DACE3]" />
+                        <span>Descargar Gratis</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── 4. SECCIÓN CERTIFICACIÓN OFICIAL ── */}
+      <section className="py-20 bg-zinc-950 text-white relative overflow-hidden border-y border-zinc-800">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#1DACE3]/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#EA0C7F]/10 blur-3xl pointer-events-none" />
 
@@ -778,7 +934,7 @@ export default function AcademyPage() {
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3 text-xs text-zinc-300">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">✓</div>
-                  <span>Código de validación permanente en nuestro portal de certificados.</span>
+                  <span>Código de validación permanente en nuestro portal oficial de certificados.</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-zinc-300">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">✓</div>
@@ -870,120 +1026,7 @@ export default function AcademyPage() {
         </div>
       </section>
 
-      {/* ── TOOLKIT: RECURSOS DESCARGABLES GRATUITOS & PREMIUM (DE PAGO) ── */}
-      <section id="toolkit" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-mono font-bold text-[#EA0C7F] uppercase tracking-wider bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
-            Recursos Operativos & Blueprints
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight font-heading">
-            Toolkit de Automatización & Plantillas
-          </h2>
-          <p className="text-sm text-zinc-600 leading-relaxed">
-            Herramientas reales utilizadas en nuestras consultorías B2B. Descarga las plantillas gratuitas o adquiere blueprints avanzados listos para producción.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {resources.map((res) => {
-            const isPremium = res.access?.includes("PREMIUM") || (res.price && res.price !== "GRATIS" && !res.price.includes("$0"));
-            const state = downloadStates[res.id] || { loading: false, success: false, message: "" };
-
-            return (
-              <div
-                key={res.id}
-                className={"rounded-3xl border bg-white p-6 flex flex-col justify-between transition-all space-y-5 " + (isPremium ? "border-[#FEAD2B]/60 shadow-md ring-1 ring-[#FEAD2B]/20" : "border-zinc-200 shadow-sm hover:shadow-md")}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className={"px-2.5 py-0.5 rounded text-[10px] font-mono font-bold " + (isPremium ? "bg-amber-100 text-amber-900" : "bg-zinc-100 text-zinc-800")}>
-                      {res.tag}
-                    </span>
-                    {isPremium ? (
-                      <span className="font-mono text-xs font-extrabold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                        {res.price || "$27 USD"}
-                      </span>
-                    ) : (
-                      <span className="font-mono text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        GRATIS
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-sm font-bold text-zinc-900 leading-snug">
-                    {res.title}
-                  </h3>
-
-                  <p className="text-xs text-zinc-500 leading-relaxed line-clamp-3">
-                    {res.desc}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-zinc-100">
-                  {isPremium ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        openCheckout({
-                          id: res.id,
-                          title: res.title,
-                          price: res.price || "$27 USD",
-                          tagline: res.desc,
-                          duration: "Descarga Inmediata + Licencia",
-                          badge: "BLUEPRINT PREMIUM",
-                        })
-                      }
-                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FEAD2B] to-[#EA0C7F] hover:opacity-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <CreditCard className="w-3.5 h-3.5" />
-                      <span>Comprar por {res.price || "$27 USD"}</span>
-                    </button>
-                  ) : (
-                    <form onSubmit={(e) => handleResourceSubmit(e, res.id)} className="space-y-2">
-                      {state.success ? (
-                        <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium text-center flex items-center justify-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>{state.message}</span>
-                        </div>
-                      ) : (
-                        <>
-                          <input
-                            type="email"
-                            required
-                            placeholder="tu@empresa.com"
-                            value={resourceEmails[res.id] || ""}
-                            onChange={(e) => setResourceEmails((prev) => ({ ...prev, [res.id]: e.target.value }))}
-                            className="w-full px-3 py-2 rounded-xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
-                          />
-                          <button
-                            type="submit"
-                            disabled={state.loading}
-                            className="w-full py-2 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            {state.loading ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <>
-                                <Download className="w-3.5 h-3.5 text-[#1DACE3]" />
-                                <span>Descargar Gratis</span>
-                              </>
-                            )}
-                          </button>
-                        </>
-                      )}
-                    </form>
-                  )}
-                </div>
-
-              </div>
-            );
-          })}
-        </div>
-
-      </section>
-
-      {/* ── GARANTÍA & COMPROMISO DE CALIDAD ── */}
+      {/* ── 5. GARANTÍA & COMPROMISO DE CALIDAD ── */}
       <section className="py-16 bg-zinc-50 border-t border-zinc-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-white border border-zinc-200 shadow-sm flex items-center justify-center mx-auto text-emerald-600">
@@ -997,6 +1040,277 @@ export default function AcademyPage() {
           </p>
         </div>
       </section>
+
+      {/* ── MODAL: DETALLES Y TEMARIO DEL CURSO ── */}
+      {selectedModalCourse && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-zinc-950/75 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setSelectedModalCourse(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl bg-white border border-zinc-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-zinc-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header del modal */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 bg-zinc-50/80">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse" />
+                <span className="text-xs font-mono uppercase tracking-wider text-zinc-600 font-bold">
+                  Detalles del Programa // Temario Oficial
+                </span>
+              </div>
+
+              <button
+                onClick={() => setSelectedModalCourse(null)}
+                className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200/60 transition-colors"
+                aria-label="Cerrar modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenido scrolleable */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+              
+              {/* Resumen del curso */}
+              <div className="p-5 rounded-2xl bg-zinc-900 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="space-y-1">
+                  <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-white/10 text-cyan-300 border border-white/15">
+                    {selectedModalCourse.level} • {selectedModalCourse.duration}
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-bold font-heading text-white">
+                    {selectedModalCourse.title}
+                  </h3>
+                  <p className="text-xs text-zinc-300">
+                    Instructor: {selectedModalCourse.instructor.name} ({selectedModalCourse.instructor.role})
+                  </p>
+                </div>
+
+                <div className="text-left sm:text-right shrink-0">
+                  <div className="text-2xl font-black font-heading text-cyan-300">
+                    {selectedModalCourse.price}
+                  </div>
+                  <span className="text-xs line-through text-zinc-400 font-mono">
+                    {selectedModalCourse.originalPrice}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tagline / Descripción */}
+              <p className="text-sm text-zinc-600 leading-relaxed">
+                {selectedModalCourse.tagline}
+              </p>
+
+              {/* Herramientas cubiertas */}
+              <div className="space-y-2">
+                <span className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider block">
+                  Herramientas y Tecnologías:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {selectedModalCourse.tools.map((tool, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 rounded-lg text-xs font-mono font-medium bg-zinc-100 text-zinc-800 border border-zinc-200"
+                    >
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Lo que aprenderás */}
+              <div className="p-4 rounded-2xl bg-sky-50/60 border border-sky-100 space-y-2.5">
+                <span className="text-xs font-mono font-bold text-[#0284c7] uppercase tracking-wider flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Competencias que dominarás:</span>
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {selectedModalCourse.learningOutcomes.map((outcome, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs text-zinc-700">
+                      <span className="text-emerald-600 font-bold mt-0.5">✓</span>
+                      <span>{outcome}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Temario / Módulos Desplegables */}
+              <div className="space-y-3 pt-2">
+                <span className="text-xs font-mono font-bold text-zinc-900 uppercase tracking-wider flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#0284c7]" />
+                  <span>Temario Completo ({selectedModalCourse.modules.length} Módulos)</span>
+                </span>
+
+                <div className="space-y-2">
+                  {selectedModalCourse.modules.map((mod, mIdx) => {
+                    const isOpen = expandedModuleId === mIdx;
+
+                    return (
+                      <div
+                        key={mIdx}
+                        className="rounded-xl border border-zinc-200 bg-white overflow-hidden transition-colors"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setExpandedModuleId(isOpen ? null : mIdx)}
+                          className="w-full p-3.5 text-left flex items-center justify-between gap-4 hover:bg-zinc-50 transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-100 text-zinc-700">
+                              {mod.week}
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-zinc-900">
+                              {mod.title}
+                            </span>
+                          </div>
+                          <div className="text-zinc-400 flex-shrink-0">
+                            {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </div>
+                        </button>
+
+                        {isOpen && (
+                          <div className="px-4 pb-4 pt-1 bg-zinc-50/60 border-t border-zinc-100 text-xs text-zinc-600 space-y-2">
+                            {mod.desc && <p className="italic text-zinc-500">{mod.desc}</p>}
+                            {mod.lessons && (
+                              <ul className="space-y-1.5 pt-1 pl-1">
+                                {mod.lessons.map((l, lIdx) => (
+                                  <li key={lIdx} className="flex items-center gap-2 text-zinc-700">
+                                    <Video className="w-3.5 h-3.5 text-[#0284c7]" />
+                                    <span>{l}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Footer con CTA de inscripción */}
+            <div className="p-4 sm:p-6 border-t border-zinc-100 bg-zinc-50 flex items-center justify-between gap-4">
+              <div>
+                <span className="text-xl font-black text-zinc-900 font-heading">
+                  {selectedModalCourse.price}
+                </span>
+                <span className="text-xs text-zinc-400 line-through ml-2 font-mono">
+                  {selectedModalCourse.originalPrice}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const c = selectedModalCourse;
+                  setSelectedModalCourse(null);
+                  openCheckout({
+                    id: c.id,
+                    title: c.title,
+                    price: c.price,
+                    tagline: c.tagline,
+                    duration: c.duration,
+                    badge: c.badge,
+                  });
+                }}
+                className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#0284c7] via-[#1DACE3] to-[#0284c7] hover:opacity-95 text-white font-bold text-sm tracking-wide shadow-md transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <span>Inscribirme Ahora</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: DESCARGA DE RECURSO GRATUITO ── */}
+      {selectedResourceForDownload && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-zinc-950/75 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setSelectedResourceForDownload(null)}
+        >
+          <div
+            className="relative w-full max-w-md bg-white border border-zinc-200 rounded-3xl shadow-2xl overflow-hidden p-6 sm:p-8 text-zinc-900 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+              <span className="text-xs font-mono font-bold text-[#0284c7] uppercase">
+                Descarga de Recurso Gratuito
+              </span>
+              <button
+                onClick={() => setSelectedResourceForDownload(null)}
+                className="p-1 rounded-full text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-left">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-block">
+                {selectedResourceForDownload.tag}
+              </span>
+              <h3 className="text-base font-bold text-zinc-900 leading-snug">
+                {selectedResourceForDownload.title}
+              </h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                {selectedResourceForDownload.desc}
+              </p>
+            </div>
+
+            {downloadState.success ? (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-2 text-center">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
+                <p className="font-bold">{downloadState.message}</p>
+                <p className="text-[11px] text-emerald-700">
+                  Si no lo visualizas en 2 minutos, revisa tu carpeta de promociones o spam.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleResourceSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-zinc-700 mb-1.5">
+                    INGRESA TU CORREO DE CONTACTO
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="tu@empresa.com"
+                    value={downloadEmail}
+                    onChange={(e) => setDownloadEmail(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none transition-all"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={downloadState.loading}
+                  className="w-full py-3.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {downloadState.loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Enviando enlace...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 text-[#1DACE3]" />
+                      <span>Enviar Enlace de Descarga Inmediata</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            <div className="text-[10px] text-zinc-400 font-mono text-center pt-2">
+              🔒 Cero Spam • Privacidad garantizada por Inteligencia Neuronal
+            </div>
+          </div>
+        </div>
+      )}
 
       <CourseCheckoutModal />
       <Footer />

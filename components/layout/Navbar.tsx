@@ -3,14 +3,18 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Timer, Phone, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLeadStore } from "@/store/useLeadStore";
 
 export function Navbar() {
+  const pathname = usePathname();
   const { openModal } = useLeadStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const isDarkHero = pathname === "/academy" || pathname?.startsWith("/certificados");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,8 +29,10 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-40 w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm py-0"
-          : "bg-transparent border-b border-transparent py-1"
+          ? "bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm py-0 text-zinc-900"
+          : isDarkHero
+          ? "bg-zinc-950/60 backdrop-blur-md border-b border-white/10 py-1 text-white"
+          : "bg-transparent border-b border-transparent py-1 text-zinc-900"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -36,23 +42,27 @@ export function Navbar() {
           <div className="w-8 h-8 sm:w-9 sm:h-9 relative flex items-center justify-center transition-transform group-hover:scale-105">
             <Image src="/logo.png" alt="Inteligencia Neuronal Logo" fill className="object-contain" />
           </div>
-          <span className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 select-none group-hover:text-zinc-600 transition-colors leading-none">
+          <span className={`font-heading text-xl sm:text-2xl font-bold tracking-tight select-none transition-colors leading-none ${
+            isDarkHero && !isScrolled ? "text-white group-hover:text-zinc-300" : "text-zinc-900 group-hover:text-zinc-600"
+          }`}>
             Inteligencia Neuronal
           </span>
         </Link>
 
         {/* Center: Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-zinc-800">
-          <a href="#soluciones" className="hover:text-zinc-500 transition-colors">
+        <nav className={`hidden md:flex items-center gap-8 text-sm font-semibold ${
+          isDarkHero && !isScrolled ? "text-zinc-200" : "text-zinc-800"
+        }`}>
+          <a href="#soluciones" className={`transition-colors ${isDarkHero && !isScrolled ? "hover:text-white" : "hover:text-zinc-500"}`}>
             Soluciones
           </a>
-          <a href="#desarrollo" className="hover:text-zinc-500 transition-colors">
+          <a href="#desarrollo" className={`transition-colors ${isDarkHero && !isScrolled ? "hover:text-white" : "hover:text-zinc-500"}`}>
             Desarrollo
           </a>
-          <a href="#agencia" className="hover:text-zinc-500 transition-colors">
+          <a href="#agencia" className={`transition-colors ${isDarkHero && !isScrolled ? "hover:text-white" : "hover:text-zinc-500"}`}>
             Agencia IA
           </a>
-          <Link href="/academy" className="hover:text-zinc-500 transition-colors">
+          <Link href="/academy" className={`transition-colors ${isDarkHero && !isScrolled ? "hover:text-white" : "hover:text-zinc-500"}`}>
             Academy
           </Link>
           <Link
@@ -68,9 +78,11 @@ export function Navbar() {
         <div className="hidden lg:flex items-center gap-6">
           <a
             href="tel:+584148817137"
-            className="flex items-center gap-2 text-sm font-semibold text-slate-800 hover:text-[#0284c7] transition-colors"
+            className={`flex items-center gap-2 text-sm font-semibold transition-colors ${
+              isDarkHero && !isScrolled ? "text-zinc-200 hover:text-white" : "text-slate-800 hover:text-[#0284c7]"
+            }`}
           >
-            <Phone className="w-4 h-4 text-slate-700" />
+            <Phone className={`w-4 h-4 ${isDarkHero && !isScrolled ? "text-zinc-300" : "text-slate-700"}`} />
             <span>+58(414) 881-7137</span>
           </a>
 
@@ -87,7 +99,9 @@ export function Navbar() {
         {/* Mobile Hamburger Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-xl text-slate-800 hover:bg-slate-100 transition-colors"
+          className={`md:hidden p-2 rounded-xl transition-colors ${
+            isDarkHero && !isScrolled ? "text-white hover:bg-white/10" : "text-slate-800 hover:bg-slate-100"
+          }`}
           aria-label="Abrir menú"
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
