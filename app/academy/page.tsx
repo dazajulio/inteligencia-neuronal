@@ -98,9 +98,9 @@ const REAL_COURSES: Course[] = [
     tagline: "Aprende a desplegar infraestructura empresarial de automatización sobre servidores VPS dedicados, orquestando agentes autónomos, PostgreSQL y WhatsApp Cloud API.",
     duration: "6 Semanas Intensivas",
     lessonsCount: "24 Sesiones + Laboratorios",
-    rating: 4.9,
-    reviewsCount: 140,
-    studentsCount: 140,
+    rating: 5.0,
+    reviewsCount: 0,
+    studentsCount: 0,
     instructor: {
       name: "Julio Daza",
       role: "Arquitecto de Sistemas & Fundador",
@@ -166,9 +166,9 @@ const REAL_COURSES: Course[] = [
     tagline: "Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos y calculan escandallos sin alucinaciones.",
     duration: "4 Módulos Grabados",
     lessonsCount: "16 Lecciones + Plantillas XLSX",
-    rating: 4.8,
-    reviewsCount: 112,
-    studentsCount: 380,
+    rating: 5.0,
+    reviewsCount: 0,
+    studentsCount: 0,
     instructor: {
       name: "Julio Daza",
       role: "Consultor de Inteligencia Operativa",
@@ -222,9 +222,9 @@ const REAL_COURSES: Course[] = [
     tagline: "Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.",
     duration: "3 Módulos Prácticos",
     lessonsCount: "12 Lecciones Técnicas",
-    rating: 4.9,
-    reviewsCount: 88,
-    studentsCount: 210,
+    rating: 5.0,
+    reviewsCount: 0,
+    studentsCount: 0,
     instructor: {
       name: "Julio Daza",
       role: "Especialista en AEO & Crecimiento",
@@ -272,9 +272,9 @@ const REAL_COURSES: Course[] = [
     tagline: "Aprende a orquestar agentes de código en terminal, automatizar desarrollo de software y conectar modelos Claude 3.7 Sonnet a flujos reales.",
     duration: "4 Módulos Intensivos",
     lessonsCount: "18 Lecciones + Repositorios",
-    rating: 4.9,
-    reviewsCount: 96,
-    studentsCount: 230,
+    rating: 5.0,
+    reviewsCount: 0,
+    studentsCount: 0,
     instructor: {
       name: "Julio Daza",
       role: "Arquitecto de Sistemas & Fundador",
@@ -332,7 +332,7 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#1DACE3] to-[#0284c7]",
     access: "GRATIS",
-    downloads: "1,240+",
+    downloads: "0",
   },
   {
     id: "sops",
@@ -343,7 +343,7 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     previewImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#FEAD2B] to-[#ea580c]",
     access: "GRATIS",
-    downloads: "850+",
+    downloads: "0",
   },
   {
     id: "haccp",
@@ -354,7 +354,7 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     previewImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#86C537] to-[#059669]",
     access: "GRATIS",
-    downloads: "620+",
+    downloads: "0",
   },
   {
     id: "aeo-rag",
@@ -366,7 +366,7 @@ const DEFAULT_RESOURCES: ResourceItem[] = [
     stripeColor: "from-[#EA0C7F] to-[#971B8D]",
     access: "PREMIUM",
     price: "$27 USD",
-    downloads: "310+",
+    downloads: "0",
   }
 ];
 
@@ -404,9 +404,9 @@ export default function AcademyPage() {
             tagline: c.tagline || c.description,
             duration: c.duration || "Acceso de por vida",
             lessonsCount: c.lessons_count || (c.modules?.length ? `${c.modules.length} Módulos` : "Acceso Completo"),
-            rating: Number(c.rating) || 4.9,
-            reviewsCount: Number(c.reviews_count) || (c.students_enrolled ? Math.round(c.students_enrolled * 0.4) : 48),
-            studentsCount: Number(c.students_enrolled) || 140,
+            rating: Number(c.rating) || 5.0,
+            reviewsCount: Number(c.reviews_count) || 0,
+            studentsCount: Number(c.students_enrolled) || 0,
             instructor: {
               name: "Julio Daza",
               role: "Director de Arquitectura",
@@ -450,7 +450,7 @@ export default function AcademyPage() {
             stripeColor: r.stripe_color || "from-[#1DACE3] to-[#0284c7]",
             access: r.access_type?.includes("PREMIUM") ? "PREMIUM" : "GRATIS",
             price: r.price_display || (r.price_usd ? `$${r.price_usd} USD` : undefined),
-            downloads: `${r.downloads_count || 450}+`,
+            downloads: `${r.downloads_count || 0}`,
           }));
           setResources(mappedRes);
         }
@@ -574,8 +574,8 @@ export default function AcademyPage() {
                 <span className="text-xs text-zinc-400">Práctica en vivo</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-black text-amber-400 font-heading">4.95 ★</span>
-                <span className="text-xs text-zinc-400">Valoración de alumnos</span>
+                <span className="text-2xl font-black text-amber-400 font-heading">5.0 ★</span>
+                <span className="text-xs text-zinc-400">Calidad certificada</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black text-emerald-400 font-heading">Oficial</span>
@@ -681,18 +681,18 @@ export default function AcademyPage() {
                   {/* Fila de Insignia y Calificación */}
                   <div className="flex items-center gap-2 pt-1 flex-wrap">
                     <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#E6F4F1] text-[#007765]">
-                      Lo más vendido
+                      {course.studentsCount > 0 ? "Lo más vendido" : "Inscripciones Abiertas"}
                     </span>
 
                     <div className="flex items-center gap-1 text-xs font-bold text-amber-700">
-                      <span>{course.rating.toFixed(1)}</span>
+                      <span>{course.rating ? course.rating.toFixed(1) : "5.0"}</span>
                       <div className="flex text-amber-400">
                         <Star className="w-3.5 h-3.5 fill-current" />
                       </div>
                     </div>
 
                     <span className="text-[11px] text-zinc-400">
-                      ({course.reviewsCount} reseñas)
+                      {course.studentsCount > 0 ? `(${course.reviewsCount} reseñas)` : "Nuevo lanzamiento"}
                     </span>
                   </div>
                 </div>
@@ -828,7 +828,7 @@ export default function AcademyPage() {
                         </div>
 
                         <span className="text-[11px] text-zinc-400">
-                          ({res.downloads || "520+"} descargas)
+                          {Number(res.downloads) > 0 ? `(${res.downloads} descargas)` : "Disponible"}
                         </span>
                       </div>
                     </div>

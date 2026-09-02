@@ -286,7 +286,7 @@ export default function AdminDashboard() {
       previewImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
       tools: ['n8n Self-Hosted', 'Docker & Caddy', 'PostgreSQL', 'Meta Cloud API', 'LangChain / LLMs'],
       modulesCount: 6,
-      studentsEnrolled: 140,
+      studentsEnrolled: 0,
       ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
       status: 'ACTIVO',
       modules: [
@@ -364,7 +364,7 @@ export default function AdminDashboard() {
       previewImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
       tools: ['WhatsApp Cloud API', 'Gemini Pro', 'Airtable', 'Escandallos XLSX', 'KDS Prompts'],
       modulesCount: 4,
-      studentsEnrolled: 380,
+      studentsEnrolled: 0,
       ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
       status: 'ACTIVO',
       modules: [
