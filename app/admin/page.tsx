@@ -105,14 +105,32 @@ interface CourseItem {
   badge: string;
   level: string;
   price: string;
+  originalPrice?: string;
+  discount?: string;
+  rating?: number;
+  reviewsCount?: number;
   duration: string;
   tagline: string;
+  description?: string;
   previewImage?: string;
+  stripeColor?: string;
   tools: string[];
   modulesCount: number;
   studentsEnrolled: number;
   ctaUrl: string;
   status: 'ACTIVO' | 'BORRADOR' | 'ARCHIVADO';
+  instructorName?: string;
+  instructorRole?: string;
+  instructorAvatar?: string;
+  hoursVideo?: string;
+  articlesCount?: number;
+  resourcesCount?: number;
+  lastUpdated?: string;
+  language?: string;
+  outcomes?: string[];
+  includes?: string[];
+  requirements?: string[];
+  audience?: string[];
   modules?: CourseModuleForm[];
 }
 
@@ -196,17 +214,35 @@ export default function AdminDashboard() {
             data.courses.map((c: any) => ({
               id: c.id,
               title: c.title,
-              badge: c.badge || 'NUEVO',
+              badge: c.badge || 'Lo más vendido',
               level: c.level || 'Intermedio',
               price: c.price_display || `$${c.price_usd || 97} USD`,
+              originalPrice: c.original_price || `$${(Number(c.price_usd) || 97) * 2} USD`,
+              discount: c.discount || '50% OFF',
+              rating: Number(c.rating) || 4.9,
+              reviewsCount: Number(c.reviews_count) || 0,
               duration: c.duration || '4 Semanas',
               tagline: c.tagline || '',
+              description: c.description || '',
               previewImage: c.preview_image || c.previewImage,
+              stripeColor: c.stripe_color || 'from-[#1DACE3] via-[#0284c7] to-[#4f46e5]',
               tools: Array.isArray(c.tools) ? c.tools : [],
               modulesCount: c.modules?.length || 4,
               studentsEnrolled: c.students_enrolled || 0,
               ctaUrl: c.cta_url || c.ctaUrl || '#',
               status: c.status || 'ACTIVO',
+              instructorName: c.instructor?.name || 'Julio Daza',
+              instructorRole: c.instructor?.role || 'Arquitecto de Sistemas & Fundador',
+              instructorAvatar: c.instructor?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+              hoursVideo: c.hours_video || '12 horas de video bajo demanda',
+              articlesCount: c.articles_count || 20,
+              resourcesCount: c.resources_count || 25,
+              lastUpdated: c.last_updated || '8/2026',
+              language: c.language || 'Español',
+              outcomes: c.learning_outcomes || [],
+              includes: c.course_includes || [],
+              requirements: c.requirements || [],
+              audience: c.target_audience || [],
               modules: (c.modules || []).map((m: any, idx: number) => ({
                 id: m.id,
                 week_label: m.week_label || `0${idx + 1}`,
@@ -420,44 +456,135 @@ export default function AdminDashboard() {
 
   const [courseModalTab, setCourseModalTab] = useState<'general' | 'modules' | 'quizes'>('general');
   const [selectedModuleQuizIndex, setSelectedModuleQuizIndex] = useState<number>(0);
+  const [newOutcome, setNewOutcome] = useState('');
+  const [newRequirement, setNewRequirement] = useState('');
+  const [newAudience, setNewAudience] = useState('');
+  const [newInclude, setNewInclude] = useState('');
+
+  const handleAddOutcome = () => {
+    if (!newOutcome.trim()) return;
+    setCourseFormData((prev) => ({
+      ...prev,
+      outcomes: [...(prev.outcomes || []), newOutcome.trim()],
+    }));
+    setNewOutcome('');
+  };
+  const handleRemoveOutcome = (idx: number) => {
+    setCourseFormData((prev) => ({
+      ...prev,
+      outcomes: (prev.outcomes || []).filter((_, i) => i !== idx),
+    }));
+  };
+
+  const handleAddRequirement = () => {
+    if (!newRequirement.trim()) return;
+    setCourseFormData((prev) => ({
+      ...prev,
+      requirements: [...(prev.requirements || []), newRequirement.trim()],
+    }));
+    setNewRequirement('');
+  };
+  const handleRemoveRequirement = (idx: number) => {
+    setCourseFormData((prev) => ({
+      ...prev,
+      requirements: (prev.requirements || []).filter((_, i) => i !== idx),
+    }));
+  };
+
+  const handleAddAudience = () => {
+    if (!newAudience.trim()) return;
+    setCourseFormData((prev) => ({
+      ...prev,
+      audience: [...(prev.audience || []), newAudience.trim()],
+    }));
+    setNewAudience('');
+  };
+  const handleRemoveAudience = (idx: number) => {
+    setCourseFormData((prev) => ({
+      ...prev,
+      audience: (prev.audience || []).filter((_, i) => i !== idx),
+    }));
+  };
+
+  const handleAddInclude = () => {
+    if (!newInclude.trim()) return;
+    setCourseFormData((prev) => ({
+      ...prev,
+      includes: [...(prev.includes || []), newInclude.trim()],
+    }));
+    setNewInclude('');
+  };
+  const handleRemoveInclude = (idx: number) => {
+    setCourseFormData((prev) => ({
+      ...prev,
+      includes: (prev.includes || []).filter((_, i) => i !== idx),
+    }));
+  };
 
   const handleOpenAddCourse = () => {
     setEditingCourse(null);
     setCourseModalTab('general');
     setSelectedModuleQuizIndex(0);
+    setNewOutcome('');
+    setNewRequirement('');
+    setNewAudience('');
+    setNewInclude('');
     setCourseFormData({
       title: '',
-      badge: 'NUEVO',
-      level: 'Intermedio',
+      badge: 'Lo más vendido',
+      level: 'Intermedio a Avanzado',
       price: '$97 USD',
-      duration: '4 Semanas',
+      originalPrice: '$197 USD',
+      discount: '50% OFF',
+      rating: 4.9,
+      reviewsCount: 0,
+      duration: '4 Módulos Intensivos',
       tagline: '',
-      previewImage: '',
-      tools: ['OpenAI', 'WhatsApp API'],
+      description: '',
+      previewImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+      stripeColor: 'from-[#1DACE3] via-[#0284c7] to-[#4f46e5]',
+      tools: ['Claude Code', 'n8n', 'Python', 'Docker'],
       modulesCount: 2,
       ctaUrl: '',
       status: 'ACTIVO',
+      studentsEnrolled: 0,
+      instructorName: 'Julio Daza',
+      instructorRole: 'Arquitecto de Sistemas & Fundador',
+      instructorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      hoursVideo: '12 horas de video bajo demanda',
+      articlesCount: 20,
+      resourcesCount: 25,
+      lastUpdated: '8/2026',
+      language: 'Español',
+      outcomes: [
+        'Dominar herramientas agénticas desde cero hasta nivel profesional.',
+        'Construir y desplegar proyectos reales con seguridad y robustez.',
+      ],
+      includes: [
+        '12 horas de vídeo bajo demanda',
+        '20 artículos y guías de arquitectura',
+        '25 recursos descargables',
+        'Acceso de por vida',
+        'Certificado oficial de finalización con código QR',
+      ],
+      requirements: [
+        'Una computadora con conexión a Internet.',
+        'Ganas de experimentar y construir con IA aplicada.',
+      ],
+      audience: [
+        'Desarrolladores, programadores y consultores técnicos.',
+        'Emprendedores que buscan acelerar el desarrollo de sus productos.',
+      ],
       modules: [
         {
           week_label: '01',
-          title: 'Módulo 01: Fundamentos & Diagnóstico',
-          description: 'Introducción y diagnóstico inicial',
+          title: 'Módulo 01: Fundamentos & Arquitectura',
+          description: 'Introducción y primeros despliegues de prueba',
           video_url: '',
-          summary: '',
+          summary: 'Configuración inicial y primeros pasos',
           prompts: [],
           downloads: [],
-          quiz: {
-            enabled: true,
-            passing_score: 80,
-            questions: [
-              {
-                question: '¿Cuál es el objetivo principal de este módulo?',
-                options: ['Automatizar procesos', 'Aprender conceptos básicos', 'Configurar infraestructura'],
-                correctIndex: 1,
-                explanation: 'Comprender las bases permite construir flujos escalables.',
-              },
-            ],
-          },
+          quiz: { enabled: false, passing_score: 80, questions: [] },
         },
       ],
     });
@@ -468,8 +595,29 @@ export default function AdminDashboard() {
     setEditingCourse(course);
     setCourseModalTab('general');
     setSelectedModuleQuizIndex(0);
+    setNewOutcome('');
+    setNewRequirement('');
+    setNewAudience('');
+    setNewInclude('');
     setCourseFormData({
       ...course,
+      badge: course.badge || 'Lo más vendido',
+      originalPrice: course.originalPrice || `$${(Number(course.price?.replace(/[^0-9.]/g, '')) || 97) * 2} USD`,
+      discount: course.discount || '50% OFF',
+      rating: course.rating || 4.9,
+      reviewsCount: course.reviewsCount || 0,
+      instructorName: course.instructorName || 'Julio Daza',
+      instructorRole: course.instructorRole || 'Arquitecto de Sistemas & Fundador',
+      instructorAvatar: course.instructorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      hoursVideo: course.hoursVideo || '12 horas de video bajo demanda',
+      articlesCount: course.articlesCount || 20,
+      resourcesCount: course.resourcesCount || 25,
+      lastUpdated: course.lastUpdated || '8/2026',
+      language: course.language || 'Español',
+      outcomes: course.outcomes && course.outcomes.length > 0 ? course.outcomes : ['Aprender habilidades de alta demanda'],
+      includes: course.includes && course.includes.length > 0 ? course.includes : ['Video bajo demanda', 'Recursos descargables', 'Certificado'],
+      requirements: course.requirements && course.requirements.length > 0 ? course.requirements : ['Conexión a Internet'],
+      audience: course.audience && course.audience.length > 0 ? course.audience : ['Profesionales y desarrolladores'],
       modules: course.modules && course.modules.length > 0 ? course.modules : [
         {
           week_label: '01',
@@ -491,52 +639,61 @@ export default function AdminDashboard() {
     if (!courseFormData.title) return;
 
     try {
+      const payload = {
+        id: editingCourse ? editingCourse.id : undefined,
+        title: courseFormData.title,
+        badge: courseFormData.badge || 'Lo más vendido',
+        level: courseFormData.level || 'Intermedio',
+        price_display: courseFormData.price || '$97 USD',
+        price_usd: Number(courseFormData.price?.replace(/[^0-9.]/g, '')) || 97,
+        original_price: courseFormData.originalPrice,
+        discount: courseFormData.discount || '50% OFF',
+        rating: courseFormData.rating !== undefined ? Number(courseFormData.rating) : 4.9,
+        reviews_count: courseFormData.reviewsCount !== undefined ? Number(courseFormData.reviewsCount) : 0,
+        duration: courseFormData.duration || '4 Semanas',
+        tagline: courseFormData.tagline || '',
+        description: courseFormData.description || '',
+        preview_image: courseFormData.previewImage,
+        stripe_color: courseFormData.stripeColor || 'from-[#1DACE3] via-[#0284c7] to-[#4f46e5]',
+        tools: courseFormData.tools || ['IA', 'Automatización'],
+        cta_url: courseFormData.ctaUrl || '#',
+        status: courseFormData.status || 'ACTIVO',
+        students_enrolled: courseFormData.studentsEnrolled || 0,
+        instructor: {
+          name: courseFormData.instructorName || 'Julio Daza',
+          role: courseFormData.instructorRole || 'Arquitecto de Sistemas & Fundador',
+          avatar: courseFormData.instructorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        },
+        learning_outcomes: courseFormData.outcomes || [],
+        course_includes: courseFormData.includes || [],
+        requirements: courseFormData.requirements || [],
+        target_audience: courseFormData.audience || [],
+        hours_video: courseFormData.hoursVideo || '12 horas de video bajo demanda',
+        articles_count: courseFormData.articlesCount || 20,
+        resources_count: courseFormData.resourcesCount || 25,
+        last_updated: courseFormData.lastUpdated || '8/2026',
+        language: courseFormData.language || 'Español',
+        modules: courseFormData.modules || [],
+      };
+
       if (editingCourse) {
-        // Update via API (Supabase)
         await fetch('/api/courses', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: editingCourse.id,
-            title: courseFormData.title,
-            badge: courseFormData.badge,
-            level: courseFormData.level,
-            price_display: courseFormData.price,
-            duration: courseFormData.duration,
-            tagline: courseFormData.tagline,
-            preview_image: courseFormData.previewImage,
-            tools: courseFormData.tools,
-            cta_url: courseFormData.ctaUrl,
-            status: courseFormData.status,
-            students_enrolled: courseFormData.studentsEnrolled,
-            modules: courseFormData.modules,
-          }),
+          body: JSON.stringify(payload),
         });
       } else {
-        // Create via API (Supabase)
         await fetch('/api/courses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: courseFormData.title,
-            badge: courseFormData.badge || 'NUEVO',
-            level: courseFormData.level || 'Intermedio',
-            price_display: courseFormData.price || '$97 USD',
-            duration: courseFormData.duration || '4 Semanas',
-            tagline: courseFormData.tagline || '',
-            preview_image: courseFormData.previewImage,
-            tools: courseFormData.tools,
-            cta_url: courseFormData.ctaUrl || '#',
-            status: courseFormData.status || 'ACTIVO',
-            modules: courseFormData.modules,
-          }),
+          body: JSON.stringify(payload),
         });
       }
+      setIsCourseModalOpen(false);
       fetchAllData();
     } catch (err) {
       console.error('[Save Course Error]', err);
     }
-    setIsCourseModalOpen(false);
   };
 
   const handleDeleteCourse = async (id: string, title: string) => {
@@ -2088,8 +2245,8 @@ export default function AdminDashboard() {
                   onClick={() => setCourseModalTab('general')}
                   className={'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ' + (courseModalTab === 'general' ? 'bg-zinc-900 text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100')}
                 >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>1. Datos del Programa</span>
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>1. Panel Comercial & Ventas</span>
                 </button>
                 <button
                   type="button"
@@ -2097,7 +2254,7 @@ export default function AdminDashboard() {
                   className={'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ' + (courseModalTab === 'modules' ? 'bg-[#971B8D] text-white shadow-xs' : 'text-zinc-600 hover:bg-zinc-100')}
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>2. Módulos, Texto & Recursos ({courseFormData.modules?.length || 0})</span>
+                  <span>2. Módulos & Temario ({courseFormData.modules?.length || 0})</span>
                 </button>
                 <button
                   type="button"
@@ -2112,91 +2269,421 @@ export default function AdminDashboard() {
               {/* Contenido scrolleable del Modal */}
               <form onSubmit={handleSaveCourse} className="flex-1 overflow-y-auto pr-1 space-y-6 text-xs">
                 
-                {/* ── TAB 1: INFORMACIÓN GENERAL ── */}
+                {/* ── TAB 1: PANEL COMERCIAL & VENTAS ── */}
                 {courseModalTab === 'general' && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-zinc-700 font-mono font-bold mb-1">TÍTULO DEL CURSO *</label>
-                      <input
-                        type="text"
-                        required
-                        value={courseFormData.title || ''}
-                        onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })}
-                        placeholder="Ej. Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA"
-                        className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2.5 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                      />
+                  <div className="space-y-6">
+                    {/* A. Datos Básicos */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                        <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                          <Layers className="w-4 h-4 text-[#0284c7]" />
+                          <span>A. Identidad y Posicionamiento del Curso</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-zinc-400">Datos públicos visibles en catálogo</span>
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1">TÍTULO DEL CURSO *</label>
+                        <input
+                          type="text"
+                          required
+                          value={courseFormData.title || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })}
+                          placeholder="Ej. Curso Completo de Claude Code: Crea Aplicaciones con IA"
+                          className="w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-zinc-900 font-bold focus:border-[#0284c7] focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-700 font-mono font-bold mb-1">SUBTÍTULO / TAGLINE COMERCIAL</label>
+                        <textarea
+                          rows={2}
+                          value={courseFormData.tagline || ''}
+                          onChange={(e) => setCourseFormData({ ...courseFormData, tagline: e.target.value })}
+                          placeholder="Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA..."
+                          className="w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2 text-zinc-900 focus:border-[#0284c7] focus:outline-none resize-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">INSIGNIA (BADGE)</label>
+                          <input
+                            type="text"
+                            value={courseFormData.badge || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, badge: e.target.value })}
+                            placeholder="Ej. Lo más vendido"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 font-bold text-emerald-800 focus:border-[#0284c7] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">NIVEL</label>
+                          <input
+                            type="text"
+                            value={courseFormData.level || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, level: e.target.value })}
+                            placeholder="Ej. Desarrollo & Automatización"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[#0284c7] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">DURACIÓN</label>
+                          <input
+                            type="text"
+                            value={courseFormData.duration || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, duration: e.target.value })}
+                            placeholder="Ej. 12 Secciones • 15 h 7 m"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[#0284c7] focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">ACTUALIZACIÓN</label>
+                          <input
+                            type="text"
+                            value={courseFormData.lastUpdated || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, lastUpdated: e.target.value })}
+                            placeholder="Ej. 8/2026"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-[#0284c7] focus:outline-none"
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <label className="block text-zinc-700 font-mono font-bold mb-1">DESCRIPCIÓN / SUBTÍTULO</label>
+                    {/* B. Precios y Métricas de Conversión */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                        <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                          <DollarSign className="w-4 h-4 text-emerald-600" />
+                          <span>B. Estrategia de Precios, Descuentos & Métricas</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-zinc-400">Precios y prueba social</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
+                        <div className="col-span-1 sm:col-span-2">
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">PRECIO ACTUAL ($ USD)</label>
+                          <input
+                            type="text"
+                            value={courseFormData.price || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, price: e.target.value })}
+                            placeholder="Ej. $97 USD"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 font-bold text-zinc-900 focus:border-emerald-600 focus:outline-none"
+                          />
+                        </div>
+                        <div className="col-span-1 sm:col-span-2">
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">PRECIO ORIGINAL (TACHADO)</label>
+                          <input
+                            type="text"
+                            value={courseFormData.originalPrice || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, originalPrice: e.target.value })}
+                            placeholder="Ej. $197 USD"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-500 font-mono focus:border-emerald-600 focus:outline-none"
+                          />
+                        </div>
+                        <div className="col-span-1 sm:col-span-2">
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">DESCUENTO (TAG)</label>
+                          <input
+                            type="text"
+                            value={courseFormData.discount || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, discount: e.target.value })}
+                            placeholder="Ej. 50% OFF"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-emerald-700 font-bold focus:border-emerald-600 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">CALIFICACIÓN (STARS)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="1"
+                            max="5"
+                            value={courseFormData.rating || 4.9}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, rating: parseFloat(e.target.value) })}
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 font-bold text-amber-700 focus:border-amber-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">NÚMERO DE RESEÑAS</label>
+                          <input
+                            type="number"
+                            value={courseFormData.reviewsCount || 0}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, reviewsCount: parseInt(e.target.value) || 0 })}
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-800 focus:border-zinc-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">ALUMNOS INSCRITOS</label>
+                          <input
+                            type="number"
+                            value={courseFormData.studentsEnrolled || 0}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, studentsEnrolled: parseInt(e.target.value) || 0 })}
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-800 focus:border-zinc-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* C. Instructor */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                        <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                          <Users className="w-4 h-4 text-purple-600" />
+                          <span>C. Instructor y Autoridad</span>
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">NOMBRE DEL INSTRUCTOR</label>
+                          <input
+                            type="text"
+                            value={courseFormData.instructorName || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, instructorName: e.target.value })}
+                            placeholder="Julio Daza"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 font-bold focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">CARGO / ROL</label>
+                          <input
+                            type="text"
+                            value={courseFormData.instructorRole || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, instructorRole: e.target.value })}
+                            placeholder="Arquitecto de Sistemas & Fundador"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-800 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">URL FOTO AVATAR</label>
+                          <input
+                            type="url"
+                            value={courseFormData.instructorAvatar || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, instructorAvatar: e.target.value })}
+                            placeholder="https://images.unsplash.com/..."
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-800 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* D. Lo que aprenderás (Competencias con Checkmarks) */}
+                    <div className="p-4 rounded-2xl bg-sky-50/50 border border-sky-100 space-y-3">
+                      <div className="flex items-center justify-between border-b border-sky-200/60 pb-2">
+                        <span className="font-mono text-xs font-bold text-[#0284c7] uppercase flex items-center gap-1.5">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>D. Lo que aprenderás ({courseFormData.outcomes?.length || 0} Competencias)</span>
+                        </span>
+                        <span className="text-[10px] text-sky-700">Sección destacada superior estilo Udemy</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={newOutcome}
+                          onChange={(e) => setNewOutcome(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddOutcome(); } }}
+                          placeholder="Escribe una competencia y presiona Enter o Agregar..."
+                          className="flex-1 rounded-xl border border-sky-300 bg-white px-3.5 py-2 text-zinc-900 focus:border-[#0284c7] focus:outline-none text-xs"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddOutcome}
+                          className="px-4 py-2 rounded-xl bg-[#0284c7] text-white font-bold text-xs hover:bg-[#0369a1] transition-colors"
+                        >
+                          + Agregar
+                        </button>
+                      </div>
+
+                      <div className="space-y-1.5 pt-1 max-h-48 overflow-y-auto">
+                        {courseFormData.outcomes?.map((outcome, idx) => (
+                          <div key={idx} className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white border border-sky-100 text-zinc-800">
+                            <div className="flex items-start gap-2">
+                              <span className="text-emerald-600 font-bold">✓</span>
+                              <span className="text-xs leading-snug">{outcome}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveOutcome(idx)}
+                              className="text-zinc-400 hover:text-red-600 font-bold text-xs shrink-0 px-1"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* E. Este curso incluye */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
+                      <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <span>E. Este Curso Incluye (Materiales & Entregables)</span>
+                      </span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">HORAS DE VIDEO</label>
+                          <input
+                            type="text"
+                            value={courseFormData.hoursVideo || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, hoursVideo: e.target.value })}
+                            placeholder="13 horas de vídeo bajo demanda"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">CANTIDAD DE ARTÍCULOS</label>
+                          <input
+                            type="number"
+                            value={courseFormData.articlesCount || 20}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, articlesCount: parseInt(e.target.value) || 0 })}
+                            placeholder="26 artículos"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">RECURSOS DESCARGABLES</label>
+                          <input
+                            type="number"
+                            value={courseFormData.resourcesCount || 25}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, resourcesCount: parseInt(e.target.value) || 0 })}
+                            placeholder="49 recursos descargables"
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* F. Requisitos & Audiencia */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Requisitos */}
+                      <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                        <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                          <span>Requisitos Previos ({courseFormData.requirements?.length || 0})</span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newRequirement}
+                            onChange={(e) => setNewRequirement(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddRequirement(); } }}
+                            placeholder="Nuevo requisito..."
+                            className="flex-1 rounded-xl border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddRequirement}
+                            className="px-3 py-1.5 rounded-xl bg-zinc-800 text-white text-xs font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <div className="space-y-1 max-h-36 overflow-y-auto">
+                          {courseFormData.requirements?.map((req, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-xs p-1.5 bg-white rounded-lg border border-zinc-200">
+                              <span>• {req}</span>
+                              <button type="button" onClick={() => handleRemoveRequirement(idx)} className="text-zinc-400 hover:text-red-600 px-1">✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Audiencia */}
+                      <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                        <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                          <span>¿Para quién es este curso? ({courseFormData.audience?.length || 0})</span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newAudience}
+                            onChange={(e) => setNewAudience(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddAudience(); } }}
+                            placeholder="Perfil de alumno..."
+                            className="flex-1 rounded-xl border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-900 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddAudience}
+                            className="px-3 py-1.5 rounded-xl bg-zinc-800 text-white text-xs font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <div className="space-y-1 max-h-36 overflow-y-auto">
+                          {courseFormData.audience?.map((aud, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-xs p-1.5 bg-white rounded-lg border border-zinc-200">
+                              <span>• {aud}</span>
+                              <button type="button" onClick={() => handleRemoveAudience(idx)} className="text-zinc-400 hover:text-red-600 px-1">✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* G. Descripción Completa / Carta de Ventas */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                      <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                        <span className="font-mono text-xs font-bold text-zinc-800 uppercase flex items-center gap-1.5">
+                          <FileText className="w-4 h-4 text-emerald-600" />
+                          <span>G. Descripción Detallada / Carta de Ventas Pedagógica</span>
+                        </span>
+                        <span className="text-[10px] text-zinc-400">Texto completo desplegado en el temario</span>
+                      </div>
+
                       <textarea
-                        rows={2}
-                        value={courseFormData.tagline || ''}
-                        onChange={(e) => setCourseFormData({ ...courseFormData, tagline: e.target.value })}
-                        placeholder="Despliegue de infraestructura soberana sobre VPS dedicado, webhooks reversos..."
-                        className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none resize-none"
+                        rows={8}
+                        value={courseFormData.description || ''}
+                        onChange={(e) => setCourseFormData({ ...courseFormData, description: e.target.value })}
+                        placeholder="Escribe la carta de ventas completa del curso con secciones: ¿Qué lograrás con este curso?, Tecnologías que dominarás, Transformación garantizada..."
+                        className="w-full rounded-xl border border-zinc-300 bg-white p-3 text-xs text-zinc-900 leading-relaxed focus:border-[#0284c7] focus:outline-none font-mono"
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-zinc-700 font-mono font-bold mb-1">PRECIO DE VENTA</label>
-                        <input
-                          type="text"
-                          value={courseFormData.price || ''}
-                          onChange={(e) => setCourseFormData({ ...courseFormData, price: e.target.value })}
-                          placeholder="Ej. $197 USD"
-                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-zinc-700 font-mono font-bold mb-1">DURACIÓN</label>
-                        <input
-                          type="text"
-                          value={courseFormData.duration || ''}
-                          onChange={(e) => setCourseFormData({ ...courseFormData, duration: e.target.value })}
-                          placeholder="Ej. 6 Semanas Intensivas"
-                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-zinc-700 font-mono font-bold mb-1">NIVEL TÉCNICO</label>
-                        <input
-                          type="text"
-                          value={courseFormData.level || ''}
-                          onChange={(e) => setCourseFormData({ ...courseFormData, level: e.target.value })}
-                          placeholder="Ej. Avanzado // En Vivo"
-                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                        />
+                    {/* H. Activos Visuales, Checkout y Estado */}
+                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                      <span className="font-mono text-xs font-bold text-zinc-800 uppercase">
+                        H. Activos Visuales, Enlace de Pago & Estado
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">URL IMAGEN DE PORTADA</label>
+                          <input
+                            type="url"
+                            value={courseFormData.previewImage || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, previewImage: e.target.value })}
+                            placeholder="https://images.unsplash.com/..."
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">ENLACE DE CHECKOUT</label>
+                          <input
+                            type="text"
+                            value={courseFormData.ctaUrl || ''}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, ctaUrl: e.target.value })}
+                            placeholder="https://inteligencia-neuronal.lemonsqueezy.com/..."
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-zinc-700 font-mono font-bold mb-1">ESTADO DEL CURSO</label>
+                          <select
+                            value={courseFormData.status || 'ACTIVO'}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, status: e.target.value as any })}
+                            className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-zinc-900 font-bold focus:outline-none"
+                          >
+                            <option value="ACTIVO">ACTIVO (Público)</option>
+                            <option value="BORRADOR">BORRADOR (Oculto)</option>
+                            <option value="ARCHIVADO">ARCHIVADO</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center gap-1">
-                          <ImageIcon className="w-3.5 h-3.5 text-[#1DACE3]" /> URL DE VISTA PREVIA (IMAGEN)
-                        </label>
-                        <input
-                          type="url"
-                          value={courseFormData.previewImage || ''}
-                          onChange={(e) => setCourseFormData({ ...courseFormData, previewImage: e.target.value })}
-                          placeholder="https://images.unsplash.com/..."
-                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-zinc-700 font-mono font-bold mb-1 flex items-center gap-1">
-                          <Link2 className="w-3.5 h-3.5 text-[#86C537]" /> ENLACE DE CHECKOUT
-                        </label>
-                        <input
-                          type="text"
-                          value={courseFormData.ctaUrl || ''}
-                          onChange={(e) => setCourseFormData({ ...courseFormData, ctaUrl: e.target.value })}
-                          placeholder="https://inteligencia-neuronal.lemonsqueezy.com/..."
-                          className="w-full rounded-xl border border-zinc-300 bg-zinc-50 px-3.5 py-2 text-zinc-900 focus:border-[#971B8D] focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                    </div>
                   </div>
                 )}
 
