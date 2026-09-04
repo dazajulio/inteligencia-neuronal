@@ -275,8 +275,8 @@ const OFFICIAL_COURSES = [
     level: "Marketing & Adquisición",
     title: "Dominio Local: SEO, AEO & Visibilidad en Motores de IA",
     tagline: "Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.",
-    description: "Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.",
-    duration: "3 Módulos Prácticos",
+    description: "Aprende el sistema paso a paso para liderar las búsquedas en Google Maps y convertirte en la opción recomendada por motores de Inteligencia Artificial (ChatGPT, Gemini y Perplexity) captando clientes locales a coste de adquisición cero.",
+    duration: "6 Módulos Prácticos • Acceso de por vida",
     price_usd: 67.0,
     price_display: "$67 USD",
     preview_image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
@@ -286,26 +286,29 @@ const OFFICIAL_COURSES = [
     students_enrolled: 0,
     order_index: 3,
     tools: {
-      stack: ["Google Business Profile", "Microdatos JSON-LD", "ChatGPT Search", "Schema.org", "Perplexity API"],
+      stack: ["Google Business Profile", "Microdatos JSON-LD", "ChatGPT Search", "Schema.org", "Perplexity API", "Apple Business", "NFC & QR"],
       outcomes: [
-        "Optimizar tu ficha de Google Maps para aparecer en el Top 3 local.",
-        "Implementar esquemas JSON-LD semánticos para citación en IA generativa.",
-        "Generar reseñas orgánicas automatizadas mediante WhatsApp.",
-        "Monitorear la cuota de visibilidad frente a competidores directos.",
+        "Posicionar tu negocio en el codiciado Top 3 de Google Maps en tu ciudad o zona.",
+        "Implementar microdatos JSON-LD (Schema.org) sin programar para que las IAs entiendan tus horarios, precios y servicios.",
+        "Lograr que ChatGPT, Perplexity y Gemini citen y recomienden tu marca a clientes potenciales.",
+        "Automatizar un bucle de reseñas 5 estrellas con tarjetas NFC, códigos QR y filtros inteligentes por WhatsApp.",
+        "Medir rankings con mapas de calor Geo-Grid y expandir tu radio de clientes a coste de publicidad CERO."
       ],
       includes: [
-        "3 Módulos prácticos intensivos",
-        "Plantillas de esquemas JSON-LD listos para usar",
-        "Guía de optimización de perfil de negocio",
-        "Certificado de finalización oficial",
+        "6 Módulos prácticos intensivos paso a paso",
+        "18 Lecciones con blueprints y esquemas listos para usar",
+        "Plantillas oficiales de Schema JSON-LD y prompts de auditoría",
+        "Quizes interactivos de autoevaluación por módulo",
+        "Certificado oficial de finalización con código QR de verificación"
       ],
       requirements: [
-        "Acceso a la cuenta de Google de tu negocio.",
-        "Conocimientos básicos de administración web.",
+        "Un negocio propio, local comercial o servicio profesional (o clientes a quienes brindar el servicio).",
+        "Acceso a una computadora con conexión a Internet (no se requiere experiencia técnica previa)."
       ],
       audience: [
-        "Emprendedores, negocios locales y franquicias.",
-        "Especialistas en marketing digital y SEO.",
+        "Dueños de negocios, comercios, clínicas, restaurantes y servicios locales.",
+        "Emprendedores y profesionales independientes que buscan más clientes sin gastar en anuncios.",
+        "Consultores de marketing y agencias que desean ofrecer servicios de SEO Local y AEO de vanguardia."
       ],
       instructor: {
         name: "Julio Daza",
@@ -316,42 +319,210 @@ const OFFICIAL_COURSES = [
       discount: "50% OFF",
       rating: 4.9,
       reviews_count: 88,
-      hours_video: "6 horas de video paso a paso",
-      articles_count: 12,
-      resources_count: 10,
+      hours_video: "6 Módulos • 18 Lecciones Prácticas",
+      articles_count: 18,
+      resources_count: 24,
       last_updated: "8/2026",
       language: "Español",
     },
     modules: [
       {
         week_label: "01",
-        title: "Módulo 01: Optimización de Perfil de Negocio en Google",
-        description: "Factores de posicionamiento local, categorías estratégicas y gestión de señales de confianza.",
-        summary: "Configuración precisa de categorías, geolocalización de fotos y menú, estrategia de palabras clave locales.",
+        title: "Módulo 01: Fundamentos de la Visibilidad en la Era de la IA (SEO + AEO + GEO)",
+        description: "Cómo buscan tus clientes hoy, el Grafo de Conocimiento y diagnóstico de visibilidad de tu marca frente a competidores.",
+        summary: "Diferencias técnicas entre Google tradicional, AI Overviews, Perplexity y ChatGPT Search. Mapeo de entidades semánticas y auditoría rápida.",
         video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        content_text: "### Módulo 01: Checklist de Optimización Google Maps",
-        prompts: ["Genera una lista de palabras clave semánticas locales para posicionar un restaurante en Madrid."],
-        downloads: [{ name: "checklist_google_maps_top3.pdf", type: "PDF", url: "#" }],
+        content_text: "### Módulo 01: Auditoría y Entidades Semánticas\n\n1. Comprender la búsqueda generativa (RAG) vs palabras clave tradicionales.\n2. Mapear tu negocio como una Entidad única en el Google Knowledge Graph.\n3. Ejecutar la auditoría de Share of Voice en Perplexity y ChatGPT Search.",
+        prompts: [
+          "Actúa como un Auditor Senior de SEO Local y Motores de IA. Realiza un diagnóstico de presencia digital para mi negocio...",
+          "Eres un Arquitecto de Datos Semánticos para Google Knowledge Graph. Genera un documento de definición de Entidad..."
+        ],
+        downloads: [
+          { name: "Guia_Comparativa_Motores_Busqueda_IA_2026.pdf", type: "PDF Técnico", url: "#" },
+          { name: "Checklist_Diagnostico_Inicial_Presencia.xlsx", type: "Excel", url: "#" },
+          { name: "Plantilla_Mapeo_Entidades_Semanticas.docx", type: "Word", url: "#" }
+        ],
+        quiz_data: {
+          enabled: true,
+          passing_score: 75,
+          questions: [
+            {
+              question: "¿Cuál es la diferencia fundamental entre el SEO clásico y la optimización para motores de IA (AEO / GEO)?",
+              options: [
+                "El SEO tradicional busca posicionar enlaces por palabras clave; el AEO/GEO busca que la IA entienda tu negocio como una entidad confiable y te cite como la mejor respuesta directa.",
+                "El AEO solo funciona si pagas anuncios en Google Ads.",
+                "No hay ninguna diferencia, ambos usan únicamente metaetiquetas HTML."
+              ],
+              correctIndex: 0,
+              explanation: "Los modelos de IA procesan lenguaje natural y buscan entidades estructuradas y verificadas para sintetizar recomendaciones personalizadas."
+            }
+          ]
+        }
       },
       {
         week_label: "02",
-        title: "Módulo 02: Arquitectura de Datos para Motores de Respuesta (AEO)",
-        description: "Estructuración de microdatos JSON-LD para que los modelos LLM entiendan tu catálogo y oferta.",
-        summary: "Creación de esquemas Restaurant & LocalBusiness, validación en Google Rich Results, optimización semántica de FAQs.",
+        title: "Módulo 02: Optimización Maestra de Google Business Profile & Citaciones 360",
+        description: "Configuración estratégica de tu ficha de Google Maps, geotagging de fotos, Google Posts y sincronización con Apple Maps y Bing.",
+        summary: "Selección de categoría principal, atributos de alta conversión, metadatos EXIF en fotografías y consistencia NAP en directorios.",
         video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        content_text: "### Módulo 02: Microdatos JSON-LD para Citación IA",
-        prompts: ["Crea un esquema JSON-LD Schema.org completo de tipo Restaurant con menú y horarios."],
-        downloads: [{ name: "schema_restaurant_aeo.json", type: "JSON", url: "#" }],
+        content_text: "### Módulo 02: Google Business Profile y Consistencia NAP\n\n1. Configurar la categoría principal y secundarias con máximo peso algorítmico.\n2. Geotagging de fotografías con coordenadas GPS reales.\n3. Reclamar y sincronizar Apple Business Connect y Bing Places.",
+        prompts: [
+          "Actúa como un Copywriter Especialista en Fichas de Google Business. Redacta una descripción de 750 caracteres para mi negocio...",
+          "Crea un calendario de 4 publicaciones para Google Business Profile para el próximo mes..."
+        ],
+        downloads: [
+          { name: "Guia_Categorias_Estrategicas_Google_Business.pdf", type: "PDF", url: "#" },
+          { name: "Calendario_Publicaciones_Google_Maps.xlsx", type: "Excel", url: "#" },
+          { name: "Directorio_Top_50_Citaciones_Locales.xlsx", type: "Excel", url: "#" }
+        ],
+        quiz_data: {
+          enabled: true,
+          passing_score: 75,
+          questions: [
+            {
+              question: "¿Cuál es el factor individual con mayor peso para posicionar en el Top 3 del mapa de Google?",
+              options: [
+                "Elegir con precisión la Categoría Principal correcta en Google Business Profile.",
+                "Poner el número de teléfono en mayúsculas.",
+                "Crear 10 perfiles duplicados en la misma dirección."
+              ],
+              correctIndex: 0,
+              explanation: "La Categoría Primaria le indica al algoritmo la naturaleza exacta de tu servicio y define las búsquedas en las que tu ficha tiene prioridad de aparición."
+            }
+          ]
+        }
       },
       {
         week_label: "03",
-        title: "Módulo 03: Automatización de Reseñas y Reputación 5 Estrellas",
-        description: "Funnels de fidelización que incentivan opiniones verificadas de clientes reales.",
-        summary: "Flujos de feedback post-consumo, plantillas de respuesta rápida con IA, auditoría de sentimiento de marca.",
+        title: "Módulo 03: Arquitectura Técnica On-Page, Microdatos JSON-LD & RAG Readiness",
+        description: "Implementación de Schema.org LocalBusiness, páginas de aterrizaje hiperlocales por barrio y tablas de precios legibles para IA.",
+        summary: "El DNI digital de tu web en JSON-LD, landing pages de alta conversión por zona geográfica y marcado de Schema FAQPage.",
         video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        content_text: "### Módulo 03: Funnel de Captación de Reseñas 5 Estrellas",
-        prompts: ["Genera respuestas profesionales y empáticas a reseñas positivas y críticas constructivas."],
-        downloads: [{ name: "plantillas_respuestas_resenas.pdf", type: "PDF", url: "#" }],
+        content_text: "### Módulo 03: Microdatos JSON-LD y Páginas Hiperlocales\n\n1. Generar código Schema.org validado para LocalBusiness.\n2. Estructurar landing pages por barrio o ciudad sin contenido duplicado.\n3. Implementar acordeones de preguntas frecuentes con Schema FAQPage.",
+        prompts: [
+          "Actúa como un Ingeniero de Datos Estructurados Schema.org. Genera un script JSON-LD completo y validado para LocalBusiness...",
+          "Redacta el contenido de una Landing Page Hiperlocal para mi negocio enfocada en el barrio [Nombre]..."
+        ],
+        downloads: [
+          { name: "Schema_LocalBusiness_Maestro_Template.json", type: "JSON Schema", url: "#" },
+          { name: "Estructura_Landing_Local_Alta_Conversion.docx", type: "Word", url: "#" },
+          { name: "Plantilla_Schema_FAQPage_Listo.json", type: "JSON Schema", url: "#" }
+        ],
+        quiz_data: {
+          enabled: true,
+          passing_score: 75,
+          questions: [
+            {
+              question: "¿Qué ventaja tiene implementar el microdato Schema 'LocalBusiness' en formato JSON-LD en tu web?",
+              options: [
+                "Le permite a Google, Perplexity y ChatGPT leer con 100% de certeza tu ubicación, horarios, teléfono y servicios sin ambigüedades.",
+                "Hace que tu página web sea gratis para siempre.",
+                "Descarga automáticamente fotos a los dispositivos de los usuarios."
+              ],
+              correctIndex: 0,
+              explanation: "El código JSON-LD es el estándar internacional que los motores de búsqueda y LLMs utilizan para validar datos estructurados oficiales."
+            }
+          ]
+        }
+      },
+      {
+        week_label: "04",
+        title: "Módulo 04: Optimización para Motores Generativos (GEO) & Citación en ChatGPT, Gemini y Perplexity",
+        description: "Mecánicas de citación de los LLMs, menciones de autoridad en Reddit y medios locales, y corrección de alucinaciones sobre tu negocio.",
+        summary: "Cómo los asistentes de IA rastrean la web en tiempo real, construcción de autoridad E-E-A-T y auditoría de veracidad en modelos LLM.",
+        video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        content_text: "### Módulo 04: GEO y Autoridad en Motores de Respuesta\n\n1. Analizar las fuentes que cita Perplexity en tu sector.\n2. Estrategia de menciones orgánicas en Reddit y medios comunitarios.\n3. Protocolo para corregir datos erróneos que la IA diga sobre tu negocio.",
+        prompts: [
+          "Simula una búsqueda en profundidad como si fueras Perplexity Pro o ChatGPT Search para la consulta...",
+          "Actúa como un Especialista en Relaciones Públicas Digitales Locales. Redacta 2 plantillas de mensaje para medios locales..."
+        ],
+        downloads: [
+          { name: "Mapa_Fuentes_Ingesta_Motores_IA_2026.pdf", type: "PDF", url: "#" },
+          { name: "Plantillas_Outreach_Medios_Locales.docx", type: "Word", url: "#" },
+          { name: "Protocolo_Correccion_Datos_IA.pdf", type: "PDF", url: "#" }
+        ],
+        quiz_data: {
+          enabled: true,
+          passing_score: 75,
+          questions: [
+            {
+              question: "¿De dónde extraen los motores como ChatGPT Search y Perplexity la información para recomendar un negocio local?",
+              options: [
+                "De la combinación en tiempo real de Google Maps, directorios de autoridad, webs oficiales y foros comunitarios como Reddit.",
+                "De una base de datos secreta que solo tienen los gobiernos.",
+                "De mensajes privados de WhatsApp."
+              ],
+              correctIndex: 0,
+              explanation: "Los motores de respuesta rastrean la web abierta en tiempo real, cotejando múltiples fuentes públicas para verificar la reputación de cada opción."
+            }
+          ]
+        }
+      },
+      {
+        week_label: "05",
+        title: "Módulo 05: Automatización de Reseñas 5 Estrellas & Embudos Directos a WhatsApp",
+        description: "Tarjetas NFC táctiles, códigos QR de reseña instantánea, filtros de quejas por WhatsApp y respuestas a reseñas asistidas por IA.",
+        summary: "El bucle de reseñas de fricción cero, derivación inteligente de clientes insatisfechos y generación de respuestas profesionales con palabras clave.",
+        video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        content_text: "### Módulo 05: Reputación y Conversión a WhatsApp\n\n1. Diseñar placas NFC y códigos QR directos a 5 estrellas.\n2. Implementar el embudo de derivación privada para clientes insatisfechos.\n3. Responder al 100% de las reseñas potenciando el posicionamiento.",
+        prompts: [
+          "Actúa como un Diseñador de Experiencia de Cliente y Redactor Estratégico. Crea 3 guiones de 2 frases para pedir reseñas...",
+          "Actúa como el Gerente de Reputación Online de mi negocio. Redacta 3 respuestas personalizadas y empáticas para reseñas..."
+        ],
+        downloads: [
+          { name: "Plantilla_Diseno_Tarjetas_NFC_Google_Maps.pdf", type: "PDF", url: "#" },
+          { name: "Flujo_Filtro_Satisfaccion_Cliente.png", type: "Imagen", url: "#" },
+          { name: "Banco_50_Respuestas_Resenas_IA.docx", type: "Word", url: "#" }
+        ],
+        quiz_data: {
+          enabled: true,
+          passing_score: 75,
+          questions: [
+            {
+              question: "¿Por qué es crucial responder al 100% de las reseñas (positivas y negativas) en Google Maps?",
+              options: [
+                "Porque Google premia a los perfiles activos y las respuestas permiten reforzar palabras clave y generar confianza en futuros clientes.",
+                "Porque si no respondes, Google borra tu cuenta bancaria.",
+                "Porque las respuestas solo las pueden leer los robots."
+              ],
+              correctIndex: 0,
+              explanation: "La tasa y calidad de respuesta a reseñas es una señal directa de calidad y atención al cliente que evalúan tanto los clientes como los algoritmos."
+            }
+          ]
+        }
+      },
+      {
+        week_label: "06",
+        title: "Módulo 06: Telemetría, Geo-Grid Rank Tracking y Proyecto de Certificación",
+        description: "Mapas de calor de posicionamiento por radio de kilómetros, dashboard simple de KPIs y entrega del proyecto de graduación.",
+        summary: "Visualización de ranking con cuadrículas Geo-Grid, cálculo del ROI de llamadas y clics orgánicos, y emisión del certificado oficial.",
+        video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        content_text: "### Módulo 06: Geo-Grid Tracking y Certificación Oficial\n\n1. Mapear tu visibilidad en cuadrículas de kilómetros con Local Falcon.\n2. Medir las 5 métricas de impacto en ventas (llamadas, rutas, WhatsApp).\n3. Defender el proyecto de implementación y obtener el Diploma Oficial.",
+        prompts: [
+          "Analiza los siguientes resultados de mi mapa de calor Geo-Grid y diseña un plan de 30 días para expandir mi radio...",
+          "Eres el Tutor Académico de Inteligencia Neuronal. Revisa los siguientes entregables de mi proyecto de certificación..."
+        ],
+        downloads: [
+          { name: "Guia_Interpretacion_GeoGrid_Rankings.pdf", type: "PDF", url: "#" },
+          { name: "Dashboard_Excel_KPIs_Visibilidad_Local.xlsx", type: "Excel", url: "#" },
+          { name: "Guia_Proyecto_Graduacion_Certificacion.pdf", type: "PDF", url: "#" }
+        ],
+        quiz_data: {
+          enabled: true,
+          passing_score: 75,
+          questions: [
+            {
+              question: "¿Qué indica un mapa de calor Geo-Grid con pines verdes alrededor de tu local comercial?",
+              options: [
+                "Que tu negocio aparece en el Top 3 de Google Maps en esa zona y se lleva la mayoría de los clics y visitas de clientes cercanos.",
+                "Que la conexión a internet está fallando.",
+                "Que debes cerrar tu local los fines de semana."
+              ],
+              correctIndex: 0,
+              explanation: "Los pines verdes indican liderazgo local absoluto en el Top 3 (Local Pack), captando la inmensa mayoría de las intenciones de compra."
+            }
+          ]
+        }
       },
     ],
   },

@@ -390,9 +390,12 @@ VALUES
     ('bootcamp-n8n', '03', 'Conexion a Bases de Datos Relacionales', 'Persistencia de pedidos, clientes y stock con PostgreSQL/Supabase.', 3),
     ('bootcamp-n8n', '04', 'Alertas Criticas y Monitoreo 24/7', 'Integracion de bots de Telegram para fallas de servidor y cuellos de botella.', 4),
 
-    ('crecimiento-aeo', '01', 'Indexacion de Menus para Motores IA (AEO)', 'Estructuracion de microdatos para que los LLMs recomienden tus platos.', 1),
-    ('crecimiento-aeo', '02', 'Autoridad Local & Google Business 360', 'Estrategias de posicionamiento en el mapa y reputacion sin pagar pauta.', 2),
-    ('crecimiento-aeo', '03', 'Embudos de Trafico Directo a WhatsApp', 'Conversion de busquedas organicas en pedidos sin pagar comisiones.', 3),
+    ('crecimiento-aeo', '01', 'Fundamentos de Visibilidad en la Era de la IA (SEO + AEO + GEO)', 'Evolucion del algoritmo, Knowledge Graph de Google y como los LLMs recomiendan negocios locales.', 1),
+    ('crecimiento-aeo', '02', 'Optimizacion Maestra de Google Business Profile (GBP) & Citaciones 360', 'Geolocalizacion precisa, atributos de conversion, Apple Business Connect y Bing Places.', 2),
+    ('crecimiento-aeo', '03', 'Arquitectura Tecnica On-Page, Microdatos JSON-LD & RAG-Readiness', 'Marcado Schema.org avanzado (LocalBusiness, Menu, FAQPage) para que la IA lea tu web sin friccion.', 3),
+    ('crecimiento-aeo', '04', 'Optimizacion para Motores Generativos (GEO) & Citacion en LLMs', 'Estrategias para ser indexado y recomendado en ChatGPT Search, Perplexity AI y Google Gemini.', 4),
+    ('crecimiento-aeo', '05', 'Automatizacion de Reseñas 5 Estrellas & Conversion a WhatsApp', 'Embudos eticos con QR/NFC, gestion de crisis reputacional y captura de clientes sin comisiones.', 5),
+    ('crecimiento-aeo', '06', 'Telemetria, Geo-Grid Rank Tracking & Proyecto de Certificacion', 'Monitoreo de visibilidad por coordenadas GPS, medicion de ROAS y auditoria final del negocio.', 6),
 
     ('claude-code', '01', 'Configuracion de Entorno & Claude CLI', 'Instalacion, claves de API, configuracion de permisos y seguridad.', 1),
     ('claude-code', '02', 'Ingenieria de Prompts en Terminal & Multi-Turn', 'Direccion precisa de agentes para tareas de programacion complejas.', 2),

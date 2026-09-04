@@ -282,6 +282,691 @@ const PROGRAMS: Record<string, ProgramData> = {
         }
       }
     ]
+  },
+  "crecimiento-aeo": {
+    id: "crecimiento-aeo",
+    title: "Dominio Local: SEO, AEO & Visibilidad en Motores de IA",
+    badge: "Lo más vendido",
+    tagline: "Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.",
+    duration: "6 Módulos Prácticos • Acceso de por vida",
+    modules: [
+      {
+        id: "aeo-mod-1",
+        title: "Módulo 01: Fundamentos de la Visibilidad en la Era de la IA (SEO + AEO + GEO)",
+        lessons: [
+          {
+            id: "aeo-1-1",
+            title: "1.1 Cómo Buscan tus Clientes Hoy: Google Tradicional vs. IA Overviews vs. ChatGPT Search",
+            duration: "22 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Comprende la transformación radical del comportamiento de búsqueda. Descubre por qué los usuarios ya no solo hacen clic en enlaces azules, sino que le piden a la IA que tome decisiones por ellos (Google AI Overviews, Perplexity y ChatGPT Search), y cómo tu negocio puede ser la respuesta directa.",
+            content_text: `### ¿Cómo eligen las IAs qué negocio recomendar?
+
+Durante más de dos décadas, el SEO tradicional se basó en una premisa sencilla: repetir palabras clave y conseguir enlaces hacia una página web. Hoy, los motores de búsqueda impulsados por Inteligencia Artificial funcionan bajo un modelo de **Recuperación Semántica y Generación (RAG)**.
+
+Cuando un cliente escribe en ChatGPT o en Google: *"¿Cuál es el mejor restaurante familiar con terraza en el centro de la ciudad?"*, el motor de IA no solo revisa palabras clave; realiza un análisis en tres capas:
+
+1. **Reconocimiento de Entidades:** Identifica si tu negocio está registrado como una entidad real, verificada y con datos consistentes en la web abierta.
+2. **Extracción de Señales de Confianza:** Analiza reseñas recientes, menciones en artículos locales, fotografías con geoetiquetado y atributos específicos (como 'terraza', 'menú infantil', 'estacionamiento').
+3. **Generación de Respuesta Sintetizada:** Elige entre 2 y 3 opciones máximas y redacta una recomendación explicada con enlaces directos de citación.
+
+> **Objetivo de este módulo:** Pasar de ser un negocio 'invisible para los algoritmos' a convertirte en la entidad de referencia en tu ciudad.`,
+            prompts: [
+              `Actúa como un Auditor Senior de SEO Local y Motores de IA. Realiza un diagnóstico de presencia digital para mi negocio con los siguientes datos:
+- Nombre del Negocio: [Tu Negocio]
+- Rubro / Especialidad: [Ej: Odontología / Restaurante / Taller]
+- Ciudad y Zona: [Ej: Valencia, España / Bogotá, Colombia]
+- Página Web: [URL de tu web o 'No tengo web']
+- Ficha de Google Maps: [Enlace o 'Activa']
+
+Evalúa:
+1. ¿Qué información fidedigna existe actualmente en los índices de búsqueda de IA sobre mi negocio?
+2. ¿Qué tres competidores directos en mi ciudad tienen mayor probabilidad de ser recomendados por ChatGPT y Perplexity?
+3. Entrega una tabla de 5 acciones prioritarias para posicionar mi marca en el Top 3 local.`
+            ],
+            downloads: [
+              { name: "Guia_Comparativa_Motores_Busqueda_IA_2026.pdf", type: "PDF Técnico", url: "#" },
+              { name: "Checklist_Diagnostico_Inicial_Presencia.xlsx", type: "Excel", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-1-2",
+            title: "1.2 El Grafo de Conocimiento y las Entidades de tu Marca",
+            duration: "26 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprende qué es el Google Knowledge Graph y cómo los modelos LLM identifican negocios como 'Entidades Semánticas' (sujeto, relación, atributos) para nunca confundirte con otro negocio.",
+            content_text: `### La diferencia entre palabras clave y 'Entidades'
+
+Una **Entidad** es cualquier cosa, concepto o negocio que está claramente definido, es único y se distingue de otros. Para Google y OpenAI, tu negocio no es solo un dominio web: es un nodo en un mapa de conocimiento gigante.
+
+Un nodo de entidad sólido contiene:
+* **Identificador Único:** Nombre comercial exacto y coherente.
+* **Ubicación Física Precisa:** Coordenadas de latitud y longitud, código postal y dirección normalizada.
+* **Relaciones con el Ecosistema:** Enlaces oficiales a redes sociales, perfiles en cámaras de comercio, directorios verificados y menciones en prensa.
+* **Catálogo Semántico:** Menús, listas de servicios con precios y horarios en tiempo real.`,
+            prompts: [
+              `Eres un Arquitecto de Datos Semánticos para Google Knowledge Graph. Toma la siguiente información de mi empresa:
+- Nombre Comercial: [Nombre]
+- Dirección Exacta: [Dirección completa]
+- Servicios Principales: [Servicio 1, Servicio 2, Servicio 3]
+- Redes Sociales: [Instagram, LinkedIn, Facebook]
+- Fundador / Especialista Principal: [Nombre del fundador]
+
+Genera un documento de definición de Entidad Semántica en formato estructurado (Triples de Conocimiento: Sujeto -> Predicado -> Objeto) listo para ser indexado por rastreadores de IA.`
+            ],
+            downloads: [
+              { name: "Plantilla_Mapeo_Entidades_Semanticas.docx", type: "Plantilla Word", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-1-3",
+            title: "1.3 Auditoría de Visibilidad Local y Detección de Fugas de Tráfico",
+            duration: "24 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Metodología práctica para auditar en 15 minutos en qué posición apareces en tu ciudad, qué dice la IA de ti y dónde estás perdiendo clientes frente a tus competidores locales.",
+            content_text: `### Pasos de la Auditoría Rápida de 15 Minutos
+
+1. **Prueba de Modo Incógnito en Google Maps:** Búsquedas por necesidad sin mencionar tu nombre comercial (Ej: *"urgencias dentales cerca de mí"*, *"comida italiana artesanal"*).
+2. **Prueba de Consulta Conversacional en Perplexity & ChatGPT Search:** Preguntar por recomendaciones contextuales de tu sector y analizar qué fuentes cita la IA en las notas al pie.
+3. **Detección de Brechas de Competencia:** Analizar qué atributos (fotos 360, menú digital, respuestas a reseñas, consistencia de horarios) tienen los 3 primeros clasificados que a ti te faltan.`,
+            prompts: [
+              `Compara a mi negocio con mis dos principales competidores locales:
+- Mi Negocio: [Nombre y ciudad]
+- Competidor 1: [Nombre]
+- Competidor 2: [Nombre]
+
+Analiza:
+1. Fortalezas y debilidades percibidas en reseñas públicas de Google.
+2. Nivel de claridad en la oferta de servicios y precios en la web.
+3. Sugiere 3 ventajas competitivas desatendidas que mi marca puede adueñarse para destacar en las respuestas de IA.`
+            ],
+            downloads: [
+              { name: "Matriz_Auditoria_Share_Of_Voice_Local.xlsx", type: "Excel Parametrizado", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cuál es la diferencia fundamental entre el SEO clásico y la optimización para motores de IA (AEO / GEO)?",
+              options: [
+                "El SEO tradicional busca posicionar enlaces por palabras clave; el AEO/GEO busca que la IA entienda tu negocio como una entidad confiable y te cite como la mejor respuesta directa.",
+                "El AEO solo funciona si pagas anuncios en Google Ads.",
+                "No hay ninguna diferencia, ambos usan únicamente metaetiquetas HTML."
+              ],
+              correctIndex: 0,
+              explanation: "Los modelos de IA procesan lenguaje natural y buscan entidades estructuradas y verificadas para sintetizar recomendaciones personalizadas."
+            },
+            {
+              question: "¿Por qué es peligroso tener direcciones o teléfonos distintos en diferentes páginas de Internet?",
+              options: [
+                "Porque la inconsistencia en los datos (NAP) hace que los algoritmos duden de la veracidad del negocio y reduzcan su visibilidad.",
+                "Porque el servidor web se apaga automáticamente.",
+                "Porque los clientes no pueden abrir archivos PDF."
+              ],
+              correctIndex: 0,
+              explanation: "La coherencia NAP (Nombre, Dirección, Teléfono) es el factor de confianza base que utilizan tanto Google como los LLMs para validar que un negocio es legítimo."
+            }
+          ]
+        }
+      },
+      {
+        id: "aeo-mod-2",
+        title: "Módulo 02: Optimización Maestra de Google Business Profile & Citaciones 360",
+        lessons: [
+          {
+            id: "aeo-2-1",
+            title: "2.1 Configuración de Alta Conversión en tu Ficha de Google Maps",
+            duration: "32 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo configurar cada campo de Google Business Profile para maximizar llamadas y visitas: Categoría Primaria (el factor #1), categorías secundarias, catálogos visuales y atributos de confianza.",
+            content_text: `### El checklist de oro para Google Business Profile
+
+* **Categoría Principal:** Es el factor de mayor peso algorítmico. Debe reflejar exactamente tu actividad principal (ej. *'Restaurante italiano'* en lugar de solo *'Restaurante'*).
+* **Categorías Secundarias:** Añade entre 3 y 5 categorías complementarias verificadas.
+* **Nombre Comercial Limpio:** Evita acumular palabras clave artificiales en el nombre para prevenir suspensiones automáticas de Google.
+* **Catálogo de Servicios y Productos:** Cada servicio debe incluir descripción persuasiva, precio orientativo y enlace directo a WhatsApp o reservas.
+* **Atributos Específicos:** Marca todos los atributos que apliquen (WiFi, accesibilidad, terraza, entrega a domicilio, métodos de pago).`,
+            prompts: [
+              `Actúa como un Copywriter Especialista en Fichas de Google Business. Redacta una descripción de 750 caracteres para mi negocio:
+- Rubro: [Ej: Clínica de Fisioterapia y Rehabilitación Deportiva]
+- Ciudad y Barrio: [Ej: Madrid, Barrio de Salamanca]
+- Propuesta de Valor: [Ej: Atención personalizada, tecnología láser y citas en menos de 24h]
+- Llamado a la Acción: [Ej: Reserva por WhatsApp o llamada directa]
+
+Asegúrate de que suene cercana, profesional e incluya de forma natural los términos que los clientes buscan en Google Maps.`
+            ],
+            downloads: [
+              { name: "Guia_Categorias_Estrategicas_Google_Business.pdf", type: "PDF", url: "#" },
+              { name: "Plantilla_Ficha_Optimizada_Google.docx", type: "Plantilla Word", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-2-2",
+            title: "2.2 Fotografías de Alto Impacto, Geotagging y Google Posts",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Estrategia visual para Google Maps: por qué los negocios con más de 100 fotos reciben 520% más llamadas, cómo geoetiquetar imágenes con coordenadas GPS y cómo crear publicaciones semanales de ofertas.",
+            content_text: `### Estrategia de Contenido Visual en Mapas
+
+Las imágenes con metadatos de ubicación (coordenadas EXIF) envían señales de relevancia geográfica a Google.
+
+**Tipos de fotos indispensables:**
+1. **Fachada exterior:** Tomada a la luz del día y de noche para facilitar la llegada de clientes.
+2. **Ambiente interior y equipo:** Genera confianza y humaniza la marca.
+3. **Productos estrella en alta resolución:** Platos, instalaciones o trabajos realizados.
+4. **Google Posts semanales:** Novedades, descuentos y eventos con botón de acción (*Llamar ahora* o *Reservar*).`,
+            prompts: [
+              `Crea un calendario de 4 publicaciones para Google Business Profile para el próximo mes para mi negocio:
+- Negocio: [Tu Negocio]
+- Objetivo: [Conseguir reservas para el fin de semana / Promocionar nuevo servicio]
+
+Para cada publicación incluye:
+- Gancho de atención (primeras 2 líneas)
+- Cuerpo del mensaje (máximo 80 palabras)
+- Llamado a la acción claro (CTA)
+- Sugerencia de fotografía a adjuntar.`
+            ],
+            downloads: [
+              { name: "Calendario_Publicaciones_Google_Maps.xlsx", type: "Excel", url: "#" },
+              { name: "Manual_Geotagging_Fotografias.pdf", type: "Guía PDF", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-2-3",
+            title: "2.3 Sincronización de Citaciones: Apple Maps, Bing Places y Waze",
+            duration: "25 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo clonar tu presencia en Apple Maps (para usuarios de iPhone y Siri), Bing Places (para búsquedas con Copilot) y aplicaciones de navegación como Waze en una sola sesión de trabajo.",
+            content_text: `### Por qué Apple Maps y Bing Places son críticos para la IA
+
+* **Apple Maps alimenta a Siri y Apple Intelligence:** Cuando un usuario de iPhone pregunta *"Siri, busca un café cerca"*, la respuesta proviene 100% de Apple Business Connect.
+* **Bing Places alimenta a Microsoft Copilot y ChatGPT:** Las búsquedas integradas en Windows y herramientas de Microsoft toman como fuente primaria el directorio de Bing.`,
+            prompts: [
+              `Genera la ficha estandarizada para dar de alta mi negocio en Apple Business Connect, Bing Places y directorios locales sin errores:
+- Nombre: [Nombre]
+- Dirección: [Dirección]
+- Teléfono: [Teléfono]
+- Horario: [Lunes a Domingo]
+- Descripción Corta: [Breve resumen]
+- Enlaces Oficiales: [Web y WhatsApp]`
+            ],
+            downloads: [
+              { name: "Directorio_Top_50_Citaciones_Locales.xlsx", type: "Excel", url: "#" },
+              { name: "Checklist_Consistencia_NAP.pdf", type: "PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cuál es el factor individual con mayor peso para posicionar en el Top 3 del mapa de Google?",
+              options: [
+                "Elegir con precisión la Categoría Principal correcta en Google Business Profile.",
+                "Poner el número de teléfono en mayúsculas.",
+                "Crear 10 perfiles duplicados en la misma dirección."
+              ],
+              correctIndex: 0,
+              explanation: "La Categoría Primaria le indica al algoritmo la naturaleza exacta de tu servicio y define las búsquedas en las que tu ficha tiene prioridad de aparición."
+            },
+            {
+              question: "¿Por qué es importante reclamar y optimizar la ficha en Apple Business Connect?",
+              options: [
+                "Porque alimenta directamente las búsquedas de Siri, Apple Maps y el ecosistema de usuarios iPhone.",
+                "Porque duplica la memoria de los teléfonos móviles.",
+                "Porque elimina los impuestos locales."
+              ],
+              correctIndex: 0,
+              explanation: "Millones de usuarios buscan comercios directamente mediante Siri y Apple Maps; no tener presencia en Apple Business Connect deja ese segmento en manos de la competencia."
+            }
+          ]
+        }
+      },
+      {
+        id: "aeo-mod-3",
+        title: "Módulo 03: Arquitectura Técnica On-Page, Microdatos JSON-LD & RAG Readiness",
+        lessons: [
+          {
+            id: "aeo-3-1",
+            title: "3.1 Microdatos JSON-LD (Schema.org): El DNI Digital de tu Negocio",
+            duration: "35 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprende qué es el código Schema.org en formato JSON-LD y cómo insertarlo en tu página web (WordPress, Shopify, Next.js o HTML) para que Google y ChatGPT lean tus horarios, dirección, precios y redes sociales sin equivocarse.",
+            content_text: `### ¿Qué es JSON-LD y por qué lo adoran los motores de búsqueda?
+
+JSON-LD es un bloque de datos estructurados invisible para el visitante humano, pero extremadamente legible para los rastreadores de Google y los modelos de lenguaje (LLMs).
+
+Permite declarar de forma explícita tu nombre, dirección, coordenadas, horarios y redes sociales oficiales en un solo bloque estructurado.`,
+            prompts: [
+              `Actúa como un Ingeniero de Datos Estructurados Schema.org. Genera un script JSON-LD completo y validado para el tipo 'LocalBusiness' (o subtipo específico como Restaurant, Dentist, LegalService) con los siguientes datos:
+- Nombre: [Nombre de la empresa]
+- Tipo de Negocio: [Ej: Restaurant / MedicalClinic / AccountingService]
+- Dirección, Ciudad, Código Postal, País: [Datos]
+- Coordenadas Latitud y Longitud: [Latitud, Longitud]
+- Teléfono y Email de Contacto: [Teléfono, Email]
+- Enlaces a Redes Sociales (sameAs): [URLs]
+- Horarios de Apertura: [Días y horas]
+- Rango de Precios: [Ej: €€ o $$]
+
+Entrega el código listo para insertar dentro de la etiqueta <head> de mi página web y explica cómo validarlo con la herramienta oficial de Rich Results de Google.`
+            ],
+            downloads: [
+              { name: "Schema_LocalBusiness_Maestro_Template.json", type: "JSON Schema", url: "#" },
+              { name: "Guia_Validacion_Google_Rich_Results.pdf", type: "PDF", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-3-2",
+            title: "3.2 Páginas de Aterrizaje Hiperlocales (Landing Pages por Zona)",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo crear páginas específicas para diferentes barrios, distritos o ciudades satélite sin caer en contenido duplicado, captando clientes que buscan servicios en zonas cercanas.",
+            content_text: `### Estructura de una Landing Page Hiperlocal de Alta Conversión
+
+1. **Encabezado H1 Contextual:** [Servicio Principal] en [Nombre del Barrio / Ciudad].
+2. **Mapa de Google Embebido:** Con la ubicación y el radio de servicio.
+3. **Testimonios de Clientes de esa Zona:** Genera prueba social inmediata.
+4. **Instrucciones de Acceso y Estacionamiento:** Información práctica que los usuarios aprecian (estaciones de metro cercanas, aparcamiento gratuito).
+5. **Llamado a la Acción Directo:** Botón flotante de WhatsApp y formulario rápido.`,
+            prompts: [
+              `Redacta el contenido de una Landing Page Hiperlocal para mi negocio enfocada en el barrio [Nombre del Barrio / Distrito]:
+- Negocio: [Tu Negocio]
+- Servicio Destacado: [Ej: Implantes Dentales / Reparación de Coches / Catering]
+- Barrio Objetivo: [Nombre]
+- Hitos de Referencia: [Cerca de la plaza central / a 5 min de la estación]
+
+Incluye títulos H1, H2, H3, tres beneficios clave, sección de preguntas frecuentes y llamadas a la acción.`
+            ],
+            downloads: [
+              { name: "Estructura_Landing_Local_Alta_Conversion.docx", type: "Documento Word", url: "#" },
+              { name: "Wireframe_Visual_Pagina_Local.png", type: "Imagen / Diagrama", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-3-3",
+            title: "3.3 RAG-Readiness: Menús, Precios y FAQs que la IA Puede Citar",
+            duration: "27 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo organizar tus tablas de precios y preguntas frecuentes (con Schema FAQPage) para que ChatGPT y Perplexity citen tus respuestas directamente sin inventar costos ni alucinar.",
+            content_text: `### El estándar FAQPage para aparecer en los resultados enriquecidos
+
+Cuando añades preguntas y respuestas frecuentes estructuradas con microdatos, Google muestra acordeones interactivos en los resultados de búsqueda, multiplicando tu porcentaje de clics (CTR).
+
+Además, los motores generativos como Perplexity usan estas secciones de preguntas y respuestas para redactar sus resúmenes directos a los usuarios.`,
+            prompts: [
+              `Eres un Especialista en Optimización para Motores de Respuesta (AEO). Genera 5 Preguntas Frecuentes (FAQs) de alto impacto con sus respuestas concisas y profesionales para mi negocio:
+- Rubro: [Tu actividad]
+- Dudas más habituales de mis clientes: [Precios, tiempos de entrega, formas de pago, garantías]
+
+Entrega también el bloque de código Schema FAQPage en formato JSON-LD correspondiente para implementarlo de inmediato.`
+            ],
+            downloads: [
+              { name: "Plantilla_Schema_FAQPage_Listo.json", type: "JSON Schema", url: "#" },
+              { name: "Guia_Optimizacion_Tablas_Precios_IA.pdf", type: "Guía PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Qué ventaja tiene implementar el microdato Schema 'LocalBusiness' en formato JSON-LD en tu web?",
+              options: [
+                "Le permite a Google, Perplexity y ChatGPT leer con 100% de certeza tu ubicación, horarios, teléfono y servicios sin ambigüedades.",
+                "Hace que tu página web sea gratis para siempre.",
+                "Descarga automáticamente fotos a los dispositivos de los usuarios."
+              ],
+              correctIndex: 0,
+              explanation: "El código JSON-LD es el estándar internacional que los motores de búsqueda y LLMs utilizan para validar datos estructurados oficiales."
+            },
+            {
+              question: "¿Para qué sirve el marcado Schema FAQPage en una página web de servicios locales?",
+              options: [
+                "Para que las preguntas y respuestas aparezcan desplegables en Google y los modelos de IA las usen como respuestas directas.",
+                "Para enviar correos masivos a clientes desconocidos.",
+                "Para bloquear el acceso a los competidores."
+              ],
+              correctIndex: 0,
+              explanation: "Las preguntas frecuentes con marcado Schema aumentan el espacio visual que ocupa tu resultado en Google y facilitan la extracción de datos por parte de los LLMs."
+            }
+          ]
+        }
+      },
+      {
+        id: "aeo-mod-4",
+        title: "Módulo 04: Optimización para Motores Generativos (GEO) & Citación en ChatGPT, Gemini y Perplexity",
+        lessons: [
+          {
+            id: "aeo-4-1",
+            title: "4.1 Cómo Seleccionan Fuentes Perplexity, ChatGPT Search y Gemini",
+            duration: "31 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Descubre los algoritmos de búsqueda en tiempo real de los asistentes de IA: cómo rastrean la web abierta, qué peso le dan a los foros, notas de prensa y directorios, y cómo lograr que te elijan como recomendación principal.",
+            content_text: `### El pipeline de respuesta de un Motor Generativo (GEO)
+
+Cuando un usuario pregunta en Perplexity: *"¿Dónde puedo hacerme un chequeo dental de confianza en Valencia?"*, el motor ejecuta el siguiente flujo en milisegundos:
+
+1. **Reescritura de Consulta:** Transforma la frase del usuario en múltiples búsquedas paralelas.
+2. **Scraping & Ingesta Rápida:** Rastrea los resultados más relevantes de Google Maps, Yelp, foros locales y artículos de prensa.
+3. **Filtro de Autoridad y Coherencia:** Descarta fuentes contradictorias o desactualizadas y prioriza negocios con opiniones positivas contrastadas y fichas verificadas.
+4. **Generación con Citas:** Redacta el párrafo recomendando las mejores opciones e inserta las citas con enlaces hacia las webs oficiales.`,
+            prompts: [
+              `Simula una búsqueda en profundidad como si fueras Perplexity Pro o ChatGPT Search para la consulta:
+'Recomienda los 3 mejores [tu tipo de negocio] en [tu ciudad] explicando por qué destacan'.
+
+Analiza:
+1. ¿Qué fuentes y directorios son los más citados en este sector?
+2. ¿Qué factores de confianza justifican la recomendación de cada negocio?
+3. ¿Qué elementos debo publicar en mi web y redes para que la IA me incluya en su próxima síntesis?`
+            ],
+            downloads: [
+              { name: "Mapa_Fuentes_Ingesta_Motores_IA_2026.pdf", type: "PDF", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-4-2",
+            title: "4.2 Menciones de Autoridad en la Web Abierta y Estrategia Comunitaria",
+            duration: "29 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo conseguir menciones orgánicas en medios locales, blogs de la ciudad, comunidades de Reddit y directorios gremiales para nutrir la memoria de los modelos de inteligencia artificial.",
+            content_text: `### La importancia del 'E-E-A-T' (Experiencia, Especialización, Autoridad y Confianza)
+
+Para que los modelos de lenguaje consideren a tu negocio como una referencia, necesitan encontrar menciones desinteresadas en terceros:
+* **Artículos en periódicos o blogs de tu ciudad:** Guías de recomendaciones locales.
+* **Comentarios genuinos en Reddit y foros:** Los LLMs otorgan una alta puntuación de autenticidad a los debates públicos en Reddit.
+* **Entrevistas o colaboraciones con medios del sector:** Refuerzan la autoridad de los fundadores y profesionales de la empresa.`,
+            prompts: [
+              `Actúa como un Especialista en Relaciones Públicas Digitales Locales. Redacta 2 plantillas de mensaje para contactar a redactores de blogs locales y guías turísticas de mi ciudad:
+- Mi Negocio: [Nombre y rubro]
+- Ángulo de Noticia / Novedad: [Ej: Apertura de nuevo espacio sostenible / Lanzamiento de servicio innovador con IA / 10 años de trayectoria]
+
+El mensaje debe ser respetuoso, conciso (menos de 150 palabras) y ofrecer valor real al periodista o redactor.`
+            ],
+            downloads: [
+              { name: "Plantillas_Outreach_Medios_Locales.docx", type: "Word", url: "#" },
+              { name: "Guia_Estrategia_Reddit_Comunidades.pdf", type: "PDF", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-4-3",
+            title: "4.3 Monitoreo de Marca y Corrección de Alucinaciones en IA",
+            duration: "26 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Protocolo para auditar periódicamente lo que ChatGPT, Claude y Gemini afirman sobre tu empresa, y pasos exactos para corregir datos erróneos de precios, cartas o ubicaciones.",
+            content_text: `### Cómo corregir si una IA entrega datos falsos sobre tu negocio
+
+1. **Auditoría Mensual de Prompts:** Realizar consultas de prueba sobre tus horarios festivos, carta y precios.
+2. **Actualización de la Fuente Primaria:** Si la IA dice que no abres los domingos, actualiza primero Google Business Profile y el Schema JSON-LD de tu web.
+3. **Creación de una Página de 'Aclaraciones y Datos Oficiales':** Un apartado en tu web titulado 'Datos Oficiales y Preguntas Frecuentes' donde se listen de forma inequívoca las políticas vigentes.`,
+            prompts: [
+              `Eres un Auditor de Veracidad de Marca en Modelos de Lenguaje. Diseña una batería de 10 prompts de prueba para evaluar la precisión de la información que los asistentes de IA tienen sobre mi negocio:
+- Negocio: [Tu Negocio]
+- Ubicación: [Tu Ciudad]
+- Puntos Críticos a Verificar: [Horarios, precios, reservas, políticas de cancelación, especialidades]`
+            ],
+            downloads: [
+              { name: "Protocolo_Correccion_Datos_IA.pdf", type: "PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿De dónde extraen los motores como ChatGPT Search y Perplexity la información para recomendar un negocio local?",
+              options: [
+                "De la combinación en tiempo real de Google Maps, directorios de autoridad, webs oficiales y foros comunitarios como Reddit.",
+                "De una base de datos secreta que solo tienen los gobiernos.",
+                "De mensajes privados de WhatsApp."
+              ],
+              correctIndex: 0,
+              explanation: "Los motores de respuesta rastrean la web abierta en tiempo real, cotejando múltiples fuentes públicas para verificar la reputación de cada opción."
+            },
+            {
+              question: "¿Qué debes hacer si detectas que ChatGPT está indicando un horario de atención incorrecto para tu empresa?",
+              options: [
+                "Actualizar de inmediato Google Business Profile, tu web con Schema JSON-LD y tus redes principales con el horario verificado.",
+                "Dejar de usar Internet en tu negocio.",
+                "Cambiar de nombre comercial."
+              ],
+              correctIndex: 0,
+              explanation: "Al corregir y sincronizar las fuentes primarias que la IA rastrea periódicamente, el modelo actualizará su memoria en las siguientes iteraciones de búsqueda."
+            }
+          ]
+        }
+      },
+      {
+        id: "aeo-mod-5",
+        title: "Módulo 05: Automatización de Reseñas 5 Estrellas & Embudos Directos a WhatsApp",
+        lessons: [
+          {
+            id: "aeo-5-1",
+            title: "5.1 El Bucle de Reseñas con Tarjetas NFC y Códigos QR Dinámicos",
+            duration: "33 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo multiplicar tus reseñas positivas en Google Maps usando tecnología táctil NFC (acercar el móvil en mesa o mostrador), códigos QR de enlace directo a 5 estrellas y el momento psicológico exacto para pedirlas.",
+            content_text: `### La regla del menor esfuerzo para conseguir reseñas
+
+El 80% de los clientes satisfechos no deja una reseña porque el proceso tradicional requiere abrir la app, buscar el negocio y hacer clic varias veces.
+
+**La Solución de Fricción Cero:**
+* **Tarjetas y Placas NFC:** El cliente solo apoya su móvil y se le abre directamente la pantalla de 5 estrellas con el cursor listo para escribir.
+* **Códigos QR de Enlace Directo:** Generar el enlace oficial de Google Maps con el parámetro de reseña precargado.
+* **El Momento 'Peak-End':** Solicitar la reseña justo después de una experiencia positiva (al entregar la cuenta con un detalle, al finalizar un tratamiento exitoso o al entregar un pedido impecable).`,
+            prompts: [
+              `Actúa como un Diseñador de Experiencia de Cliente y Redactor Estratégico. Crea 3 guiones de 2 frases para que mi personal de atención solicite amablemente una reseña a clientes satisfechos:
+- Negocio: [Ej: Restaurante / Salón de Belleza / Taller Mecánico]
+- Soporte: [Tarjeta NFC en mesa / Código QR en el ticket]
+
+Los guiones deben sonar naturales, amables, sin presionar y transmitiendo cómo su opinión apoya al equipo local.`
+            ],
+            downloads: [
+              { name: "Plantilla_Diseno_Tarjetas_NFC_Google_Maps.pdf", type: "Plantilla de Diseño", url: "#" },
+              { name: "Guia_Implementacion_QR_Dinamico.docx", type: "Guía Word", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-5-2",
+            title: "5.2 Filtro de Reseñas y Prevención de Calificaciones Negativas",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Implementación de un embudo inteligente de satisfacción: si el cliente está feliz se le envía a Google Maps; si tuvo un inconveniente, se abre un canal privado de WhatsApp para resolverlo antes de que impacte tu reputación pública.",
+            content_text: `### El Embudo de Derivación Inteligente
+
+1. **Paso 1:** El cliente escanea el QR y ve una pregunta sencilla: *'¿Cómo fue tu experiencia hoy?'* con 5 estrellas interactivas.
+2. **Si califica con 4 o 5 estrellas:** Se le redirige inmediatamente a la ficha pública de Google Maps para publicar su opinión.
+3. **Si califica con 1, 2 o 3 estrellas:** Se abre un formulario privado o enlace directo a WhatsApp con el Gerente de Operaciones: *'Lamentamos mucho que tu experiencia no haya sido perfecta. ¿Qué podemos hacer ahora mismo para solucionarlo?'*.
+4. **Resultado:** Resuelves el problema del cliente, evitas la reseña negativa pública y blindas tu promedio de 4.9 estrellas.`,
+            prompts: [
+              `Diseña el flujo conversacional y los mensajes para un sistema de resolución rápida de quejas por WhatsApp:
+- Empresa: [Tu Negocio]
+- Responsable: [Gerente de Servicio / Atención al Cliente]
+
+Incluye:
+- Mensaje automático de bienvenida y disculpa empática.
+- Preguntas breves para entender el problema.
+- Propuesta de solución inmediata (reembolso parcial, cortesía en próxima visita o llamada directa).`
+            ],
+            downloads: [
+              { name: "Flujo_Filtro_Satisfaccion_Cliente.png", type: "Diagrama de Flujo", url: "#" },
+              { name: "Script_Atencion_Clientes_WhatsApp.docx", type: "Word", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-5-3",
+            title: "5.3 Respuestas a Reseñas con IA y Conversión a Ventas por WhatsApp",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo responder el 100% de las reseñas en segundos con IA incluyendo palabras clave locales de forma natural, y cómo convertir las visitas de tu ficha en clientes directos de WhatsApp sin pagar comisiones de plataformas.",
+            content_text: `### Por qué responder reseñas mejora tu posicionamiento
+
+Google premia a los negocios que responden activamente a sus reseñas porque demuestra actividad constante. Además, cuando respondes mencionando sutilmente tus especialidades (*'¡Gracias por destacar nuestra paella de mariscos en el centro de Valencia!'*), estás reforzando las palabras clave del negocio.`,
+            prompts: [
+              `Actúa como el Gerente de Reputación Online de mi negocio [Tu Negocio]. Redacta 3 respuestas personalizadas, empáticas y profesionales para las siguientes reseñas de clientes:
+1. Reseña 5 Estrellas elogiosa: [Texto de la reseña]
+2. Reseña 4 Estrellas con una sugerencia de mejora: [Texto de la reseña]
+3. Reseña 2 Estrellas injusta o crítica: [Texto de la reseña]
+
+Asegúrate de que cada respuesta incluya agradecimiento, mencione sutilmente el nombre del plato o servicio y demuestre compromiso con la excelencia.`
+            ],
+            downloads: [
+              { name: "Banco_50_Respuestas_Resenas_IA.docx", type: "Word", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Por qué es crucial responder al 100% de las reseñas (positivas y negativas) en Google Maps?",
+              options: [
+                "Porque Google premia a los perfiles activos y las respuestas permiten reforzar palabras clave y generar confianza en futuros clientes.",
+                "Porque si no respondes, Google borra tu cuenta bancaria.",
+                "Porque las respuestas solo las pueden leer los robots."
+              ],
+              correctIndex: 0,
+              explanation: "La tasa y calidad de respuesta a reseñas es una señal directa de calidad y atención al cliente que evalúan tanto los clientes como los algoritmos."
+            },
+            {
+              question: "¿Cuál es el objetivo principal del 'Filtro de Reseñas' mediante WhatsApp?",
+              options: [
+                "Capturar a tiempo los problemas de clientes insatisfechos en privado para solucionarlos antes de que se conviertan en reseñas públicas negativas.",
+                "Cobrarle dinero a los clientes insatisfechos.",
+                "Bloquear el internet del cliente."
+              ],
+              correctIndex: 0,
+              explanation: "El canal directo privado permite solucionar fricciones operativas con empatía, recuperando al cliente y protegiendo el promedio público del negocio."
+            }
+          ]
+        }
+      },
+      {
+        id: "aeo-mod-6",
+        title: "Módulo 06: Telemetría, Geo-Grid Rank Tracking y Proyecto de Certificación",
+        lessons: [
+          {
+            id: "aeo-6-1",
+            title: "6.1 Medición de Rankings con Mapas de Calor (Geo-Grid Tracking)",
+            duration: "34 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprende a usar herramientas de seguimiento Geo-Grid (como Local Falcon o alternativas de bajo coste) para visualizar en un mapa de calor exactamente en qué calles apareces en el Top 3 y en cuáles caes de posición, trazando un plan de expansión de tu radio de clientes.",
+            content_text: `### ¿Qué es un mapa de calor Geo-Grid?
+
+Tu posición en Google Maps no es fija: cambia según la esquina exacta desde donde el cliente hace la búsqueda.
+
+Un mapa Geo-Grid coloca una cuadrícula de 7x7 o 9x9 pines sobre tu ciudad:
+* **Pines Verdes (1, 2, 3):** Tu negocio aparece en el codiciado Top 3 (el 'Local Pack').
+* **Pines Amarillos (4 a 9):** Estás visible pero requieres hacer clic en 'Ver más'.
+* **Pines Rojos (+10):** Eres invisible para los clientes de esa zona.
+
+> Con este módulo aprenderás a convertir los pines rojos y amarillos en verdes expandiendo tu radio de influencia de 1 km a más de 10 km a la redonda.`,
+            prompts: [
+              `Analiza los siguientes resultados de mi mapa de calor Geo-Grid:
+- Mi Negocio: [Tu Negocio]
+- Radio Actual: [Ej: 5 km alrededor de mi local]
+- Zonas Fuertes (Verdes): [Zona Norte y Centro]
+- Zonas Débiles (Rojas/Amarillas): [Zona Sur y Distrito Financiero]
+
+Diseña un plan de 30 días para expandir mi relevancia hacia las zonas débiles mediante optimización de contenido, publicaciones geolocalizadas y citaciones específicas.`
+            ],
+            downloads: [
+              { name: "Guia_Interpretacion_GeoGrid_Rankings.pdf", type: "Guía PDF", url: "#" },
+              { name: "Checklist_Expansion_Radio_Visibilidad.xlsx", type: "Excel", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-6-2",
+            title: "6.2 Dashboard Simple de KPIs: Medición del Retorno de Inversión",
+            duration: "27 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Las 5 métricas que realmente importan para el bolsillo de tu negocio: Llamadas directas, Solicitudes de indicaciones de cómo llegar, Clics a tu web, Mensajes de WhatsApp y Clientes nuevos conseguidos a coste de publicidad CERO.",
+            content_text: `### Las 5 Métricas Clave de Negocio
+
+1. **Llamadas telefónicas iniciadas:** Tasa de cierre promedio de llamadas.
+2. **Solicitudes de ruta (Direcciones):** Intención de visita física inmediata.
+3. **Clics al sitio web / Menú digital:** Tráfico de alta intención de compra.
+4. **Conversión a WhatsApp:** Contactos que inician conversación directa.
+5. **Ahorro en Publicidad Pagada:** Cuánto te habría costado conseguir esas mismas visitas pagando anuncios en Google Ads o Meta Ads.`,
+            prompts: [
+              `Actúa como un Analista de Crecimiento de Negocios Locales. Toma las métricas del último mes de mi ficha de Google Business:
+- Búsquedas Totales: [Ej: 14,200]
+- Llamadas Realizadas: [Ej: 185]
+- Solicitudes de Ruta: [Ej: 420]
+- Clics a la Web: [Ej: 610]
+- Ticket Promedio del Cliente: [Ej: 35 € o $]
+
+Calcula el valor económico generado por la presencia orgánica local y redacta un reporte ejecutivo de 1 página destacando el Retorno de Inversión (ROI).`
+            ],
+            downloads: [
+              { name: "Dashboard_Excel_KPIs_Visibilidad_Local.xlsx", type: "Excel con Fórmulas", url: "#" },
+              { name: "Plantilla_Reporte_Mensual_Ejecutivo.pptx", type: "PowerPoint Editable", url: "#" }
+            ]
+          },
+          {
+            id: "aeo-6-3",
+            title: "6.3 Proyecto Final de Graduación y Emisión de tu Certificación Oficial",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Instrucciones detalladas para completar tu auditoría e implementación final en tu propio negocio o en el de un cliente, envío de evidencias y emisión automática de tu Diploma Oficial con Código QR de Verificación Digital.",
+            content_text: `### Requisitos para la Certificación Oficial
+
+Para graduarte y obtener tu Diploma Verificable con ID único:
+1. **Completar el 100% de las lecciones del programa.**
+2. **Aprobar los quizes evaluativos de los 6 módulos (calificación mínima: 75%).**
+3. **Implementar al menos 3 de las herramientas del curso:**
+   - Ficha de Google Business Profile optimizada al 100%.
+   - Código Schema JSON-LD insertado y validado en Google Rich Results.
+   - Sistema de captación de reseñas (NFC o QR dinámico) activo.
+4. **Hacer clic en 'Emitir Certificado Oficial' dentro de tu panel de estudiante.**`,
+            prompts: [
+              `Eres el Tutor Académico de Inteligencia Neuronal. Revisa los siguientes entregables de mi proyecto de certificación:
+- Enlace de mi Ficha de Google Maps: [URL]
+- Enlace a mi Web con Schema JSON-LD: [URL]
+- Foto o evidencia de mi sistema de captura de reseñas: [Descripción]
+
+Evalúa cada punto según la rúbrica oficial de graduación y entrega retroalimentación constructiva para maximizar mi puntuación.`
+            ],
+            downloads: [
+              { name: "Guia_Proyecto_Graduacion_Certificacion.pdf", type: "Guía PDF", url: "#" },
+              { name: "Rubrica_Evaluacion_Final.pdf", type: "PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Qué indica un mapa de calor Geo-Grid con pines verdes alrededor de tu local comercial?",
+              options: [
+                "Que tu negocio aparece en el Top 3 de Google Maps en esa zona y se lleva la mayoría de los clics y visitas de clientes cercanos.",
+                "Que la conexión a internet está fallando.",
+                "Que debes cerrar tu local los fines de semana."
+              ],
+              correctIndex: 0,
+              explanation: "Los pines verdes indican liderazgo local absoluto en el Top 3 (Local Pack), captando la inmensa mayoría de las intenciones de compra."
+            },
+            {
+              question: "¿Cuál es el valor comercial de contar con una presencia sólida en motores de IA y Google Maps?",
+              options: [
+                "Generar un flujo predecible y continuo de clientes potenciales con alta intención de compra a coste de adquisición cero sin depender de comisiones.",
+                "Tener muchos seguidores en redes que nunca compran.",
+                "Pagar más facturas de publicidad cada mes."
+              ],
+              correctIndex: 0,
+              explanation: "El posicionamiento orgánico en mapas y motores de IA genera el tráfico más rentable y con mayor tasa de conversión del marketing digital."
+            }
+          ]
+        }
+      }
+    ]
   }
 };
 

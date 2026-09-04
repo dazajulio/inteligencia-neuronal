@@ -234,8 +234,8 @@ const REAL_COURSES: Course[] = [
     level: "Marketing & Adquisición",
     title: "Dominio Local: SEO, AEO & Visibilidad en Motores de IA",
     tagline: "Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.",
-    duration: "3 Módulos Prácticos",
-    lessonsCount: "12 Lecciones Técnicas",
+    duration: "6 Módulos Prácticos • Acceso de por vida",
+    lessonsCount: "18 Lecciones + Laboratorios y Blueprints",
     rating: 4.9,
     reviewsCount: 88,
     studentsCount: 0,
@@ -250,31 +250,74 @@ const REAL_COURSES: Course[] = [
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
     stripeColor: "from-[#FEAD2B] via-[#ea580c] to-[#e11d48]",
     accentColor: "#FEAD2B",
-    tools: ["Google Business Profile", "Microdatos JSON-LD", "ChatGPT Search", "Schema.org", "Perplexity API"],
+    tools: ["Google Business Profile", "Microdatos JSON-LD", "ChatGPT Search", "Schema.org", "Perplexity API", "Apple Business", "NFC & QR"],
     learningOutcomes: [
-      "Optimizar tu ficha de Google Maps para aparecer en el Top 3 local.",
-      "Implementar esquemas JSON-LD semánticos para citación en IA generativa.",
-      "Generar reseñas orgánicas automatizadas mediante WhatsApp.",
-      "Monitorear la cuota de visibilidad frente a competidores directos."
+      "Posicionar tu negocio en el Top 3 de Google Maps en tu ciudad o zona geográfica.",
+      "Implementar microdatos JSON-LD (Schema.org) sin saber programar para que las IAs entiendan tus horarios, precios y servicios.",
+      "Lograr que ChatGPT, Perplexity y Gemini citen y recomienden tu marca a clientes potenciales.",
+      "Automatizar un bucle de reseñas 5 estrellas con tarjetas NFC, códigos QR y filtros inteligentes por WhatsApp.",
+      "Medir rankings con mapas de calor Geo-Grid y expandir tu radio de clientes a coste de publicidad CERO."
     ],
     modules: [
       {
         week: "Módulo 01",
-        title: "Optimización de Perfil de Negocio en Google",
-        desc: "Factores de posicionamiento local, categorías estratégicas y gestión de señales de confianza.",
-        lessons: ["Configuración precisa de categorías", "Geolocalización de fotos y menú", "Estrategia de palabras clave locales"]
+        title: "Fundamentos de la Visibilidad en la Era de la IA (SEO + AEO + GEO)",
+        desc: "Cómo buscan tus clientes hoy, el Grafo de Conocimiento y diagnóstico de visibilidad de tu marca frente a competidores.",
+        lessons: [
+          "Cómo buscan tus clientes hoy: Google vs. IA Overviews vs. ChatGPT Search",
+          "El Grafo de Conocimiento y las Entidades de tu Marca",
+          "Auditoría de Visibilidad Local y Share of Voice en Motores de IA"
+        ]
       },
       {
         week: "Módulo 02",
-        title: "Arquitectura de Datos para Motores de Respuesta (AEO)",
-        desc: "Estructuración de microdatos JSON-LD para que los modelos LLM entiendan tu catálogo y oferta.",
-        lessons: ["Creación de esquemas Restaurant & LocalBusiness", "Validación en Google Rich Results", "Optimización semántica de FAQs"]
+        title: "Optimización Maestra de Google Business Profile & Citaciones 360",
+        desc: "Configuración estratégica de tu ficha de Google Maps, geotagging de fotos, Google Posts y sincronización con Apple Maps y Bing.",
+        lessons: [
+          "Configuración de Alta Conversión en tu Ficha de Google Maps",
+          "Fotografías de Alto Impacto, Geotagging y Google Posts",
+          "Sincronización de Citaciones: Apple Maps, Bing Places y Waze"
+        ]
       },
       {
         week: "Módulo 03",
-        title: "Automatización de Reseñas y Reputación 5 Estrellas",
-        desc: "Funnels de fidelización que incentivan opiniones verificadas de clientes reales.",
-        lessons: ["Flujos de feedback post-consumo", "Plantillas de respuesta rápida con IA", "Auditoría de sentimiento de marca"]
+        title: "Arquitectura Técnica On-Page, Microdatos JSON-LD & RAG Readiness",
+        desc: "Implementación de Schema.org LocalBusiness, páginas de aterrizaje hiperlocales por barrio y tablas de precios legibles para IA.",
+        lessons: [
+          "Microdatos JSON-LD (Schema.org): El DNI Digital de tu Negocio",
+          "Páginas de Aterrizaje Hiperlocales (Landing Pages por Zona)",
+          "RAG-Readiness: Menús, Precios y FAQs que la IA Puede Citar"
+        ]
+      },
+      {
+        week: "Módulo 04",
+        title: "Optimización para Motores Generativos (GEO) & Citación en ChatGPT, Gemini y Perplexity",
+        desc: "Mecánicas de citación de los LLMs, menciones de autoridad en Reddit y medios locales, y corrección de alucinaciones sobre tu negocio.",
+        lessons: [
+          "Cómo Seleccionan Fuentes Perplexity, ChatGPT Search y Gemini",
+          "Menciones de Autoridad en la Web Abierta y Estrategia Comunitaria",
+          "Monitoreo de Marca y Corrección de Alucinaciones en IA"
+        ]
+      },
+      {
+        week: "Módulo 05",
+        title: "Automatización de Reseñas 5 Estrellas & Embudos Directos a WhatsApp",
+        desc: "Tarjetas NFC táctiles, códigos QR de reseña instantánea, filtros de quejas por WhatsApp y respuestas a reseñas asistidas por IA.",
+        lessons: [
+          "El Bucle de Reseñas con Tarjetas NFC y Códigos QR Dinámicos",
+          "Filtro de Reseñas y Prevención de Calificaciones Negativas",
+          "Respuestas a Reseñas con IA y Conversión a Ventas por WhatsApp"
+        ]
+      },
+      {
+        week: "Módulo 06",
+        title: "Telemetría, Geo-Grid Rank Tracking y Proyecto de Certificación",
+        desc: "Mapas de calor de posicionamiento por radio de kilómetros, dashboard simple de KPIs y entrega del proyecto de graduación.",
+        lessons: [
+          "Medición de Rankings con Mapas de Calor (Geo-Grid Tracking)",
+          "Dashboard Simple de KPIs: Medición del Retorno de Inversión",
+          "Proyecto Final de Graduación y Emisión de tu Certificación Oficial"
+        ]
       }
     ]
   },
