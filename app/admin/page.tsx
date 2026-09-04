@@ -2634,14 +2634,29 @@ export default function AdminDashboard() {
 
                               {/* Acciones */}
                               <td className="py-4 text-right">
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedOrderForModal(ord)}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs cursor-pointer"
-                                >
-                                  <Eye className="w-3.5 h-3.5 text-[#971B8D]" />
-                                  <span>Ver Ficha</span>
-                                </button>
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedOrderForModal(ord)}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs cursor-pointer"
+                                  >
+                                    <Eye className="w-3.5 h-3.5 text-[#971B8D]" />
+                                    <span>Ver Ficha</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      if (confirm(`¿Estás seguro de eliminar la orden ${ord.folio || ord.id} de ${ord.customer_name}?`)) {
+                                        await fetch(`/api/orders?folio=${encodeURIComponent(ord.folio || ord.id)}&email=${encodeURIComponent(ord.customer_email)}`, { method: 'DELETE' });
+                                        fetchAllData();
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 transition-all shadow-xs cursor-pointer"
+                                    title="Eliminar Orden / Matrícula"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           );
@@ -5214,13 +5229,29 @@ export default function AdminDashboard() {
                   </select>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedOrderForModal(null)}
-                  className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
-                >
-                  Cerrar Ficha
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (confirm(`¿Estás seguro de eliminar la orden ${selectedOrderForModal.folio || selectedOrderForModal.id} de ${selectedOrderForModal.customer_name}?`)) {
+                        await fetch(`/api/orders?folio=${encodeURIComponent(selectedOrderForModal.folio || selectedOrderForModal.id)}&email=${encodeURIComponent(selectedOrderForModal.customer_email)}`, { method: 'DELETE' });
+                        setSelectedOrderForModal(null);
+                        fetchAllData();
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                  >
+                    Eliminar Orden ✕
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOrderForModal(null)}
+                    className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+                  >
+                    Cerrar Ficha
+                  </button>
+                </div>
               </div>
 
             </div>

@@ -323,3 +323,70 @@ export async function PUT(req: NextRequest) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const folio = searchParams.get("folio");
+    const email = searchParams.get("email");
+
+    if (!id && !folio && !email) {
+      return NextResponse.json(
+        { success: false, message: "Se requiere id, folio o email para eliminar" },
+        { status: 400 }
+      );
+    }
+
+    // Limpiar en memoria
+    inMemoryOrders = inMemoryOrders.filter((o) => {
+      if (id && o.id === id) return false;
+      if (folio && o.folio === folio) return false;
+      if (email && o.customer_email === email) return false;
+      return true;
+    });
+
+    const db = getSupabaseAdmin();
+
+    // Eliminar de academy_orders si existe
+    try {
+      if (id || folio) {
+        await db
+          .from("academy_orders")
+          .delete()
+          .or(`id.eq.${id || folio},folio.eq.${folio || id}`);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // Eliminar de academy_enrollments si existe
+    try {
+      if (email) {
+        await db
+          .from("academy_enrollments")
+          .delete()
+          .eq("email", email.trim().toLowerCase());
+      } else if (id) {
+        await db
+          .from("academy_enrollments")
+          .delete()
+          .eq("id", id);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Orden / matrícula eliminada con éxito.",
+    });
+  } catch (error: any) {
+    console.error("[DELETE /api/orders error]", error);
+    return NextResponse.json(
+      { success: false, message: "Error al eliminar orden" },
+      { status: 500 }
+    );
+  }
+}
+
