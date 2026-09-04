@@ -39,13 +39,21 @@ export async function GET(req: NextRequest) {
             "ia-restaurantes": "$97 USD",
             "crecimiento-aeo-local": "$67 USD",
             "crecimiento-aeo": "$67 USD",
-            "masterclass-antigravity": "$47 USD",
+            "claude-code": "$25 USD",
+            "antigravity": "$97 USD",
+            "masterclass-antigravity": "$97 USD",
           };
 
           orders = enrollData.map((en: any, idx: number) => {
             const courseId = en.course_id || "bootcamp-n8n";
             const calculatedPrice = en.amount || priceMap[courseId] || "$97 USD";
-            const courseTitle = en.course_title || (courseId.includes("bootcamp") ? "Bootcamp n8n & Agentes IA" : courseId.includes("aeo") ? "Dominio Local AEO Gastronómico" : courseId.includes("antigravity") ? "Masterclass Antigravity" : "Masterclass IA Restaurantes");
+            const courseTitle = en.course_title || (
+              courseId.includes("bootcamp") ? "Bootcamp n8n & Agentes IA" :
+              courseId.includes("aeo") ? "Dominio Local: SEO, AEO & Visibilidad" :
+              courseId.includes("claude") ? "Curso Profesional de Claude Code" :
+              courseId.includes("antigravity") ? "Curso Completo de Google Antigravity" :
+              "Masterclass IA Restaurantes"
+            );
 
             return {
               id: en.id || `ORD-ENR-${idx + 100}`,
@@ -133,7 +141,9 @@ export async function POST(req: NextRequest) {
       "ia-restaurantes": "$97 USD",
       "crecimiento-aeo-local": "$67 USD",
       "crecimiento-aeo": "$67 USD",
-      "masterclass-antigravity": "$47 USD",
+      "claude-code": "$25 USD",
+      "antigravity": "$97 USD",
+      "masterclass-antigravity": "$97 USD",
     };
     const cleanAmount = amount || priceMap[courseId] || "$97 USD";
     const cleanRef = referenceNumber.trim() || `REF-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -142,8 +152,7 @@ export async function POST(req: NextRequest) {
     const generatedPassword = `campus${Math.floor(1000 + Math.random() * 9000)}`;
     const nowIso = new Date().toISOString();
 
-    const orderRecord = {
-      id: randomFolio,
+    const orderRecord: any = {
       folio: randomFolio,
       customer_name: cleanName,
       customer_email: cleanEmail,
@@ -162,15 +171,28 @@ export async function POST(req: NextRequest) {
       created_at: nowIso,
     };
 
-    inMemoryOrders.unshift(orderRecord);
-
     const db = getSupabaseAdmin();
 
+    // Guardar permanentemente en tabla academy_orders de Supabase
     try {
-      await db.from("academy_orders").insert([orderRecord]);
-    } catch (e) {
-      // ignore if table doesn't exist
+      const { data: insertedOrder, error: insErr } = await db
+        .from("academy_orders")
+        .insert([orderRecord])
+        .select()
+        .single();
+
+      if (!insErr && insertedOrder) {
+        orderRecord.id = insertedOrder.id;
+      } else if (insErr) {
+        console.warn("[Supabase academy_orders insert warning]", insErr.message);
+        orderRecord.id = randomFolio;
+      }
+    } catch (e: any) {
+      console.warn("[Supabase academy_orders exception]", e.message);
+      orderRecord.id = randomFolio;
     }
+
+    inMemoryOrders.unshift(orderRecord);
 
     try {
       await db.from("academy_enrollments").upsert({
