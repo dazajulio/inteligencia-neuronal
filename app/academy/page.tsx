@@ -349,14 +349,15 @@ const REAL_COURSES: Course[] = [
     ]
   },
   {
-    id: "claude-code",
+    id: "antigravity",
+    slug: "antigravity",
     type: "MASTERCLASS",
-    badge: "Lo más vendido",
-    level: "Desarrollo & Automatización",
-    title: "Curso Completo de Claude Code: Crea Aplicaciones con IA",
-    tagline: "Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autónoma.",
-    duration: "12 Secciones • 15h 7m",
-    lessonsCount: "112 Clases + Laboratorios",
+    badge: "LO MÁS VENDIDO // VANGUARDIA",
+    level: "Desarrollo Agéntico & Fullstack",
+    title: "Curso Completo de Google Antigravity: Crea Software y Agentes con IA",
+    tagline: "Domina el entorno de desarrollo agéntico de Google DeepMind: IDE visual, subagentes concurrentes, Skills, Hooks, Generative UI y despliegue fullstack continuo.",
+    duration: "6 Módulos Intensivos • Acceso de por vida",
+    lessonsCount: "18 Lecciones + Blueprints & Laboratorios",
     rating: 4.9,
     reviewsCount: 96,
     studentsCount: 0,
@@ -371,37 +372,74 @@ const REAL_COURSES: Course[] = [
     previewImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
     stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#1DACE3]",
     accentColor: "#EA0C7F",
-    tools: ["Claude Code CLI", "Claude 3.7 Sonnet", "Node.js", "Git & GitHub", "Docker"],
+    tools: ["Google Antigravity (AGY)", "Gemini 2.0 Flash / Pro", "Subagentes & Skills", "Generative UI", "Model Context Protocol (MCP)", "Next.js 14 & Supabase", "Git & Vercel"],
     learningOutcomes: [
-      "Configurar y dominar la terminal con Claude Code para programar y refactorizar en segundos.",
-      "Diseñar flujos de trabajo autónomos donde la IA inspecciona código y ejecuta tests de forma segura.",
-      "Crear scripts y herramientas personalizadas con APIs agénticas.",
-      "Integrar el stack agéntico en tus flujos de trabajo diarios para multiplicar tu productividad x10."
+      "Planificar, programar y desplegar aplicaciones web completas con el IDE agéntico de Google DeepMind.",
+      "Orquestar equipos de subagentes concurrentes para investigar, refactorizar y probar código en paralelo.",
+      "Crear Skills personalizadas (SKILL.md) y Hooks de validación automática para blindar la calidad del software.",
+      "Diseñar prototipos interactivos en tiempo real con Generative UI y diagramas técnicos en Mermaid.",
+      "Construir y desplegar un SaaS Fullstack con autenticación, base de datos PostgreSQL y pagos en Vercel."
     ],
     modules: [
       {
         week: "Módulo 01",
-        title: "Configuración de Entorno & Claude CLI",
-        desc: "Instalación, claves de API, configuración de permisos y seguridad de ejecución.",
-        lessons: ["Arquitectura de Claude Code", "Tokens y presupuestos de costo", "Primeros comandos y diagnósticos"]
+        title: "Fundamentos de Antigravity, Arquitectura Agéntica & Entorno de Trabajo",
+        desc: "Diferencia entre copilotos pasivos y desarrollo agéntico autónomo, workspace y reglas maestras de proyecto.",
+        lessons: [
+          "1.1 La Revolución Agéntica: De los Copilotos Pasivos al Desarrollo Autónomo",
+          "1.2 Instalación, Configuración de Workspace y Modos de Ejecución",
+          "1.3 El Sistema de Reglas de Proyecto (.antigravity/rules) y Memoria Persistente"
+        ]
       },
       {
         week: "Módulo 02",
-        title: "Ingeniería de Prompts en Terminal & Multi-Turn",
-        desc: "Dirección precisa de agentes para tareas de programación complejas.",
-        lessons: ["Contextos de código amplios", "Refactorización dirigida", "Generación de pruebas automáticas"]
+        title: "Orquestación de Subagentes & Delegación Concurrente",
+        desc: "Delegación de tareas pesadas en paralelo con subagentes aislados, roles especializados y mensajería reactiva.",
+        lessons: [
+          "2.1 Arquitectura de Subagentes (invoke_subagent) y Procesamiento en Paralelo",
+          "2.2 Definición de Subagentes Especializados (define_subagent) y Roles a Medida",
+          "2.3 Comunicación Inter-Agéntica (send_message) y Gestión de Tareas Asíncronas"
+        ]
       },
       {
         week: "Módulo 03",
-        title: "Integración con Git, CI/CD y APIs Externas",
-        desc: "Agentes que revisan pull requests y despliegan a producción.",
-        lessons: ["Automatización de commits y changelogs", "Pipelines de verificación", "Herramientas de inspección"]
+        title: "Custom Skills, Hooks & Conectividad Externa (MCP)",
+        desc: "Creación de paquetes SKILL.md, interceptores de calidad pre/post ejecución y protocolo universal MCP.",
+        lessons: [
+          "3.1 Creación de Skills Modulares (SKILL.md) y Herramientas Reutilizables",
+          "3.2 Hooks de Pre y Post-Ejecución: Linters, Pruebas y Sanitización Automática",
+          "3.3 Integración de Servidores MCP (Model Context Protocol) en Antigravity"
+        ]
       },
       {
         week: "Módulo 04",
-        title: "Proyecto Práctico: Agente Fullstack Desplegado",
-        desc: "Construcción completa de una aplicación interactiva guiada por IA.",
-        lessons: ["Diseño de arquitectura", "Desarrollo iterativo acelerado", "Entrega y certificación final"]
+        title: "Generative UI, Artefactos Interactivos & Navegación Web en Vivo",
+        desc: "Prototipado interactivo inline con Generative UI, planes ejecutivos con Mermaid y navegación RAG en tiempo real.",
+        lessons: [
+          "4.1 Generative UI: Prototipado y Renderizado de Componentes en Tiempo Real",
+          "4.2 Dominio de Artefactos (implementation_plan.md, walkthrough.md y Mermaid)",
+          "4.3 Navegación Web en Vivo, Extracción de Documentación y APIs"
+        ]
+      },
+      {
+        week: "Módulo 05",
+        title: "Construcción de una Aplicación Web Fullstack de Extremo a Extremo",
+        desc: "Construcción paso a paso de un SaaS real con Next.js 14, Tailwind, Supabase, webhooks de pago y despliegue Vercel.",
+        lessons: [
+          "5.1 De la Idea al MVP en Minutos con Next.js, Tailwind y Supabase",
+          "5.2 Implementación Acelerada de Backend, Autenticación y Pagos",
+          "5.3 Control de Versiones con Git y Despliegue Continuo en Vercel"
+        ]
+      },
+      {
+        week: "Módulo 06",
+        title: "Auditoría de Seguridad, Optimización de Contexto & Certificación Oficial",
+        desc: "Auditoría de dependencias, telemetría y eficiencia de tokens, y entrega de proyecto con diploma verificable.",
+        lessons: [
+          "6.1 Auditoría de Código, Detección de Vulnerabilidades y Guardrails",
+          "6.2 Telemetría, Gestión de Tokens y Rendimiento en Proyectos Grandes",
+          "6.3 Proyecto Final de Graduación, Auditoría y Emisión de tu Diploma Oficial"
+        ]
       }
     ]
   }

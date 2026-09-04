@@ -353,19 +353,19 @@ VALUES
     3
 ),
 (
-    'claude-code',
-    'claude-code',
-    'MAS POPULAR',
-    'Desarrollo & Automatizacion',
-    'Curso Completo de Claude Code: Crea Aplicaciones con IA',
-    'Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autonoma.',
-    'Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autonoma.',
-    '12 Secciones • 15h 7m',
+    'antigravity',
+    'antigravity',
+    'LO MAS VENDIDO // VANGUARDIA',
+    'Desarrollo Agentico & Fullstack',
+    'Curso Completo de Google Antigravity: Crea Software y Agentes con IA',
+    'Domina el entorno de desarrollo agentico de Google DeepMind: IDE visual, subagentes concurrentes, Skills, Hooks, Generative UI y despliegue fullstack continuo.',
+    'Aprende a construir aplicaciones web completas, SaaS y agentes autonomos sin friccion tecnica utilizando Google Antigravity, subagentes en paralelo, Skills modulares y CI/CD en Vercel.',
+    '6 Modulos Intensivos • Acceso de por vida',
     97.00,
     '$97 USD',
     'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
     'from-[#EA0C7F] via-[#971B8D] to-[#1DACE3]',
-    '["Claude Code CLI", "Claude 3.7 Sonnet", "Node.js", "Git & GitHub", "Docker"]'::jsonb,
+    '["Google Antigravity (AGY)", "Gemini 2.0 Flash / Pro", "Subagentes & Skills", "Generative UI", "Model Context Protocol (MCP)", "Next.js 14 & Supabase", "Git & Vercel"]'::jsonb,
     'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
     'ACTIVO',
     42,
@@ -400,10 +400,12 @@ VALUES
     ('crecimiento-aeo', '05', 'Automatizacion de Reseñas 5 Estrellas & Conversion a WhatsApp', 'Embudos eticos con QR/NFC, gestion de crisis reputacional y captura de clientes sin comisiones.', 5),
     ('crecimiento-aeo', '06', 'Telemetria, Geo-Grid Rank Tracking & Proyecto de Certificacion', 'Monitoreo de visibilidad por coordenadas GPS, medicion de ROAS y auditoria final del negocio.', 6),
 
-    ('claude-code', '01', 'Configuracion de Entorno & Claude CLI', 'Instalacion, claves de API, configuracion de permisos y seguridad.', 1),
-    ('claude-code', '02', 'Ingenieria de Prompts en Terminal & Multi-Turn', 'Direccion precisa de agentes para tareas de programacion complejas.', 2),
-    ('claude-code', '03', 'Integracion con Git, CI/CD y APIs Externas', 'Agentes que revisan pull requests y despliegan a produccion.', 3),
-    ('claude-code', '04', 'Proyecto Practico: Agente Fullstack Desplegado', 'Construccion completa de una aplicacion interactiva guiada por IA.', 4)
+    ('antigravity', '01', 'Fundamentos de Antigravity, Arquitectura Agentica & Entorno de Trabajo', 'Diferencia entre copilotos pasivos y desarrollo autonomo, workspace y reglas maestras.', 1),
+    ('antigravity', '02', 'Orquestacion de Subagentes & Delegacion Concurrente', 'Delegacion en paralelo con subagentes aislados, roles especializados y mensajeria reactiva.', 2),
+    ('antigravity', '03', 'Custom Skills, Hooks & Conectividad Externa (MCP)', 'Creacion de paquetes SKILL.md, interceptores de calidad pre/post ejecucion y protocolo MCP.', 3),
+    ('antigravity', '04', 'Generative UI, Artefactos Interactivos & Navegacion Web en Vivo', 'Prototipado interactivo inline con Generative UI, planes con Mermaid y navegacion RAG.', 4),
+    ('antigravity', '05', 'Construccion de una Aplicacion Web Fullstack de Extremo a Extremo', 'SaaS real con Next.js 14, Tailwind, Supabase, webhooks de pago y despliegue Vercel.', 5),
+    ('antigravity', '06', 'Auditoria de Seguridad, Optimizacion de Contexto & Certificacion Oficial', 'Auditoria de dependencias, telemetria de tokens y proyecto con diploma verificable.', 6)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO public.academy_resources (id, slug, title, description, tag, format, preview_image, stripe_color, file_url, downloads_count, order_index)

@@ -1971,6 +1971,647 @@ Evalúa cada punto según la rúbrica oficial de graduación y entrega retroalim
         }
       }
     ]
+  },
+  "antigravity": {
+    id: "antigravity",
+    title: "Curso Completo de Google Antigravity: Crea Software y Agentes con IA",
+    badge: "LO MÁS VENDIDO // VANGUARDIA",
+    tagline: "Domina el entorno de desarrollo agéntico de Google DeepMind: IDE visual, subagentes concurrentes, Skills, Hooks, Generative UI y despliegue fullstack continuo.",
+    duration: "6 Módulos Intensivos • Acceso de por vida",
+    modules: [
+      {
+        id: "ant-mod-1",
+        title: "Módulo 01: Fundamentos de Antigravity, Arquitectura Agéntica & Entorno de Trabajo",
+        lessons: [
+          {
+            id: "ant-1-1",
+            title: "1.1 La Revolución Agéntica: De los Copilotos Pasivos al Desarrollo Autónomo",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Comprende el cambio de paradigma entre autocompletadores pasivos (Copilot) y un sistema agéntico autónomo (Google Antigravity) capaz de planificar, descomponer tareas complejas, inspeccionar archivos, ejecutar comandos y corregir sus propios errores.",
+            content_text: `### La Nueva Era de la Programación Agéntica (Agentic Coding)
+
+Durante años, las herramientas de IA para desarrolladores funcionaban como simples 'autocompletadores' o chats aislados:
+* Tenías que copiar y pegar código manualmente entre el navegador y tu editor.
+* El modelo no tenía contexto real de toda tu base de código ni sabía si el código compilaba.
+* Cualquier cambio en múltiples archivos requería decenas de pasos manuales propensos a errores.
+
+**Google Antigravity (AGY)** cambia las reglas del juego:
+1. **Planificador Integrado (Planning Mode):** Antes de tocar una sola línea de código, investiga tu proyecto y genera un plan de implementación detallado (\`implementation_plan.md\`).
+2. **Capacidad de Ejecución Segura:** Lee archivos, realiza modificaciones quirúrgicas multi-archivo y ejecuta tests de forma autónoma.
+3. **Bucle de Auto-Corrección:** Si una prueba falla o hay un error de sintaxis, el agente analiza el error y lo soluciona sin detenerte.`,
+            prompts: [
+              `Actúa como un Arquitecto de Software Senior y Tutor de Antigravity. Analiza la siguiente idea de aplicación para mi negocio:
+- Idea / Problema: [Ej: Sistema de reservas y control de inventario para clínicas dentales / Plataforma de micro-cursos para abogados]
+- Stack Deseado: [Next.js 14, Tailwind CSS, Supabase PostgreSQL, LemonSqueezy]
+- Usuarios Principales: [Administrador y Clientes finales]
+
+Genera:
+1. Desglose de requerimientos funcionales en 3 fases (MVP, Core y Escalado).
+2. Arquitectura de carpetas recomendada para trabajar con Antigravity de forma modular.`
+            ],
+            downloads: [
+              { name: "Guia_Fundamentos_Google_Antigravity.pdf", type: "Guía PDF", url: "#" },
+              { name: "Mapa_Mental_Flujo_Agentico.png", type: "Diagrama Visual", url: "#" }
+            ]
+          },
+          {
+            id: "ant-1-2",
+            title: "1.2 Instalación, Configuración de Workspace y Modos de Ejecución",
+            duration: "32 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprovisionamiento del espacio de trabajo en Antigravity: atajos de teclado esenciales, configuración de modelos (Gemini 2.0 Flash / Pro), gestión de permisos y alternancia entre Planning Mode y Fast Mode.",
+            content_text: `### Modos de Operación en Antigravity
+
+* **Planning Mode (Modo Planificación):** Ideal para nuevas funcionalidades o refactorizaciones complejas. El agente investiga el código, redacta el plan de diseño y solicita confirmación antes de modificar archivos.
+* **Fast / Direct Execution Mode:** Ideal para tareas puntuales, arreglos rápidos de estilo, adición de endpoints simples o consultas directas.
+* **Slash Commands integrados:**
+  * \`/goal\`: Tareas de larga duración con verificación exhaustiva.
+  * \`/boost\`: Modo de razonamiento profundo multi-perspectiva para problemas de alta complejidad.
+  * \`/grill-me\`: Entrevista interactiva donde el agente te hace preguntas clave para afinar el diseño antes de programar.`,
+            prompts: [
+              `Configura la plantilla de inicialización de un nuevo proyecto en Antigravity:
+- Define la estructura de directorios estándar (/app, /components, /lib, /types).
+- Configura las dependencias base de Node.js, TypeScript y Tailwind CSS.
+- Genera el checklist de verificación de entorno listo para ejecutar.`
+            ],
+            downloads: [
+              { name: "CheatSheet_Atajos_SlashCommands_Antigravity.pdf", type: "PDF Quick-Reference", url: "#" },
+              { name: "Starter_Workspace_Template.zip", type: "Plantilla ZIP", url: "#" }
+            ]
+          },
+          {
+            id: "ant-1-3",
+            title: "1.3 El Sistema de Reglas de Proyecto (.antigravity/rules) y Memoria Persistente",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo estructurar reglas globales y por proyecto para que el agente siga siempre las convenciones de tu equipo (TypeScript estricto, Tailwind v3/v4, Clean Code, manejo de errores) sin tener que repetirlas en cada prompt.",
+            content_text: `### El poder de las Rules en Antigravity
+
+Las reglas de proyecto (\`rules\`) actúan como la 'constitución técnica' de tu aplicación:
+1. **Reglas de Arquitectura:** 'Usa siempre Server Components por defecto en Next.js App Router; reserva Client Components solo para interactividad'.
+2. **Reglas de Base de Datos:** 'Todas las consultas a PostgreSQL deben usar tipado estricto y parametrización contra inyecciones SQL'.
+3. **Reglas de UI / Estilo:** 'Usa la paleta corporativa y el sistema de espaciado de Tailwind CSS definido en tailwind.config.ts'.`,
+            prompts: [
+              `Escribe un archivo de Reglas de Proyecto (.antigravity/rules/code-standards.md) profesional para mi aplicación:
+- Stack: Next.js 14 App Router, TypeScript, Tailwind CSS, Supabase.
+- Reglas Clave:
+  1. No crear archivos monolíticos de más de 300 líneas.
+  2. Documentar todas las interfaces y types en /types.
+  3. Manejo estricto de errores con try/catch en Route Handlers.
+  4. Nombres de componentes en PascalCase y utilidades en camelCase.`
+            ],
+            downloads: [
+              { name: "Template_Project_Rules_Maestro.md", type: "Markdown Config", url: "#" },
+              { name: "Guia_Estructuracion_Rules_Antigravity.pdf", type: "PDF Técnico", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cuál es la diferencia principal entre un copiloto tradicional y el sistema agéntico de Google Antigravity?",
+              options: [
+                "Antigravity planifica de forma autónoma, edita múltiples archivos coordinadamente, ejecuta comandos y verifica los resultados en tiempo real.",
+                "Los copilotos tradicionales solo funcionan en teléfonos móviles.",
+                "Antigravity no utiliza modelos de inteligencia artificial."
+              ],
+              correctIndex: 0,
+              explanation: "Antigravity es un entorno agéntico completo capaz de investigar, planificar, ejecutar y auto-corregir código sin requerir constantes intervenciones manuales."
+            },
+            {
+              question: "¿Para qué sirve configurar archivos de Reglas de Proyecto (.antigravity/rules)?",
+              options: [
+                "Para definir estándares de arquitectura, estilo y seguridad que el agente respeta automáticamente en todas sus intervenciones.",
+                "Para borrar el historial de Git cada semana.",
+                "Para bloquear el acceso a internet de la computadora."
+              ],
+              correctIndex: 0,
+              explanation: "Las reglas fijan convenciones persistentes de código, garantizando coherencia arquitectónica en todo el proyecto."
+            }
+          ]
+        }
+      },
+      {
+        id: "ant-mod-2",
+        title: "Módulo 02: Orquestación de Subagentes & Delegación Concurrente",
+        lessons: [
+          {
+            id: "ant-2-1",
+            title: "2.1 Arquitectura de Subagentes (invoke_subagent) y Procesamiento en Paralelo",
+            duration: "35 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo multiplicar tu velocidad de desarrollo delegando tareas pesadas a subagentes que se ejecutan en segundo plano con contextos aislados (investigación de documentación, diseño de esquemas, refactorizaciones masivas).",
+            content_text: `### El patrón de delegación con Subagentes
+
+Cuando trabajas en un proyecto de gran tamaño, meter miles de líneas de documentación en el contexto del agente principal satura la memoria y eleva los costos.
+
+**La solución con Subagentes:**
+* El agente principal actúa como **Director de Proyecto / Arquitecto**.
+* Invoca a un **Subagente de Investigación** con \`invoke_subagent\` para explorar una librería o API.
+* El subagente lee la documentación, extrae los fragmentos esenciales y entrega un resumen sintetizado.
+* El agente principal continúa programando sin interrupciones ni saturación de tokens.`,
+            prompts: [
+              `Configura una instrucción para que el agente invoque un subagente de investigación:
+- Tarea del subagente: 'Investigar la documentación oficial de la API de Stripe Checkout para suscripciones recurrentes con webhooks'.
+- Entregable requerido: 'Un resumen conciso con los tipos de eventos a escuchar (invoice.paid, customer.subscription.deleted) y el esquema del payload en TypeScript'.`
+            ],
+            downloads: [
+              { name: "Diagrama_Arquitectura_Subagentes.png", type: "Diagrama Visual", url: "#" },
+              { name: "Plantillas_Invocacion_Subagentes.docx", type: "Documento Word", url: "#" }
+            ]
+          },
+          {
+            id: "ant-2-2",
+            title: "2.2 Definición de Subagentes Especializados (define_subagent) y Roles a Medida",
+            duration: "33 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprende a definir subagentes a medida mediante `define_subagent`: el Agente Auditor de Seguridad (read-only), el Agente Diseñador de Componentes UI y el Agente DBA para optimización de consultas SQL.",
+            content_text: `### Especialización de Roles en Equipos de Agentes
+
+1. **Security Auditor Agent:** Subagente de solo lectura con permisos restringidos para auditar vulnerabilidades OWASP sin riesgo de alterar código por error.
+2. **Frontend UI Agent:** Equipado con herramientas de Generative UI para crear maquetas visuales y componentes accesibles.
+3. **Database Architect Agent:** Especializado en esquemas relacionales, indexación y políticas RLS.`,
+            prompts: [
+              `Escribe la definición de un subagente especializado llamado 'SQL_Optimizer':
+- Rol: Especialista en optimización de consultas PostgreSQL y seguridad RLS.
+- Herramientas permitidas: Herramientas de lectura y análisis de código.
+- System Prompt: 'Analiza cada consulta SQL identificando cuellos de botella, missing indexes y riesgos de inyección SQL, proponiendo la versión indexada más eficiente.'`
+            ],
+            downloads: [
+              { name: "Banco_Definiciones_Subagentes_Especializados.json", type: "JSON Config", url: "#" }
+            ]
+          },
+          {
+            id: "ant-2-3",
+            title: "2.3 Comunicación Inter-Agéntica (send_message) y Gestión de Tareas Asíncronas",
+            duration: "29 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Protocolos de comunicación entre agentes: envío de mensajes contextuales, gestión del ciclo de vida de procesos en segundo plano y consolidación de resultados en el repositorio principal.",
+            content_text: `### Flujo Asíncrono y Reactividad en Antigravity
+
+Antigravity utiliza un sistema de mensajería reactiva:
+* No necesitas esperar bloqueado en un bucle (*polling*).
+* Cuando un subagente o un comando en background termina, el sistema te notifica automáticamente en tu contexto.
+* Puedes coordinar equipos completos de agentes trabajando en distintas ramas (*branches*) del workspace.`,
+            prompts: [
+              `Diseña el flujo de trabajo para que dos subagentes colaboren en una nueva funcionalidad:
+- Subagente 1 (Backend): Crea la ruta de API /api/auth/register con validación Zod.
+- Subagente 2 (Frontend): Crea el formulario de registro con React Hook Form.
+- Agente Principal: Conecta ambos componentes y ejecuta el test de integración E2E.`
+            ],
+            downloads: [
+              { name: "Guia_Coordinacion_Equipos_Agenticos.pdf", type: "Guía PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Qué ventaja principal aporta el uso de Subagentes (invoke_subagent) en Antigravity?",
+              options: [
+                "Permite delegar tareas pesadas de investigación y pruebas en paralelo sin saturar la memoria de contexto del agente principal.",
+                "Hace que la computadora consuma menos electricidad de la pared.",
+                "Convierte archivos TypeScript en archivos de texto sin formato."
+              ],
+              correctIndex: 0,
+              explanation: "Los subagentes operan con contextos independientes, aislando la exploración y permitiendo paralelismo eficiente de tareas."
+            },
+            {
+              question: "¿Por qué es útil definir roles específicos para los subagentes (como un Auditor de Seguridad de solo lectura)?",
+              options: [
+                "Para garantizar que cada agente opere con los permisos y foco exactos requeridos, minimizando riesgos y maximizando la precisión.",
+                "Para que el código tenga más colores en el editor.",
+                "Porque los subagentes no saben hacer más de una cosa a la vez."
+              ],
+              correctIndex: 0,
+              explanation: "La especialización con permisos controlados (principio de menor privilegio) previene modificaciones accidentales y mejora la calidad del código."
+            }
+          ]
+        }
+      },
+      {
+        id: "ant-mod-3",
+        title: "Módulo 03: Custom Skills, Hooks & Conectividad Externa (MCP)",
+        lessons: [
+          {
+            id: "ant-3-1",
+            title: "3.1 Creación de Skills Modulares (SKILL.md) y Herramientas Reutilizables",
+            duration: "36 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo crear Skills personalizadas en Antigravity: estructura con metadatos YAML, instrucciones operativas, scripts asociados y ejemplos de uso para dotar a la IA de súper-poderes específicos para tu negocio.",
+            content_text: `### ¿Qué es una Skill en Antigravity?
+
+Una Skill es un paquete modular de conocimiento e instrucciones reutilizables que se activa bajo demanda:
+* **Estructura:** Carpeta con archivo \`SKILL.md\` (frontmatter YAML con nombre y descripción) + scripts y recursos opcionales.
+* **Carga Dinámica:** El agente lee la Skill únicamente cuando la tarea la requiere, ahorrando tokens en conversaciones rutinarias.
+* **Ejemplos:** Skill de diseño de landing pages de alta conversión, Skill de optimización de bases de datos PostgreSQL o Skill de facturación electrónica.`,
+            prompts: [
+              `Escribe un archivo SKILL.md completo para una nueva habilidad llamada 'seo-geo-audit':
+- Nombre: seo-geo-audit
+- Descripción: 'Audita y genera microdatos JSON-LD Schema.org para negocios locales según las directrices de Google y motores AEO'.
+- Instrucciones: Pasos detallados para extraer datos del negocio, validar en Schema.org y generar el snippet listo para <head>.`
+            ],
+            downloads: [
+              { name: "Estructura_Base_Skill_Template.zip", type: "Plantilla ZIP", url: "#" },
+              { name: "Manual_Creacion_Skills_Avanzadas.pdf", type: "Manual PDF", url: "#" }
+            ]
+          },
+          {
+            id: "ant-3-2",
+            title: "3.2 Hooks de Pre y Post-Ejecución: Linters, Pruebas y Sanitización Automática",
+            duration: "31 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Configuración de Hooks automatizados para ejecutar verificaciones de calidad (ESLint, Prettier, TypeScript typecheck, tests unitarios) automáticamente cada vez que el agente edite o guarde un archivo.",
+            content_text: `### Blindaje de Calidad con Hooks
+
+Los Hooks son interceptores automáticos:
+1. **Pre-Tool Hooks:** Validan que los parámetros de una acción sean seguros antes de ejecutarse.
+2. **Post-Tool Hooks:** Ejecutan un comando de linter o prueba unitaria inmediatamente después de editar un archivo.
+3. **Resultado:** Si el agente comete un error tipográfico o rompe un tipo de TypeScript, el Hook lo detecta en milisegundos y el agente lo repara antes de que tú siquiera lo notes.`,
+            prompts: [
+              `Diseña una política de Hooks para un proyecto en Next.js 14:
+- Hook Post-Edición: Ejecutar 'npx tsc --noEmit' tras modificar archivos .ts o .tsx.
+- Hook Pre-Commit: Verificar que no existan console.log ni llaves de API hardcodeadas en el código.`
+            ],
+            downloads: [
+              { name: "Configuracion_Hooks_Produccion.json", type: "JSON Config", url: "#" }
+            ]
+          },
+          {
+            id: "ant-3-3",
+            title: "3.3 Integración de Servidores MCP (Model Context Protocol) en Antigravity",
+            duration: "34 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Conexión de Antigravity con servidores MCP (Model Context Protocol): integración nativa con PostgreSQL, GitHub, APIs REST, navegadores Puppeteer y sistemas de archivos locales.",
+            content_text: `### MCP: El estándar de conectividad universal
+
+Model Context Protocol (MCP) es el protocolo que permite a los agentes de IA comunicarse con cualquier herramienta externa como si fuera un puerto USB:
+* **MCP PostgreSQL:** Permite al agente inspeccionar tablas, ejecutar migraciones seguras y verificar registros en vivo.
+* **MCP GitHub:** Permite al agente crear issues, revisar pull requests y gestionar ramas remotas.
+* **MCP Fetch / Brave:** Permite al agente consultar documentación web actualizada en tiempo real.`,
+            prompts: [
+              `Configura el archivo mcp_config.json para Antigravity con los siguientes servidores:
+1. Servidor MCP de PostgreSQL conectado a la base de datos de staging.
+2. Servidor MCP de GitHub para sincronización de repositorios.
+3. Servidor MCP de Filesystem para manipulación segura de directorios.`
+            ],
+            downloads: [
+              { name: "mcp_servers_config_template.json", type: "JSON Config", url: "#" },
+              { name: "Guia_Protocolo_MCP_Ecosistema.pdf", type: "Guía PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Qué ventaja ofrece el sistema de Skills (SKILL.md) frente a incluir todas las instrucciones en el prompt inicial?",
+              options: [
+                "Permite empaquetar conocimientos especializados que solo se cargan en memoria cuando la tarea lo requiere, ahorrando tokens y manteniendo el contexto limpio.",
+                "Hace que el editor de código sea más pesado.",
+                "Impide que el agente use internet."
+              ],
+              correctIndex: 0,
+              explanation: "Las Skills proporcionan modularidad y eficiencia extrema, activando capacidades avanzadas solo cuando son pertinentes."
+            },
+            {
+              question: "¿Cuál es la función principal de los servidores MCP (Model Context Protocol)?",
+              options: [
+                "Estandarizar la conexión segura de la IA con bases de datos, APIs externas, sistemas de archivos y herramientas de terceros.",
+                "Borrar contraseñas del navegador.",
+                "Apagar los servidores por la noche."
+              ],
+              correctIndex: 0,
+              explanation: "MCP es el protocolo estándar de la industria para dotar a los agentes de acceso a datos y herramientas externas de forma segura y unificada."
+            }
+          ]
+        }
+      },
+      {
+        id: "ant-mod-4",
+        title: "Módulo 04: Generative UI, Artefactos Interactivos & Navegación Web en Vivo",
+        lessons: [
+          {
+            id: "ant-4-1",
+            title: "4.1 Generative UI: Prototipado y Renderizado de Componentes en Tiempo Real",
+            duration: "33 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Aprende a utilizar las capacidades de Generative UI en Antigravity para renderizar widgets interactivos, calculadoras, dashboards y componentes HTML/Tailwind directamente en el panel de conversación para validar diseños al instante con clientes.",
+            content_text: `### ¿Qué es Generative UI y por qué transforma el diseño de producto?
+
+En lugar de imaginar cómo quedará un formulario o una pantalla de estadísticas, Antigravity puede generar componentes interactivos renderizados en vivo:
+* **Validación Visual Inmediata:** Prueba botones, modales, tablas dinámicas y gráficos interactivos sin necesidad de levantar un servidor local.
+* **Iteración a la Velocidad del Pensamiento:** Pide ajustes de color, tipografía o disposición y visualiza el resultado en segundos.`,
+            prompts: [
+              `Utiliza Generative UI para crear un widget interactivo de cálculo de ROI para mi SaaS:
+- Inputs: Número de empleados, Horas manuales semanales por empleado, Costo hora promedio.
+- Outputs: Ahorro mensual proyectado en USD/EUR, Gráfico interactivo de barras y botón de 'Solicitar Demo'.`
+            ],
+            downloads: [
+              { name: "Catalogo_Componentes_GenerativeUI.html", type: "HTML / Tailwind", url: "#" },
+              { name: "Guia_Generative_UI_Antigravity.pdf", type: "Guía PDF", url: "#" }
+            ]
+          },
+          {
+            id: "ant-4-2",
+            title: "4.2 Dominio de Artefactos (implementation_plan.md, walkthrough.md y Mermaid)",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo estructurar planes de implementación de nivel ejecutivo y técnico: diagramas de arquitectura en Mermaid, planes paso a paso y resúmenes de entrega interactivos (Walkthroughs) con evidencias de verificación.",
+            content_text: `### El ciclo de los Artefactos Profesionales
+
+1. **\`implementation_plan.md\`:** Especifica el problema, las decisiones de diseño, preguntas abiertas y el plan de cambios agrupado por componentes.
+2. **Diagramas Mermaid:** Visualizan el flujo de datos y arquitectura sin ambigüedades.
+3. **\`walkthrough.md\`:** Resume los resultados tras la ejecución, incluyendo pruebas realizadas y capturas de verificación.`,
+            prompts: [
+              `Genera un implementation_plan.md profesional para añadir autenticación OAuth con Google y GitHub en mi aplicación Next.js:
+- Incluye diagrama de flujo en sintaxis Mermaid.
+- Detalla los cambios en tablas de Supabase Auth.
+- Lista el plan de verificación manual y automatizada.`
+            ],
+            downloads: [
+              { name: "Plantilla_Implementation_Plan_Ejecutivo.md", type: "Markdown", url: "#" },
+              { name: "Plantilla_Walkthrough_Entrega_Cliente.md", type: "Markdown", url: "#" }
+            ]
+          },
+          {
+            id: "ant-4-3",
+            title: "4.3 Navegación Web en Vivo, Extracción de Documentación y APIs",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Uso de herramientas de lectura web en tiempo real para extraer documentación de APIs recién lanzadas, auditar páginas web de la competencia y alimentar al agente con datos verídicos sin alucinaciones.",
+            content_text: `### Navegación Web y RAG en Tiempo Real
+
+Los modelos de lenguaje tienen fechas de corte de conocimiento. Con Antigravity:
+* El agente navega por la documentación oficial más reciente de librerías como Next.js, Stripe o Tailwind.
+* Extrae ejemplos oficiales de código y descarta sintaxis obsoleta.
+* Garantiza que tu aplicación utilice siempre las APIs y versiones más modernas del mercado.`,
+            prompts: [
+              `Indica al agente que navegue por la documentación oficial más reciente de Tailwind CSS v4 / Next.js 15:
+- Extrae los cambios críticos en la configuración de fuentes y temas.
+- Actualiza nuestro archivo de configuración local adaptándolo a la nueva versión.`
+            ],
+            downloads: [
+              { name: "Guia_Investigacion_Web_Segura.pdf", type: "PDF Técnico", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Qué valor aporta la capacidad de 'Generative UI' durante la fase de desarrollo?",
+              options: [
+                "Permite visualizar e interactuar con componentes y prototipos en tiempo real dentro del chat antes de integrarlos al código final.",
+                "Hace que la pantalla de la computadora brille más.",
+                "Reemplaza la necesidad de tener un navegador web para siempre."
+              ],
+              correctIndex: 0,
+              explanation: "Generative UI acelera el ciclo de diseño y aprobación, permitiendo validar la experiencia de usuario de forma interactiva."
+            },
+            {
+              question: "¿Por qué es crucial crear un 'implementation_plan.md' antes de realizar refactorizaciones o proyectos grandes?",
+              options: [
+                "Para alinear requerimientos técnicos, documentar decisiones de arquitectura y evitar modificaciones destructivas no planificadas.",
+                "Para gastar más espacio en el disco duro.",
+                "Porque es obligatorio por ley en todos los países."
+              ],
+              correctIndex: 0,
+              explanation: "El plan de implementación clarifica la estrategia técnica y permite revisiones formales antes de la ejecución de cambios."
+            }
+          ]
+        }
+      },
+      {
+        id: "ant-mod-5",
+        title: "Módulo 05: Construcción de una Aplicación Web Fullstack de Extremo a Extremo",
+        lessons: [
+          {
+            id: "ant-5-1",
+            title: "5.1 De la Idea al MVP en Minutos con Next.js, Tailwind y Supabase",
+            duration: "40 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Construcción en vivo de una aplicación SaaS completa: conceptualización, diseño de esquema relacional en PostgreSQL / Supabase, estructuración de rutas en Next.js 14 y maquetación de interfaces responsivas de alto impacto.",
+            content_text: `### El flujo de construcción acelerada con Antigravity
+
+1. **Definición del Modelo de Datos:** Creación de tablas normalizadas de \`users\`, \`organizations\`, \`projects\` y \`transactions\`.
+2. **Generación de Componentes UI:** Creación de barra de navegación, paneles laterales dinámicos y formularios interactivos.
+3. **Manejo de Estado Global:** Integración de Zustand o React Context para fluidez instantánea.`,
+            prompts: [
+              `Actúa como un Desarrollador Fullstack Senior. Construye el esquema inicial para una plataforma SaaS de gestión de membresías:
+- Genera el script SQL de creación de tablas con claves foráneas, timestamps y UUIDs.
+- Crea los tipos de TypeScript correspondientes en /types/database.ts.
+- Maqueta la página principal del dashboard con métricas clave y lista de miembros.`
+            ],
+            downloads: [
+              { name: "Starter_Kit_Fullstack_SaaS_Next14.zip", type: "Proyecto Completo ZIP", url: "#" },
+              { name: "Esquema_SQL_SaaS_Template.sql", type: "SQL Script", url: "#" }
+            ]
+          },
+          {
+            id: "ant-5-2",
+            title: "5.2 Implementación Acelerada de Backend, Autenticación y Pagos",
+            duration: "38 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Implementación de Route Handlers seguros en Next.js, control de sesiones de usuario, conexión con LemonSqueezy / Stripe para cobro de suscripciones y recepción de Webhooks con validación de firma criptográfica.",
+            content_text: `### Integración de Pasarelas de Pago Seguras
+
+* **Webhooks Transaccionales:** Recepción de eventos de compra en tiempo real (\`order_created\`, \`subscription_cancelled\`).
+* **Verificación de Firma HMAC:** Blindaje de endpoints para garantizar que solo la pasarela de pagos oficial pueda activar suscripciones.
+* **Actualización Atómica de Base de Datos:** Registro de transacciones y habilitación de acceso a los cursos o servicios comprados.`,
+            prompts: [
+              `Crea el Route Handler /api/webhooks/lemonsqueezy en Next.js App Router:
+- Valida la firma HMAC SHA-256 usando la variable de entorno LEMONSQUEEZY_WEBHOOK_SECRET.
+- Procesa el evento 'order_created' y actualiza el rol del usuario a 'PREMIUM' en la base de datos Supabase.
+- Retorna HTTP 200 con respuesta JSON estructurada.`
+            ],
+            downloads: [
+              { name: "Webhook_LemonSqueezy_Stripe_Handler.ts", type: "TypeScript Code", url: "#" },
+              { name: "Guia_Integracion_Pagos_Seguros.pdf", type: "PDF Técnico", url: "#" }
+            ]
+          },
+          {
+            id: "ant-5-3",
+            title: "5.3 Control de Versiones con Git y Despliegue Continuo en Vercel",
+            duration: "32 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Automatización del flujo de despliegue: commits semánticos generados por IA, sincronización con GitHub, configuración de variables de entorno en Vercel y publicación a producción con dominio personalizado y SSL.",
+            content_text: `### El Pipeline de CI/CD Moderno
+
+1. **Auditoría Pre-Commit:** El agente ejecuta \`npm run build\` localmente para verificar que no existan errores de compilación.
+2. **Commits Convencionales:** \`feat(auth): add google oauth provider\` / \`fix(checkout): validate webhook hmac signature\`.
+3. **Despliegue Automático en Vercel:** Enlace automático con la rama \`main\` y publicación en la nube en menos de 90 segundos.`,
+            prompts: [
+              `Genera el checklist de pre-despliegue a producción en Vercel:
+- Verificación de variables de entorno públicas (NEXT_PUBLIC_*) vs. privadas.
+- Configuración de dominios personalizados y registros DNS (CNAME / A Records).
+- Validación de políticas de seguridad CSP y encabezados HSTS.`
+            ],
+            downloads: [
+              { name: "Checklist_Despliegue_Produccion_Vercel.pdf", type: "Checklist PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Por qué es crucial validar la firma criptográfica (HMAC) en los Webhooks de pago (Stripe/LemonSqueezy)?",
+              options: [
+                "Para verificar con 100% de certeza que el mensaje proviene legítimamente de la pasarela de pagos y no de un atacante intentando activar cuentas gratis.",
+                "Para que el banco no cobre comisiones de transferencia.",
+                "Para cambiar el color de la página web."
+              ],
+              correctIndex: 0,
+              explanation: "La validación criptográfica de la firma del webhook es el estándar de oro de seguridad financiera para evitar ataques de suplantación."
+            },
+            {
+              question: "¿Cuál es la mejor práctica antes de hacer push a producción en un proyecto asistido por IA?",
+              options: [
+                "Ejecutar un build local ('npm run build') y los tests unitarios para certificar que no existen errores de tipado o compilación.",
+                "Borrar la carpeta node_modules y no volver a instalarla.",
+                "Apagar el servidor de producción durante 2 horas."
+              ],
+              correctIndex: 0,
+              explanation: "El build local garantiza que el código sea sintácticamente válido y esté listo para compilar en los servidores de despliegue continuo."
+            }
+          ]
+        }
+      },
+      {
+        id: "ant-mod-6",
+        title: "Módulo 06: Auditoría de Seguridad, Optimización de Contexto & Certificación Oficial",
+        lessons: [
+          {
+            id: "ant-6-1",
+            title: "6.1 Auditoría de Código, Detección de Vulnerabilidades y Guardrails",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Protocolos de seguridad para aplicaciones creadas con IA: escaneo de vulnerabilidades en dependencias (`npm audit`), prevención de inyecciones SQL/XSS, protección de API keys y configuración de guardrails de privacidad.",
+            content_text: `### El Decálogo de Seguridad para Desarrollo Agéntico
+
+1. **Nunca exponer Secrets en el código:** Todas las API keys deben residir en archivos \`.env.local\` incluidos en \`.gitignore\`.
+2. **Validación de Entradas con Zod / Yup:** Nunca confiar ciegamente en datos enviados por usuarios o clientes externos.
+3. **Aislamiento de Permisos en Base de Datos:** Usar Row-Level Security (RLS) en todas las tablas sensibles.`,
+            prompts: [
+              `Actúa como un Auditor de Ciberseguridad OWASP. Revisa el código de mis rutas de API y detecta:
+- Posibles fugas de información o llaves en texto plano.
+- Parámetros sin validar que puedan causar ataques de inyección SQL.
+- Falta de encabezados de seguridad en respuestas HTTP.`
+            ],
+            downloads: [
+              { name: "Guia_Seguridad_OWASP_Agentic_Coding.pdf", type: "PDF de Seguridad", url: "#" },
+              { name: "Checklist_Auditoria_Vulnerabilidades.xlsx", type: "Excel", url: "#" }
+            ]
+          },
+          {
+            id: "ant-6-2",
+            title: "6.2 Telemetría, Gestión de Tokens y Rendimiento en Proyectos Grandes",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Estrategias avanzadas para trabajar en proyectos de millones de líneas de código: optimización de la ventana de contexto, uso de cachés semánticas, reducción del consumo de tokens y aceleración de tiempos de respuesta.",
+            content_text: `### Maximizando la Eficiencia de Tokens y Costos
+
+* **Context Filtering:** Incluir solo los archivos relevantes para la tarea en curso en lugar de cargar repositorios enteros.
+* **Uso de Modelos Flash vs. Pro:** Emplear modelos ultrarrápidos y económicos (Gemini 2.0 Flash) para tareas mecánicas de edición y modelos Pro para diseño de arquitectura compleja.
+* **Persistencia de Transcripciones:** Auditoría del historial de pasos para optimizar futuras iteraciones.`,
+            prompts: [
+              `Analiza la base de código de mi proyecto y genera un archivo de índice arquitectónico (.antigravity/architecture-map.md) que resuma en menos de 500 palabras los módulos clave, componentes y flujos de datos para optimizar el contexto del agente.`
+            ],
+            downloads: [
+              { name: "Manual_Optimizacion_Contexto_Grandes_Codebases.pdf", type: "Manual PDF", url: "#" }
+            ]
+          },
+          {
+            id: "ant-6-3",
+            title: "6.3 Proyecto Final de Graduación, Auditoría y Emisión de tu Diploma Oficial",
+            duration: "35 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Instrucciones detalladas para entregar tu aplicación web funcional desarrollada con Antigravity, rúbrica de evaluación oficial de Inteligencia Neuronal y emisión automática de tu Diploma Verificable con código QR.",
+            content_text: `### Requisitos para la Certificación Oficial
+
+Para graduarte como Desarrollador Agéntico Certificado en Google Antigravity:
+1. **Completar el 100% de las 18 lecciones del programa.**
+2. **Aprobar los 6 quizes evaluativos con calificación mínima del 75%.**
+3. **Entregar un proyecto funcional:**
+   - Repositorio de GitHub con historial de commits y reglas de proyecto configuradas.
+   - Aplicación desplegada en vivo (Vercel / Cloud Run) con base de datos e interactividad.
+4. **Hacer clic en 'Emitir Certificado Oficial' dentro de tu panel de estudiante.**`,
+            prompts: [
+              `Eres el Tutor Académico de Inteligencia Neuronal. Evalúa la entrega de mi proyecto final de certificación en Google Antigravity:
+- URL de la Aplicación en Producción: [URL]
+- Repositorio de GitHub: [URL]
+- Descripción de Funcionalidades Implementadas: [Detalles]
+
+Aplica la rúbrica oficial evaluando arquitectura, interfaz de usuario, seguridad y buenas prácticas agénticas, entregando el feedback formativo de graduación.`
+            ],
+            downloads: [
+              { name: "Guia_Proyecto_Final_Antigravity.pdf", type: "Guía PDF", url: "#" },
+              { name: "Rubrica_Evaluacion_Desarrollador_Agentico.pdf", type: "Rúbrica PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cuál es la principal ventaja de utilizar Google Antigravity para el desarrollo de software frente a la programación manual tradicional?",
+              options: [
+                "Multiplica la velocidad de desarrollo x10 permitiendo a emprendedores y desarrolladores planificar, construir, auditar y desplegar aplicaciones completas con soporte agéntico continuo.",
+                "Elimina la necesidad de tener computadoras para programar.",
+                "Hace que los programas funcionen sin conexión a internet en cualquier lugar."
+              ],
+              correctIndex: 0,
+              explanation: "Antigravity democratiza y acelera el desarrollo de software profesional, uniendo planificación inteligente, ejecución autónoma y verificación en tiempo real."
+            },
+            {
+              question: "¿Qué elemento garantiza la autenticidad y validez internacional del Certificado Oficial emitido por Inteligencia Neuronal?",
+              options: [
+                "El código de verificación digital único y código QR que enlaza al registro oficial en la base de datos de la plataforma.",
+                "El color del marco del diploma.",
+                "El tamaño de la tipografía utilizada."
+              ],
+              correctIndex: 0,
+              explanation: "El código QR y el ID único permiten a clientes y empleadores comprobar instantáneamente la autenticidad del diploma en la plataforma."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "claude-code": {
+    id: "claude-code",
+    title: "Curso Completo de Google Antigravity: Crea Software y Agentes con IA",
+    badge: "LO MÁS VENDIDO // VANGUARDIA",
+    tagline: "Domina el entorno de desarrollo agéntico de Google DeepMind: IDE visual, subagentes concurrentes, Skills, Hooks, Generative UI y despliegue fullstack continuo.",
+    duration: "6 Módulos Intensivos • Acceso de por vida",
+    modules: [
+      {
+        id: "ant-mod-1-alias",
+        title: "Módulo 01: Fundamentos de Antigravity, Arquitectura Agéntica & Entorno de Trabajo",
+        lessons: [
+          {
+            id: "ant-1-1-alias",
+            title: "1.1 La Revolución Agéntica: De los Copilotos Pasivos al Desarrollo Autónomo",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Comprende el cambio de paradigma entre autocompletadores pasivos (Copilot) y un sistema agéntico autónomo (Google Antigravity) capaz de planificar, descomponer tareas complejas, inspeccionar archivos, ejecutar comandos y corregir sus propios errores.",
+            content_text: `### La Nueva Era de la Programación Agéntica (Agentic Coding)\n\nGoogle Antigravity combina planificación inteligente (Planning Mode), ejecución multi-archivo y verificación en tiempo real.`,
+            prompts: ["Actúa como un Arquitecto de Software Senior y analiza mi idea de aplicación..."],
+            downloads: [{ name: "Guia_Fundamentos_Google_Antigravity.pdf", type: "PDF", url: "#" }]
+          }
+        ]
+      }
+    ]
   }
 };
 
