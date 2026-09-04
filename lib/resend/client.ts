@@ -442,3 +442,141 @@ export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayloa
   }
 }
 
+export interface AdminSaleAlertPayload {
+  folio?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  courseTitle: string;
+  amount: string;
+  paymentMethod: string;
+  referenceNumber?: string;
+  date?: string;
+  status?: string;
+}
+
+/**
+ * 5. Alerta Inmediata al Administrador por Venta Confirmada de Curso
+ */
+export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    console.warn("[Resend Admin Sale Alert] No se pudo enviar porque falta RESEND_API_KEY.");
+    return { success: false, error: "Missing RESEND_API_KEY" };
+  }
+
+  const {
+    folio = `ORD-${Date.now().toString().slice(-6)}`,
+    customerName,
+    customerEmail,
+    customerPhone = "No especificado",
+    courseTitle,
+    amount,
+    paymentMethod,
+    referenceNumber = "N/A",
+    date = new Date().toLocaleString("es-ES", { timeZone: "America/Caracas" }),
+    status = "ACTIVO",
+  } = payload;
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>💰 [VENTA CONFIRMADA] ${customerName} — ${courseTitle}</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0f172a; color: #f8fafc; }
+    .wrapper { width: 100%; max-width: 620px; margin: 30px auto; background-color: #1e293b; border-radius: 24px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .header { background: linear-gradient(135deg, #1F242D 0%, #0f172a 100%); padding: 32px; border-bottom: 4px solid #86C537; }
+    .brand-logo { font-size: 20px; font-weight: 800; color: #ffffff; }
+    .brand-accent { background: linear-gradient(90deg, #1DACE3, #971B8D, #EA0C7F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .badge-sale { display: inline-block; padding: 6px 16px; background-color: rgba(134, 197, 55, 0.2); border: 1px solid #86C537; color: #86C537; border-radius: 9999px; font-size: 12px; font-weight: 800; font-family: monospace; margin-top: 8px; }
+    .body-content { padding: 32px; }
+    .amount-box { background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); border: 1px solid #059669; border-radius: 18px; padding: 24px; text-align: center; margin-bottom: 24px; }
+    .amount-label { font-size: 11px; font-family: monospace; font-weight: 700; color: #34d399; text-transform: uppercase; }
+    .amount-val { font-size: 32px; font-weight: 900; color: #ffffff; margin-top: 4px; font-family: monospace; }
+    .details-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; }
+    .details-table td { padding: 12px 14px; border-bottom: 1px solid #334155; }
+    .details-label { color: #94a3b8; font-weight: 600; width: 38%; }
+    .details-val { color: #ffffff; font-weight: 700; }
+    .btn-admin { display: block; width: 100%; box-sizing: border-box; text-align: center; background: linear-gradient(90deg, #971B8D, #EA0C7F); color: #ffffff !important; font-size: 14px; font-weight: 800; text-decoration: none; padding: 14px 20px; border-radius: 12px; }
+    .footer { background-color: #0f172a; padding: 20px 32px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="brand-logo">Inteligencia <span class="brand-accent">Neuronal</span> Control Suite</div>
+      <div><span class="badge-sale">💰 NUEVA VENTA CONFIRMADA // CAMPUS ACADEMY</span></div>
+    </div>
+    <div class="body-content">
+      <div class="amount-box">
+        <div class="amount-label">Monto de la Transacción</div>
+        <div class="amount-val">${amount}</div>
+      </div>
+
+      <table class="details-table">
+        <tr>
+          <td class="details-label">Folio de Orden:</td>
+          <td class="details-val" style="font-family: monospace; color: #1DACE3;">${folio}</td>
+        </tr>
+        <tr>
+          <td class="details-label">Programa Adquirido:</td>
+          <td class="details-val">${courseTitle}</td>
+        </tr>
+        <tr>
+          <td class="details-label">Alumno / Comprador:</td>
+          <td class="details-val">${customerName}</td>
+        </tr>
+        <tr>
+          <td class="details-label">Email de Acceso:</td>
+          <td class="details-val"><a href="mailto:${customerEmail}" style="color: #38bdf8; text-decoration: none;">${customerEmail}</a></td>
+        </tr>
+        <tr>
+          <td class="details-label">WhatsApp / Teléfono:</td>
+          <td class="details-val"><a href="https://wa.me/${customerPhone.replace(/[^0-9]/g, '')}" style="color: #4ade80; text-decoration: none;">${customerPhone}</a></td>
+        </tr>
+        <tr>
+          <td class="details-label">Método de Pago:</td>
+          <td class="details-val" style="text-transform: uppercase;">${paymentMethod}</td>
+        </tr>
+        <tr>
+          <td class="details-label">Nro. de Referencia:</td>
+          <td class="details-val" style="font-family: monospace; color: #facc15;">${referenceNumber}</td>
+        </tr>
+        <tr>
+          <td class="details-label">Fecha y Hora:</td>
+          <td class="details-val font-mono" style="font-size: 12px; color: #94a3b8;">${date}</td>
+        </tr>
+        <tr>
+          <td class="details-label">Estatus en Campus:</td>
+          <td class="details-val"><span style="background: rgba(34,197,94,0.2); color: #4ade80; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-family: monospace;">${status}</span></td>
+        </tr>
+      </table>
+
+      <a href="https://inteligencianeuronal.com/admin" class="btn-admin" target="_blank">
+        ⚙️ Abrir Panel de Control & Ventas
+      </a>
+    </div>
+    <div class="footer">
+      <p>Notificación automática del Centro de Mando — Inteligencia Neuronal LLC</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  try {
+    const data = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [ADMIN_EMAIL],
+      subject: `💰 [VENTA CONFIRMADA] ${customerName} — ${courseTitle} (${amount})`,
+      html: htmlContent,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error("[Resend Admin Sale Alert Error]", error);
+    return { success: false, error };
+  }
+}
+

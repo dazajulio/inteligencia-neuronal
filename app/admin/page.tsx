@@ -46,6 +46,7 @@ import {
   HelpCircle,
   CheckSquare,
   Sliders,
+  Copy,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -160,9 +161,25 @@ interface AuditNotification {
   createdAt: string;
 }
 
+export interface OrderSaleItem {
+  id: string;
+  folio: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  course_id: string;
+  course_title: string;
+  amount: string;
+  currency?: string;
+  payment_method: string;
+  reference_number?: string;
+  status: 'ACTIVO' | 'PENDIENTE' | 'SUSPENDIDO' | 'REEMBOLSADO';
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits'>('overview');
   const [syncingN8n, setSyncingN8n] = useState(false);
   const [syncingCourses, setSyncingCourses] = useState(false);
   const [syncingResources, setSyncingResources] = useState(false);
@@ -174,14 +191,31 @@ export default function AdminDashboard() {
   const [searchCourse, setSearchCourse] = useState('');
   const [searchLead, setSearchLead] = useState('');
   const [searchAudit, setSearchAudit] = useState('');
+  const [searchSale, setSearchSale] = useState('');
+  const [saleStatusFilter, setSaleStatusFilter] = useState<'ALL' | 'ACTIVO' | 'PENDIENTE' | 'SUSPENDIDO' | 'REEMBOLSADO'>('ALL');
+  const [copiedRef, setCopiedRef] = useState<string | null>(null);
+  const [orderStatusUpdating, setOrderStatusUpdating] = useState<string | null>(null);
+
+  // ── 0. VENTAS & ÓRDENES STATE (DATOS REALES) ──
+  const [ordersList, setOrdersList] = useState<OrderSaleItem[]>([]);
 
   // ── 1. NOTIFICACIONES & AUDITORÍAS STATE (DATOS REALES) ──
   const [notifications, setNotifications] = useState<AuditNotification[]>([]);
 
   const [selectedNotificationForModal, setSelectedNotificationForModal] = useState<AuditNotification | null>(null);
 
-  // Sync with API leads, courses, and resources
+  // Sync with API leads, courses, resources, and orders
   const fetchAllData = () => {
+    // 0. Órdenes y Ventas
+    fetch('/api/orders')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.orders && Array.isArray(data.orders)) {
+          setOrdersList(data.orders);
+        }
+      })
+      .catch((e) => console.warn('API orders fetch fallback', e));
+
     // 1. Leads
     fetch('/api/leads')
       .then((res) => res.json())
@@ -2024,6 +2058,71 @@ export default function AdminDashboard() {
     l.resource.toLowerCase().includes(searchLead.toLowerCase())
   );
 
+  const filteredOrders = ordersList.filter((o) => {
+    const matchesSearch =
+      (o.customer_name || '').toLowerCase().includes(searchSale.toLowerCase()) ||
+      (o.customer_email || '').toLowerCase().includes(searchSale.toLowerCase()) ||
+      (o.course_title || '').toLowerCase().includes(searchSale.toLowerCase()) ||
+      (o.reference_number || '').toLowerCase().includes(searchSale.toLowerCase()) ||
+      (o.folio || '').toLowerCase().includes(searchSale.toLowerCase());
+    const matchesStatus = saleStatusFilter === 'ALL' || o.status === saleStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const totalRevenueUsd = ordersList.reduce((acc, o) => {
+    const num = parseFloat((o.amount || '').replace(/[^0-9.]/g, ''));
+    return acc + (isNaN(num) ? 0 : num);
+  }, 0);
+
+  const handleUpdateOrderStatus = async (orderId: string, folio: string, newStatus: string, customerEmail: string) => {
+    setOrderStatusUpdating(folio || orderId);
+    setOrdersList((prev) =>
+      prev.map((o) => (o.id === orderId || o.folio === folio ? { ...o, status: newStatus as any } : o))
+    );
+    try {
+      await fetch('/api/orders', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, folio, status: newStatus, customerEmail }),
+      });
+      fetchAllData();
+    } catch (err) {
+      console.error('[Update Order Status Error]', err);
+    } finally {
+      setTimeout(() => setOrderStatusUpdating(null), 800);
+    }
+  };
+
+  const copySaleReference = (ref: string, key: string) => {
+    navigator.clipboard.writeText(ref);
+    setCopiedRef(key);
+    setTimeout(() => setCopiedRef(null), 2000);
+  };
+
+  const exportSalesCSV = () => {
+    const headers = ['Folio', 'Cliente', 'Email', 'Telefono', 'Producto', 'Monto', 'Metodo', 'Referencia', 'Estado', 'Fecha'];
+    const rows = ordersList.map((o) => [
+      o.folio || o.id,
+      `"${(o.customer_name || '').replace(/"/g, '""')}"`,
+      o.customer_email,
+      o.customer_phone || '',
+      `"${(o.course_title || '').replace(/"/g, '""')}"`,
+      o.amount,
+      o.payment_method,
+      o.reference_number || '',
+      o.status,
+      o.created_at,
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'ventas_ordenes_inteligencia_neuronal.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-[#EA0C7F] selection:text-white">
       
@@ -2051,6 +2150,7 @@ export default function AdminDashboard() {
           <nav className="flex lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             {[
               { id: 'overview', label: 'Métricas Generales', icon: LayoutDashboard, color: '#1DACE3' },
+              { id: 'sales', label: 'Ventas & Órdenes', icon: DollarSign, badge: ordersList.length > 0 ? ordersList.length.toString() : undefined, color: '#86C537' },
               { id: 'courses', label: 'Gestor de Cursos', icon: GraduationCap, badge: coursesList.length.toString(), color: '#EA0C7F' },
               { id: 'resources', label: 'Gestor de Recursos', icon: FolderDown, badge: resourcesList.length.toString(), color: '#FEAD2B' },
               { id: 'leads', label: 'Base de Leads (CRM)', icon: Users, color: '#86C537' },
@@ -2064,7 +2164,7 @@ export default function AdminDashboard() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id as any)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap lg:whitespace-normal transition-all shrink-0 lg:shrink ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap lg:whitespace-normal transition-all shrink-0 lg:shrink cursor-pointer ${
                     isActive
                       ? 'bg-[#971B8D] text-white shadow-lg shadow-[#971B8D]/40'
                       : 'text-zinc-400 hover:text-white hover:bg-white/5'
@@ -2101,7 +2201,7 @@ export default function AdminDashboard() {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs transition-all font-bold"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs transition-all font-bold cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Cerrar Sesión</span>
@@ -2123,6 +2223,7 @@ export default function AdminDashboard() {
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
               {activeTab === 'overview' && 'Métricas Generales & Telemetría'}
+              {activeTab === 'sales' && 'Gestor de Ventas & Órdenes en Tiempo Real'}
               {activeTab === 'courses' && 'Gestor de Cursos & Campus Virtual'}
               {activeTab === 'resources' && 'Gestor de Recursos & Toolkit'}
               {activeTab === 'leads' && 'Base de Leads CRM & Nutrición'}
@@ -2139,7 +2240,7 @@ export default function AdminDashboard() {
                 <button
                   key={t}
                   onClick={() => setTimeFilter(t)}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     timeFilter === t
                       ? 'bg-white text-[#971B8D] shadow-sm'
                       : 'hover:text-zinc-900'
@@ -2153,7 +2254,7 @@ export default function AdminDashboard() {
             <button
               onClick={handleSyncN8n}
               disabled={syncingN8n}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-zinc-300 bg-white text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition-all shadow-sm disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-zinc-300 bg-white text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${syncingN8n ? 'animate-spin text-[#971B8D]' : ''}`} />
               <span>{syncingN8n ? 'Sincronizando...' : 'Sincronizar'}</span>
@@ -2171,10 +2272,10 @@ export default function AdminDashboard() {
               {/* Tarjetas de Métricas Clave con Franja Superior */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                  { label: 'Facturación Bruta (Stripe)', val: '$0.00 USD', change: '0 transacciones', icon: TrendingUp, stripe: 'from-[#971B8D] to-[#EA0C7F]', bgTint: 'to-pink-50/40', badge: 'STRIPE LIVE' },
+                  { label: 'Facturación Bruta Confirmada', val: `$${totalRevenueUsd.toFixed(2)} USD`, change: `${ordersList.length} transacciones`, icon: DollarSign, stripe: 'from-[#86C537] to-[#059669]', bgTint: 'to-emerald-50/40', badge: 'VENTAS REALES' },
                   { label: 'Notificaciones & Diagnósticos', val: `${notifications.length} Solicitudes`, change: `${notifications.length} activas`, icon: Bell, stripe: 'from-[#1DACE3] to-[#0284c7]', bgTint: 'to-sky-50/40', badge: 'PIPELINE' },
-                  { label: 'Cursos & Alumnos Activos', val: `${coursesList.reduce((acc, c) => acc + (c.studentsEnrolled || 0), 0)} Alumnos`, change: `${coursesList.length} cursos`, icon: GraduationCap, stripe: 'from-[#FEAD2B] to-[#c2410c]', bgTint: 'to-amber-50/40', badge: 'CAMPUS' },
-                  { label: 'Leads Capturados (Toolkit)', val: `${leadsList.length} Registros`, change: `${leadsList.length} descargas`, icon: Users, stripe: 'from-[#86C537] to-[#059669]', bgTint: 'to-emerald-50/40', badge: 'CRM LEADS' },
+                  { label: 'Cursos & Alumnos Activos', val: `${studentsList.length > 0 ? studentsList.length : coursesList.reduce((acc, c) => acc + (c.studentsEnrolled || 0), 0)} Alumnos`, change: `${coursesList.length} cursos`, icon: GraduationCap, stripe: 'from-[#FEAD2B] to-[#c2410c]', bgTint: 'to-amber-50/40', badge: 'CAMPUS' },
+                  { label: 'Leads Capturados (Toolkit)', val: `${leadsList.length} Registros`, change: `${leadsList.length} descargas`, icon: Users, stripe: 'from-[#971B8D] to-[#EA0C7F]', bgTint: 'to-pink-50/40', badge: 'CRM LEADS' },
                 ].map((kpi, idx) => {
                   const Icon = kpi.icon;
                   return (
@@ -2217,7 +2318,7 @@ export default function AdminDashboard() {
                       <Bell className="w-4 h-4 text-[#1DACE3]" />
                       <span>Notificaciones de Diagnósticos Recientes</span>
                     </h3>
-                    <button onClick={() => setActiveTab('audits')} className="font-mono text-xs font-bold text-[#971B8D] hover:underline">
+                    <button onClick={() => setActiveTab('audits')} className="font-mono text-xs font-bold text-[#971B8D] hover:underline cursor-pointer">
                       Ver todas ({notifications.length}) ▹
                     </button>
                   </div>
@@ -2245,23 +2346,304 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Transacciones Recientes */}
+                {/* Transacciones Recientes en Vivo */}
                 <div className="p-6 rounded-2xl border border-zinc-200 bg-white shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FEAD2B] to-[#EA0C7F]" />
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#86C537] to-[#1DACE3]" />
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-100">
                     <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-[#FEAD2B]" />
-                      <span>Transacciones Recientes (Stripe)</span>
+                      <DollarSign className="w-4 h-4 text-[#86C537]" />
+                      <span>Últimas Ventas & Matrículas ({ordersList.length})</span>
                     </h3>
-                    <button onClick={() => setActiveTab('billing')} className="font-mono text-xs font-bold text-[#971B8D] hover:underline">
-                      Panel Stripe ▹
+                    <button onClick={() => setActiveTab('sales')} className="font-mono text-xs font-bold text-[#86C537] hover:underline cursor-pointer">
+                      Ver todas ▹
                     </button>
                   </div>
                   <div className="space-y-3">
-                    <div className="text-center py-8 text-xs text-zinc-400 font-mono">
-                      No hay transacciones registradas aún.
-                    </div>
+                    {ordersList.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-zinc-400 font-mono">
+                        No hay órdenes registradas aún. Al realizarse una compra aparecerá aquí al instante.
+                      </div>
+                    ) : (
+                      ordersList.slice(0, 3).map((ord) => (
+                        <div key={ord.id || ord.folio} className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs hover:bg-zinc-100/60 transition-colors">
+                          <div>
+                            <div className="font-bold text-zinc-900 flex items-center gap-2">
+                              <span>{ord.customer_name}</span>
+                              <span className="font-mono text-[10px] text-zinc-400">({ord.folio})</span>
+                            </div>
+                            <div className="text-[11px] text-zinc-500 mt-0.5">{ord.course_title}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-emerald-600 font-mono">{ord.amount}</div>
+                            <span className="inline-block mt-0.5 font-mono text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                              {ord.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
+                </div>
+
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── TAB 1.5: VENTAS & ÓRDENES EN TIEMPO REAL ── */}
+          {activeTab === 'sales' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+              
+              {/* Header de la sección */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-[#86C537]" />
+                    <span>Registro Maestro de Ventas & Matrículas</span>
+                  </h2>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Detalle de órdenes procesadas vía Pago Móvil y Lemon Squeezy con control interactivo de estatus en Campus.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => setIsEnrollModalOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-sm cursor-pointer"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>+ Matricular Manualmente</span>
+                  </button>
+
+                  <button
+                    onClick={exportSalesCSV}
+                    className="inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-xs font-bold text-zinc-800 hover:bg-zinc-50 transition-all shadow-sm cursor-pointer"
+                  >
+                    <DownloadCloud className="w-4 h-4 text-[#86C537]" />
+                    <span>Exportar Ventas (CSV)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* KPI Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#86C537] to-[#059669]" />
+                  <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">FACTURACIÓN BRUTA</span>
+                  <div className="text-2xl font-black text-zinc-900 mt-1 font-mono">${totalRevenueUsd.toFixed(2)} USD</div>
+                  <span className="text-[11px] text-emerald-600 font-bold mt-1 block">● 100% Conciliado</span>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1DACE3] to-[#0284c7]" />
+                  <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">ÓRDENES TOTALES</span>
+                  <div className="text-2xl font-black text-zinc-900 mt-1 font-mono">{ordersList.length}</div>
+                  <span className="text-[11px] text-zinc-500 mt-1 block">{ordersList.filter(o => o.status === 'ACTIVO').length} activas</span>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FEAD2B] to-[#c2410c]" />
+                  <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">VÍA PAGO MÓVIL (BS.)</span>
+                  <div className="text-2xl font-black text-zinc-900 mt-1 font-mono">
+                    {ordersList.filter(o => o.payment_method?.toLowerCase().includes('pagomovil') || o.payment_method?.toLowerCase().includes('pago')).length}
+                  </div>
+                  <span className="text-[11px] text-amber-600 font-bold mt-1 block">Tasa Oficial BCV</span>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#971B8D] to-[#EA0C7F]" />
+                  <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">VÍA LEMON SQUEEZY</span>
+                  <div className="text-2xl font-black text-zinc-900 mt-1 font-mono">
+                    {ordersList.filter(o => o.payment_method?.toLowerCase().includes('lemon')).length}
+                  </div>
+                  <span className="text-[11px] text-purple-600 font-bold mt-1 block">Tarjetas & PayPal</span>
+                </div>
+              </div>
+
+              {/* Contenedor Principal de la Tabla de Ventas */}
+              <div className="p-6 rounded-3xl border border-zinc-200 bg-white shadow-sm space-y-5">
+                
+                {/* Barra de Búsqueda y Filtros de Estado */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+                    <input
+                      type="text"
+                      placeholder="Buscar por cliente, email, curso, folio o referencia..."
+                      value={searchSale}
+                      onChange={(e) => setSearchSale(e.target.value)}
+                      className="w-full rounded-xl border border-zinc-300 bg-zinc-50 pl-10 pr-3.5 py-2.5 text-xs text-zinc-900 placeholder-zinc-400 focus:border-[#971B8D] focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Filter Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                    {(['ALL', 'ACTIVO', 'PENDIENTE', 'SUSPENDIDO'] as const).map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setSaleStatusFilter(st)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap ${
+                          saleStatusFilter === st
+                            ? 'bg-[#1F242D] text-white shadow-xs'
+                            : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                        }`}
+                      >
+                        {st === 'ALL' ? 'Todos' : st}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Data Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs min-w-[900px]">
+                    <thead>
+                      <tr className="border-b border-zinc-200 text-zinc-500 font-mono">
+                        <th className="pb-3.5">FOLIO / FECHA</th>
+                        <th className="pb-3.5">ALUMNO / CLIENTE</th>
+                        <th className="pb-3.5">PROGRAMA ADQUIRIDO</th>
+                        <th className="pb-3.5">MONTO & MÉTODO</th>
+                        <th className="pb-3.5">NRO. REFERENCIA</th>
+                        <th className="pb-3.5">ESTATUS CAMPUS</th>
+                        <th className="pb-3.5 text-right">ACCIONES</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {filteredOrders.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="text-center py-12 text-zinc-400 font-mono">
+                            No se encontraron órdenes ni ventas registradas con los filtros actuales.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredOrders.map((ord) => {
+                          const isPagoMovil = ord.payment_method?.toLowerCase().includes('pago') || ord.payment_method?.toLowerCase().includes('pagomovil');
+                          const isUpdating = orderStatusUpdating === (ord.folio || ord.id);
+
+                          return (
+                            <tr key={ord.id || ord.folio} className="hover:bg-zinc-50/80 transition-colors">
+                              {/* Folio / Fecha */}
+                              <td className="py-4">
+                                <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-800 block w-fit">
+                                  {ord.folio || ord.id}
+                                </span>
+                                <div className="font-mono text-[10px] text-zinc-400 mt-1">
+                                  {new Date(ord.created_at).toLocaleString('es-ES', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </div>
+                              </td>
+
+                              {/* Alumno */}
+                              <td className="py-4">
+                                <div className="font-bold text-zinc-900">{ord.customer_name}</div>
+                                <div className="text-[11px] text-zinc-500">{ord.customer_email}</div>
+                                {ord.customer_phone && ord.customer_phone !== 'No registrado' && (
+                                  <a
+                                    href={`https://wa.me/${ord.customer_phone.replace(/[^0-9]/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[10px] text-emerald-600 font-bold hover:underline flex items-center gap-1 mt-0.5"
+                                  >
+                                    <Phone className="w-3 h-3" /> {ord.customer_phone}
+                                  </a>
+                                )}
+                              </td>
+
+                              {/* Curso */}
+                              <td className="py-4">
+                                <div className="font-semibold text-zinc-800 line-clamp-1 max-w-[220px]">
+                                  {ord.course_title}
+                                </div>
+                                <span className="font-mono text-[9px] uppercase tracking-wider text-[#971B8D] font-bold">
+                                  {ord.course_id}
+                                </span>
+                              </td>
+
+                              {/* Monto & Método */}
+                              <td className="py-4">
+                                <div className="font-bold font-mono text-zinc-900 text-[13px]">{ord.amount}</div>
+                                <span className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full border mt-0.5 ${
+                                  isPagoMovil
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                                }`}>
+                                  {isPagoMovil ? <Phone className="w-2.5 h-2.5" /> : <CreditCard className="w-2.5 h-2.5" />}
+                                  <span>{isPagoMovil ? 'Pago Móvil (Bs.)' : 'Lemon Squeezy (USD)'}</span>
+                                </span>
+                              </td>
+
+                              {/* Referencia */}
+                              <td className="py-4">
+                                <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-700 bg-zinc-50 px-2.5 py-1 rounded-lg border border-zinc-200 w-fit">
+                                  <span className="font-bold">{ord.reference_number || 'N/A'}</span>
+                                  {ord.reference_number && (
+                                    <button
+                                      type="button"
+                                      onClick={() => copySaleReference(ord.reference_number || '', ord.folio || ord.id)}
+                                      className="text-zinc-400 hover:text-zinc-800 p-0.5 cursor-pointer"
+                                      title="Copiar referencia"
+                                    >
+                                      {copiedRef === (ord.folio || ord.id) ? (
+                                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                      ) : (
+                                        <Copy className="w-3.5 h-3.5" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+
+                              {/* Estatus Dropdown */}
+                              <td className="py-4">
+                                <div className="relative w-fit">
+                                  <select
+                                    value={ord.status}
+                                    disabled={isUpdating}
+                                    onChange={(e) =>
+                                      handleUpdateOrderStatus(
+                                        ord.id,
+                                        ord.folio,
+                                        e.target.value,
+                                        ord.customer_email
+                                      )
+                                    }
+                                    className={`bg-white border rounded-xl px-2.5 py-1 text-[11px] font-mono font-bold focus:outline-none shadow-xs cursor-pointer ${
+                                      ord.status === 'ACTIVO'
+                                        ? 'border-emerald-300 text-emerald-700 bg-emerald-50/50'
+                                        : ord.status === 'PENDIENTE'
+                                        ? 'border-amber-300 text-amber-700 bg-amber-50/50'
+                                        : 'border-red-300 text-red-700 bg-red-50/50'
+                                    }`}
+                                  >
+                                    <option value="ACTIVO">● ACTIVO</option>
+                                    <option value="PENDIENTE">⏳ PENDIENTE</option>
+                                    <option value="SUSPENDIDO">✕ SUSPENDIDO</option>
+                                    <option value="REEMBOLSADO">↩ REEMBOLSADO</option>
+                                  </select>
+                                </div>
+                              </td>
+
+                              {/* Acciones */}
+                              <td className="py-4 text-right">
+                                <Link
+                                  href={`/academy/campus?email=${encodeURIComponent(ord.customer_email)}`}
+                                  target="_blank"
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs"
+                                >
+                                  <ExternalLink className="w-3 h-3 text-[#971B8D]" />
+                                  <span>Campus</span>
+                                </Link>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
                 </div>
 
               </div>

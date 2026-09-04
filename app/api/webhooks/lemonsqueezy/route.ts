@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/client";
-import { sendAcademyWelcomeEmail } from "@/lib/resend/client";
+import { sendAcademyWelcomeEmail, sendAdminSaleNotificationEmail } from "@/lib/resend/client";
 
 export const dynamic = "force-dynamic";
 
@@ -21,19 +21,46 @@ export async function POST(req: NextRequest) {
       const customerName = attributes.user_name || "Alumno";
       const courseTitle = attributes.first_order_item?.product_name || "Programa Oficial Academy";
       const courseId = attributes.first_order_item?.product_id?.toString() || "masterclass-ia-restaurantes";
+      const totalUsd = attributes.total_formatted || attributes.total_usd || "$97 USD";
       const phone = customData.phone || "";
+      const orderIdentifier = attributes.identifier || `LS-${event.data?.id || Date.now().toString().slice(-6)}`;
+      const nowIso = new Date().toISOString();
 
       if (customerEmail) {
-        // 1. Guardar en Supabase
+        const db = getSupabaseAdmin();
+
+        // 1. Guardar en academy_orders
         try {
-          const db = getSupabaseAdmin();
+          await db.from("academy_orders").insert([
+            {
+              id: orderIdentifier,
+              folio: orderIdentifier,
+              customer_name: customerName,
+              customer_email: customerEmail,
+              customer_phone: phone || null,
+              course_id: courseId,
+              course_title: courseTitle,
+              amount: totalUsd,
+              currency: "USD",
+              payment_method: "lemon_squeezy",
+              reference_number: orderIdentifier,
+              status: "ACTIVO",
+              created_at: nowIso,
+            },
+          ]);
+        } catch (ordErr) {
+          console.warn("[Lemon Squeezy Orders Insert Warning]", ordErr);
+        }
+
+        // 2. Guardar / Activar matrícula en academy_enrollments
+        try {
           await db.from("academy_enrollments").upsert({
             email: customerEmail,
             full_name: customerName,
             phone: phone || null,
             course_id: courseId,
             status: "active",
-            created_at: new Date().toISOString(),
+            created_at: nowIso,
           });
 
           // Actualizar lead status si existía en leads
@@ -45,14 +72,36 @@ export async function POST(req: NextRequest) {
           console.warn("[Lemon Squeezy Supabase Enroll Warning]", dbErr);
         }
 
-        // 2. Enviar correo de bienvenida por Resend
-        await sendAcademyWelcomeEmail({
-          to: customerEmail,
-          fullName: customerName,
-          courseTitle: courseTitle,
-          campusUrl: "https://inteligencianeuronal.com/academy/campus",
-          whatsappVipUrl: "https://wa.me/584148817137?text=" + encodeURIComponent(`Hola Julio, acabo de pagar en Lemon Squeezy el curso ${courseTitle}.`),
-        });
+        // 3. Enviar correo de bienvenida al alumno con acceso directo al Campus
+        try {
+          await sendAcademyWelcomeEmail({
+            to: customerEmail,
+            fullName: customerName,
+            courseTitle: courseTitle,
+            campusUrl: "https://inteligencianeuronal.com/academy/campus",
+            whatsappVipUrl: "https://wa.me/584148817137?text=" + encodeURIComponent(`Hola Julio, acabo de pagar en Lemon Squeezy el curso ${courseTitle}.`),
+          });
+        } catch (emailErr) {
+          console.warn("[Lemon Squeezy Welcome Email Warning]", emailErr);
+        }
+
+        // 4. Enviar notificación inmediata de venta al administrador
+        try {
+          await sendAdminSaleNotificationEmail({
+            folio: orderIdentifier,
+            customerName: customerName,
+            customerEmail: customerEmail,
+            customerPhone: phone || "No especificado",
+            courseTitle: courseTitle,
+            amount: totalUsd,
+            paymentMethod: "Lemon Squeezy (Tarjeta / USD)",
+            referenceNumber: orderIdentifier,
+            date: new Date().toLocaleString("es-ES", { timeZone: "America/Caracas" }),
+            status: "ACTIVO",
+          });
+        } catch (adminErr) {
+          console.warn("[Lemon Squeezy Admin Sale Alert Warning]", adminErr);
+        }
       }
     }
 
@@ -65,3 +114,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

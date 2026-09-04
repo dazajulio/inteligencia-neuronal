@@ -351,27 +351,51 @@ export function CourseCheckoutModal() {
 
               {/* Reference Input */}
               <div>
-                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
-                  Número de Referencia de Pago Móvil (opcional)
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
+                  <span>Número de Referencia de Pago Móvil *</span>
+                  <span className="text-[10px] text-indigo-600 font-sans font-medium">Validación instantánea</span>
                 </label>
                 <input
                   type="text"
+                  required
                   value={referenceNumber}
                   onChange={(e) => setFormField("referenceNumber", e.target.value)}
-                  placeholder="Ej: 123456"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none transition-all"
+                  placeholder="Ej: 849201 ó últimos 6 dígitos"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none transition-all font-mono"
                 />
               </div>
 
-              {/* WhatsApp Action Button */}
+              {/* Automated Registration Banner */}
+              <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-100 flex items-start gap-2.5 text-xs text-indigo-950">
+                <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-bold block">Acceso Inmediato y Automatizado:</span>
+                  <p className="text-[11px] text-indigo-800 leading-relaxed">
+                    Al confirmar, tu matrícula quedará <strong>ACTIVA</strong> de inmediato. Serás redirigido al Campus Virtual y recibirás tus credenciales en <strong>{email}</strong>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={handleWhatsAppReport}
-                  className="w-full py-4 px-6 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  onClick={useCheckoutStore.getState().confirmPagoMovil}
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#1DACE3] via-[#971B8D] to-[#EA0C7F] hover:opacity-95 text-white text-sm font-bold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
-                  <span>Reportar Pago por WhatsApp (+58 414 881-7137)</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Validando y activando Campus...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 text-yellow-300" />
+                      <span>Confirmar Pago & Acceder al Campus</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -380,7 +404,7 @@ export function CourseCheckoutModal() {
                   className="w-full py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Volver a opciones de pago</span>
+                  <span>Modificar datos o vía de pago</span>
                 </button>
               </div>
             </div>

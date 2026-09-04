@@ -33,6 +33,7 @@ interface CheckoutStoreState {
   setPaymentMethod: (method: "lemon" | "pagomovil") => void;
   setFormField: (field: "fullName" | "email" | "phone" | "referenceNumber", value: string) => void;
   submitRegistration: () => Promise<boolean>;
+  confirmPagoMovil: () => Promise<boolean>;
   reset: () => void;
 }
 
@@ -126,7 +127,6 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       const data = await res.json();
 
       if (!res.ok || data.success === false) {
-        // En caso de que no sea fatal, continuamos con la experiencia de pago
         console.warn("[Lead capture warning]", data);
       }
 
@@ -147,7 +147,7 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
         window.location.href = prefilledUrl;
         return true;
       } else {
-        // Pago Móvil: Pasar a la pantalla de instrucciones con QR y WhatsApp
+        // Pago Móvil: Pasar a la pantalla de coordenadas con confirmación directa
         set({ step: "pagomovil_instructions" });
         return true;
       }
@@ -160,4 +160,66 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       return false;
     }
   },
+
+  confirmPagoMovil: async () => {
+    const { fullName, email, phone, referenceNumber, selectedCourse } = get();
+
+    if (!fullName.trim() || !email.includes("@")) {
+      set({ errorMessage: "Faltan datos de contacto del alumno." });
+      return false;
+    }
+
+    set({ isSubmitting: true, errorMessage: null });
+
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanName = fullName.trim();
+      const cleanRef = referenceNumber.trim() || `PM-${Math.floor(100000 + Math.random() * 900000)}`;
+
+      // 1. Registrar venta y matrícula automática en /api/orders
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: cleanName,
+          customerEmail: cleanEmail,
+          customerPhone: phone.trim(),
+          courseId: selectedCourse?.id || "masterclass-ia-restaurantes",
+          courseTitle: selectedCourse?.title || "Programa Oficial Academy",
+          amount: selectedCourse?.price || "$97 USD",
+          currency: "USD",
+          paymentMethod: "pagomovil",
+          referenceNumber: cleanRef,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Error al procesar la orden");
+      }
+
+      // 2. Establecer sesión del alumno en localStorage para acceso inmediato
+      if (typeof window !== "undefined") {
+        localStorage.setItem("in_student_email", cleanEmail);
+        localStorage.setItem("in_student_name", cleanName);
+        localStorage.setItem("in_enrolled_course", selectedCourse?.id || "masterclass-ia-restaurantes");
+      }
+
+      set({ isSubmitting: false, isCheckoutOpen: false });
+
+      // 3. Redirección instantánea al Campus Virtual
+      const campusRedirect = data.redirectUrl || `/academy/campus?email=${encodeURIComponent(cleanEmail)}`;
+      window.location.href = campusRedirect;
+      return true;
+    } catch (err: any) {
+      console.error("[Confirm Pago Movil Error]", err);
+      set({
+        isSubmitting: false,
+        errorMessage: err.message || "Error al confirmar el registro de Pago Móvil.",
+      });
+      return false;
+    }
+  },
 }));
+
