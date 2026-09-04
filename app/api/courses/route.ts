@@ -6,32 +6,31 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const db = getSupabaseAdmin();
-    const { data: courses, error } = await db
+    
+    // 1. Intentar consulta completa con course_modules(*)
+    let courses: any[] | null = null;
+    const res = await db
       .from("courses")
-      .select(`
-        *,
-        course_modules (
-          id,
-          week_label,
-          title,
-          description,
-          order_index,
-          video_url,
-          summary,
-          content_text,
-          prompts,
-          downloads,
-          quiz_data
-        )
-      `)
+      .select("*, course_modules(*)")
       .order("order_index", { ascending: true });
 
-    if (error) {
-      console.error("[GET /api/courses Supabase Error]", error);
-      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    if (res.error) {
+      console.warn("[GET /api/courses Relation Warning, trying flat select]", res.error.message);
+      const fallbackRes = await db
+        .from("courses")
+        .select("*")
+        .order("order_index", { ascending: true });
+      
+      if (fallbackRes.error) {
+        console.error("[GET /api/courses Error]", fallbackRes.error);
+        return NextResponse.json({ success: false, message: fallbackRes.error.message }, { status: 500 });
+      }
+      courses = fallbackRes.data || [];
+    } else {
+      courses = res.data || [];
     }
 
-    const formatted = (courses || []).map((c) => {
+    const formatted = courses.map((c) => {
       const toolsObj = typeof c.tools === "object" && !Array.isArray(c.tools) && c.tools !== null ? c.tools : {};
       const toolsArray = Array.isArray(c.tools) ? c.tools : (toolsObj.stack || []);
 
@@ -58,7 +57,7 @@ export async function GET() {
         resources_count: toolsObj.resources_count || 25,
         last_updated: toolsObj.last_updated || "8/2026",
         language: toolsObj.language || "Español",
-        modules: (c.course_modules || []).sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)),
+        modules: Array.isArray(c.course_modules) ? [...c.course_modules].sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)) : [],
       };
     });
 
@@ -214,7 +213,7 @@ export async function PUT(req: NextRequest) {
     if (body.modules && Array.isArray(body.modules)) {
       await db.from("course_modules").delete().or(`course_id.eq.${id},course_id.eq.${cleanId}`);
       
-      const moduleInserts = body.modules.map((m: any, idx: number) => ({
+      const richModuleInserts = body.modules.map((m: any, idx: number) => ({
         course_id: cleanId,
         week_label: m.week_label || m.week || `0${idx + 1}`,
         title: m.title || `Módulo ${idx + 1}`,
@@ -228,7 +227,18 @@ export async function PUT(req: NextRequest) {
         order_index: idx + 1,
       }));
 
-      await db.from("course_modules").insert(moduleInserts);
+      const { error: richErr } = await db.from("course_modules").insert(richModuleInserts);
+      if (richErr) {
+        console.warn("[PUT /api/courses] Rich module insert failed, falling back to core schema:", richErr.message);
+        const coreModuleInserts = body.modules.map((m: any, idx: number) => ({
+          course_id: cleanId,
+          week_label: m.week_label || m.week || `0${idx + 1}`,
+          title: m.title || `Módulo ${idx + 1}`,
+          description: m.description || m.desc || "",
+          order_index: idx + 1,
+        }));
+        await db.from("course_modules").insert(coreModuleInserts);
+      }
     }
 
     return NextResponse.json({ success: true, course: updatedCourse?.[0] });

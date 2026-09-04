@@ -209,7 +209,7 @@ export default function AdminDashboard() {
       .catch((e) => console.warn('API leads fetch fallback', e));
 
     // 2. Cursos
-    fetch('/api/courses')
+    fetch('/api/courses', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.courses && Array.isArray(data.courses)) {
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
       .catch((e) => console.warn('API courses fetch fallback', e));
 
     // 3. Recursos
-    fetch('/api/resources')
+    fetch('/api/resources', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.resources && Array.isArray(data.resources)) {

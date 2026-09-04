@@ -515,7 +515,7 @@ export default function AcademyPage() {
 
   // Sincronización en vivo con la Base de Datos Supabase
   useEffect(() => {
-    fetch("/api/courses")
+    fetch("/api/courses", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.courses && Array.isArray(data.courses) && data.courses.length > 0) {
@@ -582,7 +582,7 @@ export default function AcademyPage() {
       })
       .catch((err) => console.warn("[Courses DB Sync Fallback]", err));
 
-    fetch("/api/resources")
+    fetch("/api/resources", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.resources && Array.isArray(data.resources) && data.resources.length > 0) {
