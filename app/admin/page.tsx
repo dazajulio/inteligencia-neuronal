@@ -164,6 +164,9 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits'>('overview');
   const [syncingN8n, setSyncingN8n] = useState(false);
+  const [syncingCourses, setSyncingCourses] = useState(false);
+  const [syncingResources, setSyncingResources] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<'today' | '7d' | '30d' | 'all'>('30d');
   
   // Search Filters
@@ -314,24 +317,58 @@ export default function AdminDashboard() {
     {
       id: 'bootcamp-n8n',
       title: 'Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA',
-      badge: 'PROGRAMA TÉCNICO // EN VIVO',
+      badge: 'Lo más vendido',
       level: 'Intermedio a Avanzado',
       price: '$197 USD',
+      originalPrice: '$390 USD',
+      discount: '50% OFF',
+      rating: 4.9,
+      reviewsCount: 140,
       duration: '6 Semanas Intensivas',
-      tagline: 'Despliegue de infraestructura soberana sobre VPS dedicado, webhooks reversos y orquestación de agentes con PostgreSQL.',
+      tagline: 'Aprende a desplegar infraestructura empresarial de automatización sobre servidores VPS dedicados, orquestando agentes autónomos, PostgreSQL y WhatsApp Cloud API.',
+      description: 'Aprende a desplegar infraestructura empresarial de automatización sobre servidores VPS dedicados, orquestando agentes autónomos, PostgreSQL y WhatsApp Cloud API.',
       previewImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+      stripeColor: 'from-[#1DACE3] via-[#0284c7] to-[#4f46e5]',
       tools: ['n8n Self-Hosted', 'Docker & Caddy', 'PostgreSQL', 'Meta Cloud API', 'LangChain / LLMs'],
       modulesCount: 6,
       studentsEnrolled: 0,
       ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
       status: 'ACTIVO',
+      instructorName: 'Julio Daza',
+      instructorRole: 'Arquitecto de Sistemas & Fundador',
+      instructorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      hoursVideo: '24 horas de laboratorio y sesiones',
+      articlesCount: 24,
+      resourcesCount: 30,
+      lastUpdated: '8/2026',
+      language: 'Español',
+      outcomes: [
+        'Instalar y asegurar n8n en servidores VPS con Docker, certificados SSL y copias de seguridad automáticas.',
+        'Conectar y validar Webhooks de Meta (WhatsApp, Instagram) con manejo de colas y sin caídas.',
+        'Modelar bases de datos relacionales en PostgreSQL con aislamiento multi-inquilino (Row-Level Security).',
+        'Construir agentes autónomos con memoria persistente y llamadas a funciones (Tool Calling) en producción.',
+      ],
+      includes: [
+        '6 Semanas en vivo + grabaciones en HD',
+        '24 Sesiones técnicas y laboratorios',
+        'Acceso de por vida a plantillas y flujos',
+        'Certificado oficial de finalización con código QR',
+      ],
+      requirements: [
+        'Conocimientos básicos de computación y terminal.',
+        'Cuenta en un proveedor VPS (Hetzner, DigitalOcean o similar).',
+      ],
+      audience: [
+        'Desarrolladores y consultores de automatización.',
+        'Arquitectos de software y líderes técnicos.',
+      ],
       modules: [
         {
           week_label: '01',
-          title: 'Módulo 01: Despliegue VPS con Docker & Caddy SSL',
-          description: 'Aprovisionamiento Linux VPS, Docker Compose, volúmenes y certificados automáticos HTTPS.',
+          title: 'Módulo 01: Despliegue VPS con Docker, n8n & Caddy SSL',
+          description: 'Arquitectura de infraestructura soberana, configuración de variables de entorno y optimización de concurrencia.',
           video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          summary: 'Configuración de servidor Linux en Hetzner/DigitalOcean, firewall UFW y Caddy Reverse Proxy.',
+          summary: 'Aprovisionamiento de servidor Linux VPS, Docker Compose y persistencia de volúmenes, proxy inverso con Caddy y HTTPS automático.',
           content_text: '### Laboratorio 01: Hardening de VPS y Docker Compose\n\n1. Instalar paquetes esenciales: `sudo apt update && sudo apt install docker.io docker-compose -y`\n2. Configurar el archivo Caddyfile con tu dominio de producción.\n3. Desplegar n8n con persistencia en volumen host.',
           prompts: ['Genera un script bash de aprovisionamiento seguro para Ubuntu 24.04 con Docker, Caddy y puertos 80/443 abiertos.'],
           downloads: [
@@ -352,25 +389,15 @@ export default function AdminDashboard() {
                 correctIndex: 0,
                 explanation: 'Los contenedores Docker son efímeros por defecto; el volumen garantiza que los flujos y credenciales se conserven.',
               },
-              {
-                question: '¿Qué ventaja ofrece Caddy frente a Nginx en este despliegue?',
-                options: [
-                  'Genera y renueva certificados SSL Let\'s Encrypt automáticamente.',
-                  'Es un lenguaje de programación compilado.',
-                  'No requiere abrir el puerto 443.',
-                ],
-                correctIndex: 0,
-                explanation: 'Caddy incluye gestión automática de certificados HTTPS por defecto con solo declarar el dominio.',
-              },
             ],
           },
         },
         {
           week_label: '02',
           title: 'Módulo 02: Meta Cloud API & Webhooks Reversos',
-          description: 'Recepción y validación de eventos transaccionales de WhatsApp.',
+          description: 'Ingeniería de conexión oficial con WhatsApp Cloud API y recepción de eventos transaccionales.',
           video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          summary: 'Configuración del nodo Webhook en n8n para responder al token de verificación GET y procesar eventos entrantes POST.',
+          summary: 'Handshake de verificación de webhooks, manejo de estados de mensajes, envío de plantillas interactivas y botones.',
           content_text: '### Laboratorio 02: Handshake con Meta Developers\n\nConfigura el nodo Code en n8n para responder con hub.challenge a las peticiones GET de Meta.',
           prompts: ['Construye un nodo Code en JavaScript que extraiga hub.challenge de los query parameters de Meta.'],
           downloads: [{ name: 'Meta_Webhook_Handshake_Node.json', type: 'n8n Sub-Flow', url: '#' }],
@@ -387,29 +414,103 @@ export default function AdminDashboard() {
             ],
           },
         },
+        {
+          week_label: '03',
+          title: 'Módulo 03: Bases de Datos Relacionales & Row-Level Security',
+          description: 'Persistencia de leads, pedidos y catálogos en PostgreSQL y Supabase con políticas RLS.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Modelado relacional para operaciones, consultas SQL optimizadas en nodos n8n, aislamiento de datos multi-tenant.',
+          content_text: '### Laboratorio 03: Políticas RLS en Supabase y Consultas n8n',
+          prompts: ['Diseña una tabla de pedidos con políticas RLS por organización.'],
+          downloads: [{ name: 'schema_restaurante_rls.sql', type: 'SQL Schema', url: '#' }],
+        },
+        {
+          week_label: '04',
+          title: 'Módulo 04: Orquestación de Agentes Autónomos LLM',
+          description: 'Integración de modelos Gemini y Claude como cerebros decisorios conectados a bases de datos.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Configuración de nodos AI Agent en n8n, estructuración de herramientas (Tools & Functions), mitigación de alucinaciones y guardrails.',
+          content_text: '### Laboratorio 04: Agente con Tool Calling en n8n',
+          prompts: ['Define el esquema JSON Schema para que el agente consulte disponibilidad de mesas.'],
+          downloads: [{ name: 'agent_tool_definition.json', type: 'JSON', url: '#' }],
+        },
+        {
+          week_label: '05',
+          title: 'Módulo 05: Monitoreo, Telemetría & Alertas 24/7',
+          description: 'Construcción de bots supervisores en Telegram para detección de fallos y cuellos de botella.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Manejo de errores por sub-flujos, telemetría de tiempo de ejecución y memoria, protocolos de contingencia en vivo.',
+          content_text: '### Laboratorio 05: Bot de Alertas Críticas',
+          prompts: ['Crea un subflujo de captura de errores que envíe trazas formateadas a un canal privado de Telegram.'],
+          downloads: [{ name: 'telegram_alert_subflow.json', type: 'n8n Flow', url: '#' }],
+        },
+        {
+          week_label: '06',
+          title: 'Módulo 06: Proyecto Final, Auditoría y Certificación',
+          description: 'Defensa técnica de un pipeline completo en producción y emisión del diploma con ID único.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Revisión de arquitectura uno a uno, pruebas de estrés y carga, entrega de credencial verificable.',
+          content_text: '### Proyecto Final de Graduación y Emisión de Credencial',
+          prompts: ['Genera una lista de verificación pre-despliegue para sistemas agénticos en producción.'],
+          downloads: [{ name: 'checklist_auditoria_produccion.pdf', type: 'PDF', url: '#' }],
+        },
       ],
     },
     {
       id: 'ia-restaurantes',
       title: 'Masterclass: Automatización Agéntica con IA para Restaurantes',
-      badge: 'ALTA DEMANDA // ACCESO INMEDIATO',
+      badge: 'Lo más vendido',
       level: 'Operativo & Estratégico',
       price: '$97 USD',
+      originalPrice: '$197 USD',
+      discount: '50% OFF',
+      rating: 4.8,
+      reviewsCount: 112,
       duration: '4 Módulos Grabados',
       tagline: 'Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos y calculan escandallos sin alucinaciones.',
+      description: 'Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos y calculan escandallos sin alucinaciones.',
       previewImage: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
+      stripeColor: 'from-[#EA0C7F] via-[#971B8D] to-[#6366f1]',
       tools: ['WhatsApp Cloud API', 'Gemini Pro', 'Airtable', 'Escandallos XLSX', 'KDS Prompts'],
       modulesCount: 4,
       studentsEnrolled: 0,
       ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
       status: 'ACTIVO',
+      instructorName: 'Julio Daza',
+      instructorRole: 'Consultor de Inteligencia Operativa',
+      instructorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      hoursVideo: '8 horas de contenido práctico',
+      articlesCount: 16,
+      resourcesCount: 12,
+      lastUpdated: '8/2026',
+      language: 'Español',
+      outcomes: [
+        'Parametrizar prompts con rigor físico y matemático para que la IA nunca invente precios ni recetas.',
+        'Configurar un asistente de WhatsApp 24/7 con catálogo dinámico de platos y horarios.',
+        'Integrar matrices de costos crudo/cocido en tiempo real sin requerir software caro.',
+        'Implementar un protocolo de contingencia y desvío a agentes humanos para casos críticos.',
+      ],
+      includes: [
+        '4 Módulos grabados en alta definición',
+        'Plantilla Excel de escandallos automatizada',
+        'Acceso directo a la comunidad privada',
+        'Certificado oficial con verificación digital',
+      ],
+      requirements: [
+        'Conexión a Internet y navegador web.',
+        'No se requieren conocimientos previos de programación.',
+      ],
+      audience: [
+        'Dueños de restaurantes, bares y dark kitchens.',
+        'Gerentes de operaciones y consultores gastronómicos.',
+      ],
       modules: [
         {
           week_label: '01',
-          title: 'Módulo 01: Fundamentos de Arquitectura & Diagnóstico de Fugas',
-          description: 'Control de costos, ingeniería de menú y calibración de recetas sin error.',
+          title: 'Módulo 01: Arquitectura de Prompts & Escandallos de Cocina',
+          description: 'Ingeniería de menú, control de factores de rendimiento y calibración de recetas sin margen de error.',
           video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          summary: 'Aprende a mapear la cadena de suministro de tu restaurante, identificar variaciones entre compras y consumo real.',
+          summary: 'Estructura de prompts sin alucinaciones, cálculo de mermas y macronutrientes, plantilla de costeo automatizada.',
           content_text: '### Guía 01: Auditoría de Food Cost y Fugas de Margen\n\n1. Mapear compras semanales vs comandas emitidas en el POS.\n2. Aplicar factor de merma por ingrediente limpio.\n3. Aislar platos con margen bruto menor al 68%.',
           prompts: ['Actúa como un Director de Operaciones Gastronómicas y analiza el siguiente listado de compras semanales...'],
           downloads: [
@@ -432,6 +533,208 @@ export default function AdminDashboard() {
               },
             ],
           },
+        },
+        {
+          week_label: '02',
+          title: 'Módulo 02: Agente de Ventas & Reservas por WhatsApp',
+          description: 'Configuración del flujo conversacional para atender comensales y procesar reservas en segundos.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Flujo de bienvenida y menú dinámico, captura de datos y confirmación automática, gestión de restricciones alimentarias.',
+          content_text: '### Guía 02: Configuración de Flujos de Reserva por WhatsApp',
+          prompts: ['Prompt de atención telefónica y WhatsApp para reservas de mesas con confirmación de comensales.'],
+          downloads: [{ name: 'flujo_reservas_whatsapp.json', type: 'Flujo', url: '#' }],
+        },
+        {
+          week_label: '03',
+          title: 'Módulo 03: Supervisión, Seguridad & Mitigación de Errores',
+          description: 'Reglas inquebrantables para impedir que el agente ofrezca descuentos no autorizados o datos falsos.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Guardrails de precios y políticas, filtros de sentimiento y derivación humana, auditoría de logs de conversación.',
+          content_text: '### Guía 03: Guardrails y Seguridad Conversacional',
+          prompts: ['Configura un validador que detecte intentos de inyección de prompt por parte del cliente.'],
+          downloads: [{ name: 'guardrails_template.json', type: 'Config', url: '#' }],
+        },
+        {
+          week_label: '04',
+          title: 'Módulo 04: Puesta en Marcha en Negocio Real & Métricas',
+          description: 'Estrategias de lanzamiento con clientes reales y medición del incremento en tasa de conversión.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Lanzamiento controlado en horario valle, medición de tiempos de respuesta, retorno de inversión del agente.',
+          content_text: '### Guía 04: Métricas de Conversión y Retorno de Inversión',
+          prompts: ['Calcula el retorno de inversión del agente comparando horas hombre ahorradas vs coste de API.'],
+          downloads: [{ name: 'calculadora_roi_ia.xlsx', type: 'Excel', url: '#' }],
+        },
+      ],
+    },
+    {
+      id: 'crecimiento-aeo',
+      title: 'Dominio Local: SEO, AEO & Visibilidad en Motores de IA',
+      badge: 'Lo más vendido',
+      level: 'Marketing & Adquisición',
+      price: '$67 USD',
+      originalPrice: '$134 USD',
+      discount: '50% OFF',
+      rating: 4.9,
+      reviewsCount: 88,
+      duration: '3 Módulos Prácticos',
+      tagline: 'Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.',
+      description: 'Posiciona tu marca en Google Maps y sé la primera recomendación que ChatGPT, Gemini y Perplexity sugieren a clientes potenciales.',
+      previewImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+      stripeColor: 'from-[#FEAD2B] via-[#ea580c] to-[#e11d48]',
+      tools: ['Google Business Profile', 'Microdatos JSON-LD', 'ChatGPT Search', 'Schema.org', 'Perplexity API'],
+      modulesCount: 3,
+      studentsEnrolled: 0,
+      ctaUrl: 'https://buy.stripe.com/test_crecimiento_aeo',
+      status: 'ACTIVO',
+      instructorName: 'Julio Daza',
+      instructorRole: 'Especialista en AEO & Crecimiento',
+      instructorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      hoursVideo: '6 horas de video paso a paso',
+      articlesCount: 12,
+      resourcesCount: 10,
+      lastUpdated: '8/2026',
+      language: 'Español',
+      outcomes: [
+        'Optimizar tu ficha de Google Maps para aparecer en el Top 3 local.',
+        'Implementar esquemas JSON-LD semánticos para citación en IA generativa.',
+        'Generar reseñas orgánicas automatizadas mediante WhatsApp.',
+        'Monitorear la cuota de visibilidad frente a competidores directos.',
+      ],
+      includes: [
+        '3 Módulos prácticos intensivos',
+        'Plantillas de esquemas JSON-LD listos para usar',
+        'Guía de optimización de perfil de negocio',
+        'Certificado de finalización oficial',
+      ],
+      requirements: [
+        'Acceso a la cuenta de Google de tu negocio.',
+        'Conocimientos básicos de administración web.',
+      ],
+      audience: [
+        'Emprendedores, negocios locales y franquicias.',
+        'Especialistas en marketing digital y SEO.',
+      ],
+      modules: [
+        {
+          week_label: '01',
+          title: 'Módulo 01: Optimización de Perfil de Negocio en Google',
+          description: 'Factores de posicionamiento local, categorías estratégicas y gestión de señales de confianza.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Configuración precisa de categorías, geolocalización de fotos y menú, estrategia de palabras clave locales.',
+          content_text: '### Módulo 01: Checklist de Optimización Google Maps',
+          prompts: ['Genera una lista de palabras clave semánticas locales para posicionar un restaurante en Madrid.'],
+          downloads: [{ name: 'checklist_google_maps_top3.pdf', type: 'PDF', url: '#' }],
+        },
+        {
+          week_label: '02',
+          title: 'Módulo 02: Arquitectura de Datos para Motores de Respuesta (AEO)',
+          description: 'Estructuración de microdatos JSON-LD para que los modelos LLM entiendan tu catálogo y oferta.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Creación de esquemas Restaurant & LocalBusiness, validación en Google Rich Results, optimización semántica de FAQs.',
+          content_text: '### Módulo 02: Microdatos JSON-LD para Citación IA',
+          prompts: ['Crea un esquema JSON-LD Schema.org completo de tipo Restaurant con menú y horarios.'],
+          downloads: [{ name: 'schema_restaurant_aeo.json', type: 'JSON', url: '#' }],
+        },
+        {
+          week_label: '03',
+          title: 'Módulo 03: Automatización de Reseñas y Reputación 5 Estrellas',
+          description: 'Funnels de fidelización que incentivan opiniones verificadas de clientes reales.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Flujos de feedback post-consumo, plantillas de respuesta rápida con IA, auditoría de sentimiento de marca.',
+          content_text: '### Módulo 03: Funnel de Captación de Reseñas 5 Estrellas',
+          prompts: ['Genera respuestas profesionales y empáticas a reseñas positivas y críticas constructivas.'],
+          downloads: [{ name: 'plantillas_respuestas_resenas.pdf', type: 'PDF', url: '#' }],
+        },
+      ],
+    },
+    {
+      id: 'claude-code',
+      title: 'Curso Completo de Claude Code: Crea Aplicaciones con IA',
+      badge: 'Lo más vendido',
+      level: 'Desarrollo & Automatización',
+      price: '$97 USD',
+      originalPrice: '$197 USD',
+      discount: '50% OFF',
+      rating: 4.9,
+      reviewsCount: 96,
+      duration: '12 Secciones • 15h 7m',
+      tagline: 'Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autónoma.',
+      description: 'Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autónoma.',
+      previewImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+      stripeColor: 'from-[#EA0C7F] via-[#971B8D] to-[#1DACE3]',
+      tools: ['Claude Code CLI', 'Claude 3.7 Sonnet', 'Node.js', 'Git & GitHub', 'Docker'],
+      modulesCount: 4,
+      studentsEnrolled: 0,
+      ctaUrl: 'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
+      status: 'ACTIVO',
+      instructorName: 'Julio Daza',
+      instructorRole: 'Arquitecto de Sistemas & Fundador',
+      instructorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      hoursVideo: '15 horas 7 minutos',
+      articlesCount: 35,
+      resourcesCount: 40,
+      lastUpdated: '8/2026',
+      language: 'Español',
+      outcomes: [
+        'Configurar y dominar la terminal con Claude Code para programar y refactorizar en segundos.',
+        'Diseñar flujos de trabajo autónomos donde la IA inspecciona código y ejecuta tests de forma segura.',
+        'Crear scripts y herramientas personalizadas con APIs agénticas.',
+        'Integrar el stack agéntico en tus flujos de trabajo diarios para multiplicar tu productividad x10.',
+      ],
+      includes: [
+        '15 horas de video bajo demanda',
+        '112 Clases prácticas y laboratorios',
+        'Configuraciones avanzadas de MCP y Hooks',
+        'Certificado oficial de finalización con código QR',
+      ],
+      requirements: [
+        'Conocimientos básicos de desarrollo web o scripting.',
+        'Computadora con Node.js y Git instalados.',
+      ],
+      audience: [
+        'Desarrolladores, programadores e ingenieros de software.',
+        'Fundadores técnicos y creadores de producto.',
+      ],
+      modules: [
+        {
+          week_label: '01',
+          title: 'Módulo 01: Configuración de Entorno & Claude CLI',
+          description: 'Instalación, claves de API, configuración de permisos y seguridad de ejecución.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Arquitectura de Claude Code, tokens y presupuestos de costo, primeros comandos y diagnósticos.',
+          content_text: '### Módulo 01: Configuración de Claude Code CLI\n\n1. Instalación global: `npm install -g @anthropic-ai/claude-code`\n2. Configuración de API Key de Anthropic.\n3. Configuración de permisos de archivos y terminal.',
+          prompts: ['Configura una regla de arquitectura para que Claude Code siga las directrices del proyecto.'],
+          downloads: [{ name: 'claude_project_config.json', type: 'JSON', url: '#' }],
+        },
+        {
+          week_label: '02',
+          title: 'Módulo 02: Ingeniería de Prompts en Terminal & Multi-Turn',
+          description: 'Dirección precisa de agentes para tareas de programación complejas.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Contextos de código amplios, refactorización dirigida, generación de pruebas automáticas.',
+          content_text: '### Módulo 02: Refactorización y Pruebas Unitarias con Agentes',
+          prompts: ['Instruye al agente para inspeccionar el módulo de autenticación y añadir pruebas de integración.'],
+          downloads: [{ name: 'prompt_templates_claude.md', type: 'Markdown', url: '#' }],
+        },
+        {
+          week_label: '03',
+          title: 'Módulo 03: Integración con Git, CI/CD y APIs Externas',
+          description: 'Agentes que revisan pull requests y despliegan a producción.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Automatización de commits y changelogs, pipelines de verificación, herramientas de inspección.',
+          content_text: '### Módulo 03: Flujo de Trabajo con Git y GitHub Actions',
+          prompts: ['Crea un workflow de GitHub Actions que invoque un agente para revisar la calidad del código en cada PR.'],
+          downloads: [{ name: 'ci_cd_agent_workflow.yml', type: 'YAML', url: '#' }],
+        },
+        {
+          week_label: '04',
+          title: 'Módulo 04: Proyecto Práctico: Agente Fullstack Desplegado',
+          description: 'Construcción completa de una aplicación interactiva guiada por IA.',
+          video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          summary: 'Diseño de arquitectura, desarrollo iterativo acelerado, entrega y certificación final.',
+          content_text: '### Módulo 04: Despliegue de Aplicación Completa Fullstack',
+          prompts: ['Diseña un plan de implementación completo para una API con autenticación y base de datos relacional.'],
+          downloads: [{ name: 'starter_fullstack_kit.zip', type: 'ZIP', url: '#' }],
         },
       ],
     },
@@ -708,7 +1011,56 @@ export default function AdminDashboard() {
   };
 
   // ── 3. GESTOR DE RECURSOS STATE & CRUD ──
-  const [resourcesList, setResourcesList] = useState<ResourceItem[]>([]);
+  const [resourcesList, setResourcesList] = useState<ResourceItem[]>([
+    {
+      id: 'escandallos',
+      name: 'Matriz Maestra de Escandallos & Costos Gastronómicos',
+      format: 'Plantilla Excel Parametrizada',
+      access: 'GRATUITO (LEAD)',
+      price: 'GRATIS',
+      downloads: 0,
+      tag: 'XLSX PARAMETRIZADO',
+      fileUrl: '/downloads/matriz-escandallos-foodcost.xlsx',
+      previewImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
+      description: 'Plantilla en Excel totalmente formulada para costeo crudo/cocido, factor de rendimiento y mermas técnicas de cocina industrial.',
+    },
+    {
+      id: 'sops',
+      name: 'Framework de Manuales Operativos (SOPs) y Checklists',
+      format: 'Plantilla Notion Duplicable',
+      access: 'GRATUITO (LEAD)',
+      price: 'GRATIS',
+      downloads: 0,
+      tag: 'WORKSPACE NOTION',
+      fileUrl: 'https://notion.so/template-sops-inteligencia-neuronal',
+      previewImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80',
+      description: 'Estructura modular para estandarizar procesos de cocina, compras y apertura/cierre antes de integrar automatizaciones agénticas.',
+    },
+    {
+      id: 'haccp',
+      name: 'Checklist de Auditoría de Puntos Críticos HACCP',
+      format: 'Guía de Auditoría PDF',
+      access: 'GRATUITO (LEAD)',
+      price: 'GRATIS',
+      downloads: 0,
+      tag: 'PDF INTERACTIVO',
+      fileUrl: '/downloads/checklist-haccp-restaurantes.pdf',
+      previewImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80',
+      description: 'Plantilla de control de temperaturas, rotación de inventarios y protocolos de inocuidad según estándares internacionales.',
+    },
+    {
+      id: 'aeo-rag',
+      name: 'Guía de Indexación para Motores de Respuesta IA (AEO & RAG)',
+      format: 'Manual de Arquitectura AEO',
+      access: 'PREMIUM (PAGO)',
+      price: '$27 USD',
+      downloads: 0,
+      tag: 'GUÍA TÉCNICA',
+      fileUrl: '/downloads/aeo-rag-architecture-2026.pdf',
+      previewImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
+      description: 'Arquitectura técnica para estructurar microdatos JSON-LD y Schema.org para que ChatGPT, Gemini y Perplexity indexen tu negocio.',
+    },
+  ]);
 
   const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState<ResourceItem | null>(null);
@@ -848,6 +1200,46 @@ export default function AdminDashboard() {
     setTimeout(() => {
       setSyncingN8n(false);
     }, 700);
+  };
+
+  const handleSyncAllCoursesWithSupabase = async () => {
+    setSyncingCourses(true);
+    setSyncMessage(null);
+    try {
+      const res = await fetch('/api/courses/sync', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setSyncMessage('¡Catálogo de cursos (4 cursos con temarios completos) sincronizado exitosamente con Supabase!');
+        fetchAllData();
+      } else {
+        alert(`Error al sincronizar cursos: ${data.message}`);
+      }
+    } catch (err: any) {
+      alert(`Error de red al sincronizar cursos: ${err.message}`);
+    } finally {
+      setSyncingCourses(false);
+      setTimeout(() => setSyncMessage(null), 6000);
+    }
+  };
+
+  const handleSyncAllResourcesWithSupabase = async () => {
+    setSyncingResources(true);
+    setSyncMessage(null);
+    try {
+      const res = await fetch('/api/resources/sync', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setSyncMessage('¡Catálogo de 4 recursos operativos sincronizado exitosamente con Supabase!');
+        fetchAllData();
+      } else {
+        alert(`Error al sincronizar recursos: ${data.message}`);
+      }
+    } catch (err: any) {
+      alert(`Error de red al sincronizar recursos: ${err.message}`);
+    } finally {
+      setSyncingResources(false);
+      setTimeout(() => setSyncMessage(null), 6000);
+    }
   };
 
   // ── 6. CONFIGURACIÓN DE PASARELAS & PAGO MÓVIL STATE ──
@@ -1259,6 +1651,13 @@ export default function AdminDashboard() {
           {activeTab === 'courses' && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
               
+              {syncMessage && (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2.5 shadow-sm">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{syncMessage}</span>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
@@ -1266,11 +1665,21 @@ export default function AdminDashboard() {
                     <span>Gestor de Cursos & Campus Virtual</span>
                   </h2>
                   <p className="text-xs text-zinc-500 mt-0.5">
-                    Crea, edita, elimina y gestiona los programas formativos, precios y matrículas del Campus Virtual.
+                    Crea, edita, elimina y gestiona los 4 programas formativos, precios y matrículas del Campus Virtual.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handleSyncAllCoursesWithSupabase}
+                    disabled={syncingCourses}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#1DACE3]/40 bg-[#1DACE3]/10 hover:bg-[#1DACE3]/20 px-3.5 py-2.5 text-xs font-bold text-[#0284c7] transition-all shadow-sm shrink-0 cursor-pointer disabled:opacity-50"
+                    title="Sincronizar y sembrar los 4 cursos oficiales y sus módulos en Supabase"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${syncingCourses ? 'animate-spin' : ''}`} />
+                    <span>{syncingCourses ? 'Sincronizando...' : 'Sincronizar Catálogo con Supabase'}</span>
+                  </button>
+
                   <button
                     onClick={() => setIsEnrollModalOpen(true)}
                     className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-emerald-600/20 shrink-0 cursor-pointer"
@@ -1469,6 +1878,13 @@ export default function AdminDashboard() {
           {activeTab === 'resources' && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
               
+              {syncMessage && (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2.5 shadow-sm">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{syncMessage}</span>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
@@ -1479,12 +1895,25 @@ export default function AdminDashboard() {
                     Gestiona matrices, checklists y plantillas con soporte para adjuntar archivos reales y capturas previas.
                   </p>
                 </div>
-                <button
-                  onClick={handleOpenAddResource}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-4 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-[#971B8D]/30 shrink-0"
-                >
-                  <Plus className="w-4 h-4" /> Cargar Nuevo Activo
-                </button>
+                
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handleSyncAllResourcesWithSupabase}
+                    disabled={syncingResources}
+                    className="inline-flex items-center gap-2 rounded-xl border border-[#FEAD2B]/40 bg-[#FEAD2B]/10 hover:bg-[#FEAD2B]/20 px-3.5 py-2.5 text-xs font-bold text-[#ea580c] transition-all shadow-sm shrink-0 cursor-pointer disabled:opacity-50"
+                    title="Sincronizar y sembrar los 4 recursos operativos oficiales en Supabase"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${syncingResources ? 'animate-spin' : ''}`} />
+                    <span>{syncingResources ? 'Sincronizando...' : 'Sincronizar Recursos con Supabase'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleOpenAddResource}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#971B8D] hover:bg-[#801676] px-4 py-2.5 text-xs font-bold text-white transition-all shadow-md shadow-[#971B8D]/30 shrink-0"
+                  >
+                    <Plus className="w-4 h-4" /> Cargar Nuevo Activo
+                  </button>
+                </div>
               </div>
 
               <div className="p-6 rounded-2xl border border-zinc-200 bg-white shadow-sm space-y-6">

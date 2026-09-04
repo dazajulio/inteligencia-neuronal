@@ -1,4 +1,4 @@
-﻿-- ============================================================================
+-- ============================================================================
 -- INTELIGENCIA NEURONAL — ESQUEMA COMPLETO DE BASE DE DATOS SUPABASE
 -- Plataforma B2B de Inteligencia Operativa, Campus Virtual y Red Agentica
 -- ============================================================================
@@ -343,7 +343,7 @@ VALUES
     'Domina la presencia de tu restaurante en Google Maps y se la opcion prioritaria recomendada por motores de Inteligencia Artificial como ChatGPT y Gemini.',
     'Taller Practico Grabado',
     67.00,
-    ' USD',
+    '$67 USD',
     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
     'from-[#FEAD2B] via-[#ea580c] to-[#EA0C7F]',
     '["Google Business", "Schema.org", "Perplexity Engine", "JSON-LD"]'::jsonb,
@@ -351,6 +351,25 @@ VALUES
     'ACTIVO',
     19,
     3
+),
+(
+    'claude-code',
+    'claude-code',
+    'MAS POPULAR',
+    'Desarrollo & Automatizacion',
+    'Curso Completo de Claude Code: Crea Aplicaciones con IA',
+    'Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autonoma.',
+    'Domina Claude Code a nivel profesional y crea aplicaciones reales y seguras con Agentes de IA, MCP, Hooks, Skills y terminal autonoma.',
+    '12 Secciones • 15h 7m',
+    97.00,
+    '$97 USD',
+    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+    'from-[#EA0C7F] via-[#971B8D] to-[#1DACE3]',
+    '["Claude Code CLI", "Claude 3.7 Sonnet", "Node.js", "Git & GitHub", "Docker"]'::jsonb,
+    'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
+    'ACTIVO',
+    42,
+    4
 )
 ON CONFLICT (id) DO UPDATE SET
     title = EXCLUDED.title,
@@ -373,7 +392,12 @@ VALUES
 
     ('crecimiento-aeo', '01', 'Indexacion de Menus para Motores IA (AEO)', 'Estructuracion de microdatos para que los LLMs recomienden tus platos.', 1),
     ('crecimiento-aeo', '02', 'Autoridad Local & Google Business 360', 'Estrategias de posicionamiento en el mapa y reputacion sin pagar pauta.', 2),
-    ('crecimiento-aeo', '03', 'Embudos de Trafico Directo a WhatsApp', 'Conversion de busquedas organicas en pedidos sin pagar comisiones.', 3)
+    ('crecimiento-aeo', '03', 'Embudos de Trafico Directo a WhatsApp', 'Conversion de busquedas organicas en pedidos sin pagar comisiones.', 3),
+
+    ('claude-code', '01', 'Configuracion de Entorno & Claude CLI', 'Instalacion, claves de API, configuracion de permisos y seguridad.', 1),
+    ('claude-code', '02', 'Ingenieria de Prompts en Terminal & Multi-Turn', 'Direccion precisa de agentes para tareas de programacion complejas.', 2),
+    ('claude-code', '03', 'Integracion con Git, CI/CD y APIs Externas', 'Agentes que revisan pull requests y despliegan a produccion.', 3),
+    ('claude-code', '04', 'Proyecto Practico: Agente Fullstack Desplegado', 'Construccion completa de una aplicacion interactiva guiada por IA.', 4)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO public.academy_resources (id, slug, title, description, tag, format, preview_image, stripe_color, file_url, downloads_count, order_index)
