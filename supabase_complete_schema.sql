@@ -298,18 +298,18 @@ VALUES
 (
     'ia-restaurantes',
     'ia-restaurantes',
-    'MAS POPULAR',
+    'OPERATIVO & ESTRATEGICO',
     'Operativo & Estrategico',
-    'Masterclass: Automatizacion Agentica con IA',
-    'Aprende a desplegar agentes de WhatsApp que atienden, venden y controlan recetas sin alucinaciones.',
-    'Aprende a desplegar asistentes de IA que atienden clientes por WhatsApp, toman pedidos directos, controlan mermas de cocina y blindan tus recetas.',
-    '4 Modulos Intensivos • Acceso de por vida',
+    'Masterclass: Automatizacion Agentica con IA para Restaurantes',
+    'Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos, controlan recetas y calculan escandallos sin alucinaciones.',
+    'Aprende a implementar agentes inteligentes que atienden comensales por WhatsApp, toman reservas directas, controlan mermas de cocina, calculan escandallos y automatizan ordenes de compras a proveedores.',
+    '5 Modulos Intensivos • Acceso de por vida',
     97.00,
-    ' USD',
+    '$97 USD',
     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
     'from-[#EA0C7F] via-[#971B8D] to-[#6366f1]',
-    '["OpenAI API", "Claude 3.5", "WhatsApp Cloud API", "Airtable"]'::jsonb,
-    'https://buy.stripe.com/test_ia_restaurantes',
+    '["WhatsApp Cloud API", "Gemini Pro", "Airtable", "Escandallos XLSX", "KDS Prompts", "Zero-Hallucination Guardrails", "HACCP Digital"]'::jsonb,
+    'https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407',
     'ACTIVO',
     28,
     1
@@ -380,10 +380,11 @@ ON CONFLICT (id) DO UPDATE SET
 
 INSERT INTO public.course_modules (course_id, week_label, title, description, order_index)
 VALUES 
-    ('ia-restaurantes', '01', 'Arquitectura de Prompts & Escandallos', 'Control de costos, ingenieria de menu y calibracion de recetas sin margen de error.', 1),
-    ('ia-restaurantes', '02', 'Agente de Ventas & Reservas 24/7', 'Configuracion de asistentes conversacionales con menus dinamicos y cobros.', 2),
-    ('ia-restaurantes', '03', 'Supervision & Mitigacion de Alucinaciones', 'Protocolos de seguridad para que la IA no invente datos ni comprometa precios.', 3),
-    ('ia-restaurantes', '04', 'Integracion en el Negocio Real', 'Puesta en marcha con clientes reales y metricas de conversion en vivo.', 4),
+    ('ia-restaurantes', '01', 'Fundamentos de IA Gastronomica & Control de Food Cost', 'Diagnostico de fugas operativas, matriz BCG de menu y escandallos con factor de rendimiento crudo/cocido.', 1),
+    ('ia-restaurantes', '02', 'Agente de Ventas & Reservas 24/7 en WhatsApp', 'Configuracion del System Prompt maestro, gestion de alergenos y estrategias de upselling gastronomico.', 2),
+    ('ia-restaurantes', '03', 'Blindaje del Sistema: Guardrails, Anti-Alucinaciones y Seguridad', 'Reglas inquebrantables de precios, deteccion de fricciones y derivacion a gerencia humana (Human-in-the-Loop).', 3),
+    ('ia-restaurantes', '04', 'Automatizacion de Compras, Proveedores y Operaciones de Cocina', 'Pronostico de demanda segun clima y dias, ordenes automaticas a proveedores y estandarizacion de SOPs/HACCP.', 4),
+    ('ia-restaurantes', '05', 'Puesta en Marcha en el Negocio Real, KPIs y Proyecto de Certificacion', 'Plan de despliegue en 3 fases, cuadro de mando financiero (EBITDA, Food Cost %) y proyecto de certificacion oficial.', 5),
     
     ('bootcamp-n8n', '01', 'Despliegue VPS con Docker & Caddy', 'Instalacion segura de n8n en servidores en la nube con certificados SSL.', 1),
     ('bootcamp-n8n', '02', 'Meta Cloud API & Webhooks Reversos', 'Recepcion y procesamiento de eventos transaccionales de WhatsApp.', 2),

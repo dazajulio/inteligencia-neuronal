@@ -173,12 +173,12 @@ const REAL_COURSES: Course[] = [
   {
     id: "ia-restaurantes",
     type: "MASTERCLASS",
-    badge: "Lo más vendido",
+    badge: "OPERATIVO & ESTRATÉGICO",
     level: "Operativo & Estratégico",
     title: "Masterclass: Automatización Agéntica con IA para Restaurantes",
-    tagline: "Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos y calculan escandallos sin alucinaciones.",
-    duration: "4 Módulos Grabados",
-    lessonsCount: "16 Lecciones + Plantillas XLSX",
+    tagline: "Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos, controlan recetas y calculan escandallos sin alucinaciones.",
+    duration: "5 Módulos Intensivos • Acceso de por vida",
+    lessonsCount: "15 Lecciones + Plantillas XLSX",
     rating: 4.8,
     reviewsCount: 112,
     studentsCount: 0,
@@ -193,37 +193,64 @@ const REAL_COURSES: Course[] = [
     previewImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
     stripeColor: "from-[#EA0C7F] via-[#971B8D] to-[#6366f1]",
     accentColor: "#EA0C7F",
-    tools: ["WhatsApp Cloud API", "Gemini Pro", "Airtable", "Escandallos XLSX", "KDS Prompts"],
+    tools: ["WhatsApp Cloud API", "Gemini Pro", "Airtable", "Escandallos XLSX", "KDS Prompts", "Zero-Hallucination Guardrails", "HACCP Digital"],
     learningOutcomes: [
       "Parametrizar prompts con rigor físico y matemático para que la IA nunca invente precios ni recetas.",
-      "Configurar un asistente de WhatsApp 24/7 con catálogo dinámico de platos y horarios.",
-      "Integrar matrices de costos crudo/cocido en tiempo real sin requerir software caro.",
-      "Implementar un protocolo de contingencia y desvío a agentes humanos para casos críticos."
+      "Configurar un asistente de WhatsApp 24/7 con catálogo dinámico de platos, horarios y alérgenos.",
+      "Integrar matrices de costos crudo/cocido en tiempo real y optimizar la ingeniería de menú (BCG).",
+      "Blindar el sistema con guardrails de precios y protocolo de derivación a humanos para casos críticos.",
+      "Automatizar la estimación de demanda semanal y generación de órdenes de compra a proveedores."
     ],
     modules: [
       {
         week: "Módulo 01",
-        title: "Arquitectura de Prompts & Escandallos de Cocina",
-        desc: "Ingeniería de menú, control de factores de rendimiento y calibración de recetas sin margen de error.",
-        lessons: ["Estructura de prompts sin alucinaciones", "Cálculo de mermas y macronutrientes", "Plantilla de costeo automatizada"]
+        title: "Fundamentos de IA Gastronómica & Control de Food Cost",
+        desc: "Diagnóstico de fugas operativas, matriz BCG de menú y escandallos con factor de rendimiento crudo/cocido.",
+        lessons: [
+          "1.1 La Revolución de la IA en la Gastronomía y el Margen Operativo",
+          "1.2 Ingeniería de Menú con IA: Matriz BCG de Platos y Precios",
+          "1.3 Escandallos Automatizados: Factor de Rendimiento Crudo/Cocido y Mermas"
+        ]
       },
       {
         week: "Módulo 02",
-        title: "Agente de Ventas & Reservas por WhatsApp",
-        desc: "Configuración del flujo conversacional para atender comensales y procesar reservas en segundos.",
-        lessons: ["Flujo de bienvenida y menú dinámico", "Captura de datos y confirmación automática", "Gestión de restricciones alimentarias"]
+        title: "Agente de Ventas & Reservas 24/7 en WhatsApp",
+        desc: "Configuración del System Prompt maestro, gestión de alérgenos y estrategias de upselling gastronómico.",
+        lessons: [
+          "2.1 Personalidad, Tono y Menú Conversacional del Agente",
+          "2.2 Gestión de Reservas, Alérgenos y Restricciones Dietéticas",
+          "2.3 Upselling y Venta Cruzada Automática en Cada Interacción"
+        ]
       },
       {
         week: "Módulo 03",
-        title: "Supervisión, Seguridad & Mitigación de Errores",
-        desc: "Reglas inquebrantables para impedir que el agente ofrezca descuentos no autorizados o datos falsos.",
-        lessons: ["Guardrails de precios y políticas", "Filtros de sentimiento y derivación humana", "Auditoría de logs de conversación"]
+        title: "Blindaje del Sistema: Guardrails, Anti-Alucinaciones y Seguridad",
+        desc: "Reglas inquebrantables de precios, detección de fricciones y derivación a gerencia humana (Human-in-the-Loop).",
+        lessons: [
+          "3.1 Blindaje de Precios y Reglas Inquebrantables (Zero Hallucinations)",
+          "3.2 Detección de Fricciones y Desvío Inteligente a Humanos (Human-in-the-Loop)",
+          "3.3 Auditoría de Logs y Calibración Continua de Conversaciones"
+        ]
       },
       {
         week: "Módulo 04",
-        title: "Puesta en Marcha en Negocio Real & Métricas",
-        desc: "Estrategias de lanzamiento con clientes reales y medición del incremento en tasa de conversión.",
-        lessons: ["Lanzamiento controlado en horario valle", "Medición de tiempos de respuesta", "Retorno de inversión del agente"]
+        title: "Automatización de Compras, Proveedores y Operaciones de Cocina",
+        desc: "Pronóstico de demanda según clima y días, órdenes automáticas a proveedores y estandarización de SOPs/HACCP.",
+        lessons: [
+          "4.1 Predicción de Demanda e Inventario según Clima y Días de la Semana",
+          "4.2 Asistente para Generación de Órdenes de Compra a Proveedores",
+          "4.3 SOPs de Cocina, Checklists Digitales y Control HACCP"
+        ]
+      },
+      {
+        week: "Módulo 05",
+        title: "Puesta en Marcha en el Negocio Real, KPIs y Proyecto de Certificación",
+        desc: "Plan de despliegue en 3 fases, cuadro de mando financiero (EBITDA, Food Cost %) y proyecto de certificación oficial.",
+        lessons: [
+          "5.1 Plan de Despliegue en 3 Fases y Capacitación del Personal de Sala",
+          "5.2 Métricas de Impacto Financiero: EBITDA, Food Cost % y Retorno de Inversión",
+          "5.3 Proyecto Final de Certificación y Emisión de tu Diploma Oficial"
+        ]
       }
     ]
   },
