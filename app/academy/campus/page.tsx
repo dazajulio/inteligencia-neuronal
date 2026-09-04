@@ -85,30 +85,93 @@ const PROGRAMS: Record<string, ProgramData> = {
     modules: [
       {
         id: "n8n-mod-1",
-        title: "Módulo 01: Despliegue VPS con Docker & Caddy SSL",
+        title: "Módulo 01: Despliegue VPS con Docker, n8n & Caddy SSL",
         lessons: [
           {
             id: "n8n-1-1",
             title: "1.1 Aprovisionamiento de Servidor Linux y Hardening",
             duration: "28 min",
             videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-            summary: "Configuración inicial de VPS en Hetzner/DigitalOcean, firewall UFW, creación de usuario sin privilegios root y llaves SSH.",
+            summary: "Configuración inicial de VPS en Hetzner o DigitalOcean sobre Ubuntu 24.04: creación de usuario sudo sin privilegios root, autenticación por llaves SSH Ed25519 y blindaje con firewall UFW.",
+            content_text: `### ¿Por qué montar n8n en tu propio servidor VPS?
+
+Las plataformas de automatización tradicionales (Zapier, Make) cobran por cada paso de ejecución (*task-based pricing*), lo que hace inviable procesar miles de mensajes de WhatsApp o flujos de IA con presupuestos controlados.
+
+Con un VPS dedicado de \$5 a \$10 USD al mes:
+* **Ejecuciones Ilimitadas:** Corre millones de operaciones sin costo adicional por tarea.
+* **Soberanía de Datos:** Toda la información sensible de tus clientes reside en tu propio servidor privado.
+* **Privacidad para LLMs:** Comunicación directa con APIs de OpenAI, Anthropic y Gemini sin intermediarios.`,
             prompts: [
-              "Genera un script bash de aprovisionamiento seguro para Ubuntu 24.04 que instale Docker, Docker Compose y configure el firewall con puertos 80, 443 y 22."
+              `Genera un script bash de aprovisionamiento seguro para Ubuntu 24.04 LTS que ejecute:
+1. Actualización de repositorios y paquetes (apt update && apt upgrade).
+2. Creación de un usuario no root con privilegios sudo.
+3. Instalación de Docker Engine y Docker Compose plugin oficial.
+4. Configuración del firewall UFW permitiendo solo puertos 22 (SSH), 80 (HTTP) y 443 (HTTPS).
+5. Desactivación del login root por contraseña en SSH.`
             ],
             downloads: [
-              { name: "docker-compose-n8n-caddy.yml", type: "Docker YAML", url: "#" },
-              { name: "Script_Setup_VPS_Ubuntu.sh", type: "Bash Script", url: "#" }
+              { name: "Script_Setup_VPS_Ubuntu_2404.sh", type: "Bash Script", url: "#" },
+              { name: "Guia_Hardening_Servidor_Linux.pdf", type: "PDF Técnico", url: "#" }
             ]
           },
           {
             id: "n8n-1-2",
-            title: "1.2 Docker Compose, Volúmenes y Proxy Inverso Caddy",
+            title: "1.2 Docker Compose, Volúmenes y Persistencia de Datos",
             duration: "34 min",
             videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-            summary: "Persistencia de datos en volúmenes Docker, configuración de variables de entorno y emisión automática de certificados HTTPS con Caddy.",
+            summary: "Estructura del archivo `docker-compose.yml` para n8n, montaje de volúmenes persistentes para no perder flujos ni credenciales al reiniciar, y variables de entorno críticas de seguridad.",
+            content_text: `### Arquitectura de Contenedores y Volúmenes Persistentes
+
+Los contenedores Docker son efímeros por naturaleza. Para garantizar que los flujos, historial de ejecuciones y credenciales encriptadas se conserven tras reiniciar el servidor, montamos un volumen persistente en el host:
+
+\`\`\`yaml
+version: '3.8'
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: always
+    environment:
+      - N8N_HOST=n8n.tudominio.com
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://n8n.tudominio.com/
+      - GENERIC_TIMEZONE=America/Caracas
+    volumes:
+      - n8n_data:/home/node/.n8n
+volumes:
+  n8n_data:
+\`\`\``,
             prompts: [
-              "Configura un Caddyfile para enrutar el subdominio n8n.miempresa.com hacia el puerto interno 5678 con compresión gzip y headers de seguridad HSTS."
+              `Genera un archivo docker-compose.yml optimizado para producción para n8n con:
+- Imagen oficial docker.n8n.io/n8nio/n8n:latest
+- Reinicio automático 'always'
+- Variables de entorno para timezone [Tu Timezone] y webhook URL [Tu Subdominio]
+- Red interna 'web' compartida con el reverse proxy Caddy
+- Volumen nombrado para persistencia en disco host.`
+            ],
+            downloads: [
+              { name: "docker-compose-n8n-production.yml", type: "Docker YAML", url: "#" },
+              { name: "env_template_n8n.env", type: "Variables de Entorno", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-1-3",
+            title: "1.3 Proxy Inverso con Caddy y Certificados HTTPS Automáticos",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Despliegue de Caddy Server como reverse proxy ultraligero: emisión y renovación automática de certificados SSL/TLS Let's Encrypt sin necesidad de certbot ni configuración manual de cron jobs.",
+            content_text: `### ¿Por qué Caddy en lugar de Nginx tradicional?
+
+Caddy incluye gestión nativa de certificados SSL con Let's Encrypt por defecto:
+1. No requiere configurar Certbot ni scripts de renovación.
+2. Maneja compresión gzip/zstd automáticamente.
+3. Se configura con un archivo Caddyfile de apenas 5 líneas.`,
+            prompts: [
+              `Escribe un archivo Caddyfile para enrutar el tráfico HTTPS del subdominio n8n.miempresa.com hacia el contenedor n8n:5678:
+- Activa compresión zstd y gzip.
+- Añade encabezados de seguridad HSTS (Strict-Transport-Security), X-Frame-Options y X-Content-Type-Options.
+- Configura política de logging estructurado en formato JSON.`
             ],
             downloads: [
               { name: "Caddyfile_Production_Template.txt", type: "Caddy Config", url: "#" }
@@ -130,7 +193,7 @@ const PROGRAMS: Record<string, ProgramData> = {
               explanation: "Los contenedores Docker son efímeros por defecto; el volumen garantiza que los flujos y base de datos SQLite/PostgreSQL se conserven en el disco del host."
             },
             {
-              question: "¿Qué ventaja ofrece Caddy frente a Nginx en este despliegue?",
+              question: "¿Qué ventaja clave ofrece Caddy frente a Nginx tradicional en este despliegue?",
               options: [
                 "Genera y renueva certificados SSL Let's Encrypt automáticamente sin necesidad de certbot.",
                 "Es un lenguaje de programación compilado.",
@@ -144,19 +207,75 @@ const PROGRAMS: Record<string, ProgramData> = {
       },
       {
         id: "n8n-mod-2",
-        title: "Módulo 02: Meta Cloud API & Webhooks Reversos",
+        title: "Módulo 02: Meta Cloud API & Webhooks Reversos de WhatsApp",
         lessons: [
           {
             id: "n8n-2-1",
-            title: "2.1 Handshake de Verificación con Meta Developers",
-            duration: "40 min",
+            title: "2.1 Configuración de Meta Developers y Handshake de Verificación",
+            duration: "38 min",
             videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
-            summary: "Configuración del nodo Webhook en n8n para responder al token de verificación GET y procesar eventos entrantes POST de WhatsApp e Instagram.",
+            summary: "Creación de la App Empresarial en Meta Developers, generación de System User Token permanente y configuración del nodo Webhook en n8n para responder con HTTP 200 y el `hub.challenge` requerido.",
+            content_text: `### El protocolo de verificación GET de Meta
+
+Cuando registras una URL de webhook en Meta Developers, Meta envía una petición HTTP GET con tres parámetros:
+* \`hub.mode\`: Debe ser \`subscribe\`.
+* \`hub.verify_token\`: Tu token secreto configurado.
+* \`hub.challenge\`: Un número aleatorio que tu servidor debe devolver tal cual como respuesta.
+
+En n8n, usamos un nodo Code en JavaScript para evaluar si el token coincide y devolver el challenge con código HTTP 200.`,
             prompts: [
-              "Construye un nodo Code en JavaScript que extraiga el 'hub.challenge' de los query parameters de Meta y lo devuelva como entero para validar el webhook."
+              `Escribe el código JavaScript para un nodo Code de n8n que procese la verificación GET de Meta Webhooks:
+- Valida que $json.query["hub.verify_token"] sea igual a mi variable secreta 'META_SECRET_TOKEN'.
+- Si coincide, devuelve un body con el entero parseInt($json.query["hub.challenge"]).
+- Si no coincide, retorna un error HTTP 403 Forbidden.`
             ],
             downloads: [
-              { name: "Meta_Webhook_Handshake_Node.json", type: "n8n Sub-Flow", url: "#" }
+              { name: "Meta_Webhook_Handshake_Node.json", type: "n8n Sub-Flow", url: "#" },
+              { name: "Guia_Setup_Meta_Developers_Token_Permanente.pdf", type: "PDF", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-2-2",
+            title: "2.2 Procesamiento de Payloads POST y Extracción de Mensajes",
+            duration: "35 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Estructura del JSON anidado que envía WhatsApp Cloud API ante mensajes entrantes. Filtrado de confirmaciones de entrega (`statuses`) vs. mensajes reales de texto, notas de voz e imágenes (`messages`).",
+            content_text: `### Desempaquetando el JSON de WhatsApp
+
+Meta envía notificaciones tanto cuando el cliente escribe como cuando un mensaje cambia de estado (*sent*, *delivered*, *read*).
+
+Para evitar que tu flujo se ejecute en bucle ante cambios de estado:
+1. Verificamos con un nodo IF si el objeto \`entry[0].changes[0].value.messages\` existe.
+2. Extraemos el número telefónico remitente (\`from\`), el nombre del contacto y el tipo de mensaje (\`text\`, \`audio\`, \`image\`, \`interactive\`).`,
+            prompts: [
+              `Construye un nodo Code en n8n para parsear el payload de WhatsApp Cloud API:
+- Extrae: contact_phone, contact_name, message_id, timestamp, message_type y message_body.
+- Maneja mensajes de texto plano (body) y respuestas de botones interactivos (button_reply.id / list_reply.id).
+- Descarta silenciosamente los eventos de status (delivered, read).`
+            ],
+            downloads: [
+              { name: "Parser_WhatsApp_Payload_Node.json", type: "n8n Node Code", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-2-3",
+            title: "2.3 Envío de Mensajes Interactivos (Botones, Listas y Plantillas)",
+            duration: "32 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Llamadas HTTP seguras al Graph API de Meta para enviar mensajes con botones rápidos de respuesta, menús desplegables de opciones y plantillas comerciales aprobadas.",
+            content_text: `### Tipos de Mensajes Interactivos en WhatsApp Cloud API
+
+* **Interactive Buttons (Hasta 3 botones):** Ideal para confirmaciones rápidas (*"Confirmar Reserva"*, *"Hablar con Humano"*, *"Ver Menú"*).
+* **Interactive List Messages (Hasta 10 opciones con secciones):** Ideal para catálogos de servicios o selección de horarios.
+* **Template Messages:** Requeridos para iniciar conversaciones fuera de la ventana de atención de 24 horas.`,
+            prompts: [
+              `Genera el payload JSON para una petición HTTP POST al Graph API de Meta (v20.0) que envíe un mensaje interactivo tipo 'button':
+- Destinatario: [Número]
+- Texto Principal: '¡Hola! ¿En qué podemos ayudarte hoy?'
+- Botones: '1. Reservar Mesa', '2. Ver Menú', '3. Ayuda'`
+            ],
+            downloads: [
+              { name: "Plantilla_Llamadas_HTTP_Meta_GraphAPI.json", type: "n8n Flow", url: "#" }
             ]
           }
         ],
@@ -173,6 +292,427 @@ const PROGRAMS: Record<string, ProgramData> = {
               ],
               correctIndex: 0,
               explanation: "Meta exige que el endpoint devuelva exactamente el valor de hub.challenge con status 200 durante la suscripción inicial."
+            },
+            {
+              question: "¿Por qué es fundamental filtrar los eventos de tipo 'statuses' en el webhook de WhatsApp?",
+              options: [
+                "Para evitar que el flujo se dispare innecesariamente cuando un mensaje solo cambia de estado a 'entregado' o 'leído'.",
+                "Para cobrarle a Meta por cada mensaje.",
+                "Porque los statuses bloquean la base de datos."
+              ],
+              correctIndex: 0,
+              explanation: "Meta notifica cada cambio de estado; si no se filtran, tu flujo de IA respondería a eventos de lectura en lugar de a mensajes reales del usuario."
+            }
+          ]
+        }
+      },
+      {
+        id: "n8n-mod-3",
+        title: "Módulo 03: Bases de Datos Relacionales & Row-Level Security (PostgreSQL / Supabase)",
+        lessons: [
+          {
+            id: "n8n-3-1",
+            title: "3.1 Modelado Relacional de Clientes, Conversaciones y Pedidos",
+            duration: "36 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Diseño del esquema de base de datos relacional en PostgreSQL / Supabase: tablas normalizadas de `contacts`, `conversations`, `messages`, `orders` e `inventory` con claves foráneas e índices para alta concurrencia.",
+            content_text: `### Esquema Relacional de Alto Rendimiento
+
+Una base de datos profesional para automatizaciones no utiliza una sola tabla desordenada. Se estructura en entidades normalizadas:
+
+1. **\`contacts\`:** Datos del cliente (teléfono, nombre, email, etiquetas, fecha de registro).
+2. **\`conversations\`:** Sesiones de chat con estado (*activa*, *pausada*, *cerrada*).
+3. **\`messages\`:** Registro histórico de cada mensaje entrante y saliente con tokens consumidos.
+4. **\`orders\`:** Transacciones con montos, método de pago y estado de entrega.`,
+            prompts: [
+              `Escribe un script SQL completo para PostgreSQL / Supabase que cree las tablas:
+- contacts (id UUID, phone TEXT UNIQUE, name TEXT, created_at TIMESTAMPTZ)
+- conversations (id UUID, contact_id UUID REFERENCES contacts, status TEXT, last_message_at TIMESTAMPTZ)
+- messages (id UUID, conversation_id UUID REFERENCES conversations, role TEXT, content TEXT, created_at TIMESTAMPTZ)
+- orders (id UUID, contact_id UUID REFERENCES contacts, total_usd NUMERIC, status TEXT, created_at TIMESTAMPTZ)
+Incluye índices en phone, contact_id y conversation_id.`
+            ],
+            downloads: [
+              { name: "Esquema_SQL_Relacional_Pipeline.sql", type: "SQL Script", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-3-2",
+            title: "3.2 Conexión Segura desde n8n y Consultas Parametrizadas",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Uso del nodo Postgres y Supabase en n8n mediante credenciales SSL, ejecución de sentencias `INSERT ... ON CONFLICT DO UPDATE` (Upsert) y parametrización de variables para blindar el sistema contra inyecciones SQL.",
+            content_text: `### Operaciones Atómicas y Upserts en n8n
+
+Para registrar un contacto de WhatsApp sin duplicar registros:
+* Usamos la cláusula \`ON CONFLICT (phone) DO UPDATE SET name = EXCLUDED.name, last_active = now()\`
+* Parametrizamos los valores en los campos del nodo n8n para prevenir inyección de código.`,
+            prompts: [
+              `Escribe la consulta SQL parametrizada para un nodo Postgres en n8n que registre o actualice un lead de WhatsApp de forma atómica:
+INSERT INTO contacts (phone, name, source, last_active_at)
+VALUES ($1, $2, 'WhatsApp', now())
+ON CONFLICT (phone) DO UPDATE SET
+  name = COALESCE(EXCLUDED.name, contacts.name),
+  last_active_at = now()
+RETURNING id;`
+            ],
+            downloads: [
+              { name: "Flujo_Upsert_Contactos_Postgres.json", type: "n8n Flow", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-3-3",
+            title: "3.3 Políticas de Seguridad por Filas (RLS) y Aislamiento Multi-Tenant",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo habilitar Row Level Security (RLS) en Supabase / PostgreSQL para que un mismo servidor y base de datos pueda gestionar los clientes de múltiples restaurantes o negocios de forma herméticamente aislada.",
+            content_text: `### Aislamiento Multi-Tenant con RLS
+
+El estándar de seguridad en la nube exige que ninguna empresa o usuario pueda consultar datos pertenecientes a otra entidad (*tenant*):
+* Añadimos una columna \`tenant_id UUID\` a cada tabla.
+* Activamos \`ALTER TABLE ... ENABLE ROW LEVEL SECURITY\`.
+* Creamos políticas que restringen la lectura y escritura al tenant autenticado.`,
+            prompts: [
+              `Genera las políticas RLS en SQL para Supabase que aíslen los datos de la tabla 'orders' según la columna 'organization_id':
+- Política para administradores (acceso total con service_role).
+- Política de lectura pública restringida por token de sesión.`
+            ],
+            downloads: [
+              { name: "Politicas_RLS_MultiTenant_Template.sql", type: "SQL Script", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Para qué se utiliza la sentencia SQL 'ON CONFLICT DO UPDATE' (Upsert) al procesar leads de WhatsApp?",
+              options: [
+                "Para insertar el contacto si es nuevo o actualizar su última hora de conexión si ya existía en la base de datos sin generar un error de duplicado.",
+                "Para borrar la base de datos cada 24 horas.",
+                "Para apagar el servidor si el cliente no responde."
+              ],
+              correctIndex: 0,
+              explanation: "El Upsert evita duplicados y errores de clave única garantizando la integridad referencial de los contactos."
+            },
+            {
+              question: "¿Qué función cumple Row-Level Security (RLS) en PostgreSQL/Supabase?",
+              options: [
+                "Aislar los registros a nivel de fila para que un cliente o inquilino solo pueda acceder a sus propios datos.",
+                "Hacer que las tablas tengan filas de diferentes colores.",
+                "Aumentar el tamaño del disco duro del servidor."
+              ],
+              correctIndex: 0,
+              explanation: "RLS restringe qué filas puede consultar o modificar un usuario específico según reglas de autorización inquebrantables en el motor de base de datos."
+            }
+          ]
+        }
+      },
+      {
+        id: "n8n-mod-4",
+        title: "Módulo 04: Orquestación de Agentes Autónomos LLM en n8n",
+        lessons: [
+          {
+            id: "n8n-4-1",
+            title: "4.1 Configuración de Nodos AI Agent y Memoria Conversacional",
+            duration: "35 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Arquitectura del nodo AI Agent de n8n: conexión con modelos avanzados (Claude 3.5 Sonnet, GPT-4o, Gemini Pro), buffers de memoria en PostgreSQL y definición del System Prompt del agente decisorio.",
+            content_text: `### El nodo AI Agent y el ciclo de razonamiento (ReAct)
+
+El nodo AI Agent utiliza el patrón **ReAct (Reasoning + Acting)**:
+1. El usuario envía un mensaje.
+2. El agente razona qué información le falta.
+3. Si necesita datos externos (precios, horarios, disponibilidad), ejecuta una herramienta (*Tool*).
+4. Recibe el resultado de la herramienta y sintetiza la respuesta final.`,
+            prompts: [
+              `Configura el System Prompt para un AI Agent en n8n conectado a herramientas de gestión operativa:
+- Rol: Asistente Operativo Autónomo.
+- Regla 1: Antes de confirmar un pedido, consulta la herramienta 'check_stock'.
+- Regla 2: Si el producto está agotado, ofrece la mejor alternativa de la carta.
+- Regla 3: Si el usuario confirma, ejecuta la herramienta 'create_order' y entrega el número de seguimiento.`
+            ],
+            downloads: [
+              { name: "Flujo_AI_Agent_Con_Memoria_Postgres.json", type: "n8n Workflow", url: "#" },
+              { name: "System_Prompt_Agent_ReAct_Template.txt", type: "TXT", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-4-2",
+            title: "4.2 Herramientas Personalizadas y Llamadas a Funciones (Tool Calling)",
+            duration: "38 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo crear herramientas (Custom Tools) en n8n: Tool de consulta SQL a base de datos, Tool de envío de emails transaccionales y Tool de cálculo de cotizaciones en tiempo real.",
+            content_text: `### Creación de Custom Tools en n8n
+
+Un modelo de lenguaje sin herramientas solo puede conversar. Cuando le otorgas Tools:
+* **Tool de Base de Datos:** Permite al agente ejecutar consultas SELECT seguras sobre tablas de productos.
+* **Tool de Webhook Externo:** Conecta con pasarelas de pago (Stripe, LemonSqueezy) o APIs de mensajería.
+* **Tool de Calendario:** Lee y agenda citas en tiempo real.`,
+            prompts: [
+              `Escribe la especificación de una Custom Tool para n8n llamada 'consultar_disponibilidad_mesas':
+- Parámetros: fecha (YYYY-MM-DD), hora (HH:MM), comensales (integer).
+- Descripción para el LLM: 'Usa esta herramienta cuando el cliente solicite saber si hay mesas libres para una fecha y hora específicas.'`
+            ],
+            downloads: [
+              { name: "Custom_Tool_Consulta_Postgres.json", type: "n8n Tool", url: "#" },
+              { name: "Custom_Tool_Crear_Reserva.json", type: "n8n Tool", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-4-3",
+            title: "4.3 Vector Stores, Embeddings y RAG Documental Soberano",
+            duration: "32 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Implementación de bases de datos vectoriales (Supabase pgvector / Qdrant) en n8n: ingesta de PDFs y manuales de procedimientos, generación de embeddings (text-embedding-3-small) y recuperación semántica sin alucinaciones.",
+            content_text: `### Flujo RAG (Retrieval-Augmented Generation) en n8n
+
+1. **Carga y Fragmentación (Chunking):** Dividir documentos largos en bloques de 500-1000 tokens con solapamiento.
+2. **Generación de Vectores:** Convertir texto en coordenadas matemáticas con modelos de embedding.
+3. **Búsqueda por Similitud de Coseno:** Recuperar los fragmentos más relevantes ante la pregunta del usuario.`,
+            prompts: [
+              `Diseña un sub-flujo de ingesta de documentos RAG en n8n:
+- Nodo 1: Ingesta de archivo PDF.
+- Nodo 2: Text Splitter con chunk_size=800 y chunk_overlap=100.
+- Nodo 3: Embeddings OpenAI.
+- Nodo 4: Vector Store Supabase pgvector.`
+            ],
+            downloads: [
+              { name: "Flujo_RAG_Supabase_Vector_n8n.json", type: "n8n Workflow", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cómo decide un AI Agent en n8n cuándo debe ejecutar una herramienta (Tool Calling)?",
+              options: [
+                "El modelo analiza la intención del usuario y la descripción semántica de cada herramienta disponible para elegir cuál invocar con los parámetros adecuados.",
+                "Ejecuta todas las herramientas a la vez al azar.",
+                "El programador debe escribir un IF manual para cada palabra del diccionario."
+              ],
+              correctIndex: 0,
+              explanation: "El LLM lee las descripciones y esquemas de parámetros de las herramientas disponibles y decide autónomamente si necesita invocar una para responder al usuario."
+            },
+            {
+              question: "¿Qué ventaja ofrece la arquitectura RAG frente a meter todo el texto en el prompt de sistema?",
+              options: [
+                "Reduce el consumo de tokens, elimina límites de contexto y permite consultar miles de páginas de manuales con respuestas precisas basadas en fuentes reales.",
+                "Hace que la IA invente datos más creativos.",
+                "Aumenta la factura de la API sin beneficios."
+              ],
+              correctIndex: 0,
+              explanation: "RAG recupera solo los fragmentos relevantes para cada pregunta, reduciendo costos de tokens y garantizando respuestas fundamentadas en documentos reales."
+            }
+          ]
+        }
+      },
+      {
+        id: "n8n-mod-5",
+        title: "Módulo 05: Telemetría, Sub-Flujos de Error & Alertas 24/7 en Telegram",
+        lessons: [
+          {
+            id: "n8n-5-1",
+            title: "5.1 Arquitectura de Manejo de Errores con Error Trigger",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Configuración del nodo Error Trigger de n8n para capturar excepciones no controladas en cualquier flujo del servidor, aislando el nodo defectuoso y el mensaje del error sin detener el resto del sistema.",
+            content_text: `### El patrón 'Error Workflow' en n8n
+
+En n8n de producción, cada flujo principal tiene vinculado un flujo de error dedicado:
+* Cuando un nodo falla (por timeout de API, base de datos no disponible o payload corrupto), se activa automáticamente el flujo de contingencia.
+* Se extrae el nombre del flujo, el ID de ejecución, el nodo que falló y la traza del error.`,
+            prompts: [
+              `Escribe un flujo de error en n8n que reciba el payload de 'Error Trigger' y formatee un mensaje estructurado con:
+- Nombre del Workflow
+- ID de Ejecución
+- Nodo que causó el error
+- Mensaje exacto de la excepción
+- Enlace directo a la URL de ejecución en n8n para depuración inmediata.`
+            ],
+            downloads: [
+              { name: "Workflow_Error_Handler_Maestro.json", type: "n8n Workflow", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-5-2",
+            title: "5.2 Creación del Bot Supervisor en Telegram para Alertas Críticas",
+            duration: "28 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Integración con Telegram Bot API para recibir alertas instantáneas en tu teléfono con botones interactivos para reintentar la ejecución o silenciar la alarma.",
+            content_text: `### Alertas en tiempo real con Telegram Bot API
+
+Telegram es el canal ideal para DevOps y monitoreo:
+1. Las notificaciones llegan en menos de 1 segundo.
+2. Permite formatear mensajes con Markdown rico y emojis de severidad (🔴 Crítico, 🟡 Advertencia, 🟢 Recuperado).
+3. No tiene límites de tasa restrictivos para alertas operativas.`,
+            prompts: [
+              `Genera el payload para el nodo Telegram en n8n que envíe una alerta formateada en MarkdownV2 con:
+🔴 *ALERTA CRÍTICA: Fallo en Pipeline de Producción*
+• *Workflow:* [Nombre]
+• *Fallo en:* [Nodo]
+• *Hora:* [Timestamp]
+• *Detalle:* \`[Mensaje]\``
+            ],
+            downloads: [
+              { name: "Telegram_Alert_Bot_Template.json", type: "n8n Workflow", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-5-3",
+            title: "5.3 Monitoreo de Recursos del VPS, Escalado y Modo Queue",
+            duration: "34 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Cómo supervisar uso de RAM y CPU con htop y ctop, configuración de Redis y n8n Queue Mode para procesar cientos de ejecuciones concurrentes sin saturar el servidor.",
+            content_text: `### Escalando n8n con Queue Mode y Redis
+
+Cuando el volumen de peticiones supera las 50 ejecuciones por minuto:
+* El modo regular de n8n puede saturar la memoria Node.js.
+* En **Queue Mode**, un proceso principal distribuye las tareas a través de Redis hacia múltiples *Workers* que ejecutan en paralelo de forma balanceada.`,
+            prompts: [
+              `Genera el archivo docker-compose.yml para n8n en Queue Mode con:
+- 1 contenedor n8n principal (editor/webhook)
+- 1 contenedor Redis para cola de mensajes
+- 2 contenedores n8n Worker para ejecución paralela de flujos
+- PostgreSQL como base de datos persistente.`
+            ],
+            downloads: [
+              { name: "docker-compose-n8n-queue-redis.yml", type: "Docker YAML", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Qué ventaja ofrece vincular un 'Error Workflow' en la configuración de flujos en n8n?",
+              options: [
+                "Captura cualquier falla o caída de nodos en producción y dispara alertas automáticas en Telegram con el enlace directo para depuración inmediata.",
+                "Hace que los errores desaparezcan por arte de magia.",
+                "Borra el servidor para que nadie se entere del fallo."
+              ],
+              correctIndex: 0,
+              explanation: "El Error Workflow garantiza observabilidad total, notificando al equipo técnico al instante con el contexto exacto de la falla."
+            },
+            {
+              question: "¿Cuándo es necesario configurar n8n en 'Queue Mode' con Redis?",
+              options: [
+                "Cuando el volumen de ejecuciones concurrentes crece y se necesita distribuir la carga entre múltiples workers paralelos para no saturar la RAM.",
+                "Cuando solo se tiene 1 flujo simple al día.",
+                "Para poder instalar juegos en el servidor."
+              ],
+              correctIndex: 0,
+              explanation: "Queue Mode permite desacoplar la recepción de webhooks de la ejecución pesada, escalando horizontalmente con workers dedicados."
+            }
+          ]
+        }
+      },
+      {
+        id: "n8n-mod-6",
+        title: "Módulo 06: Proyecto Final, Auditoría de Infraestructura y Certificación",
+        lessons: [
+          {
+            id: "n8n-6-1",
+            title: "6.1 Auditoría de Seguridad, Rotación de Llaves y Backups a S3",
+            duration: "32 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Protocolos de seguridad para producción: rotación de API keys, cifrado de variables en reposo, backups automáticos de la base de datos a un bucket AWS S3 / Cloudflare R2 con retención de 30 días.",
+            content_text: `### Estrategia de Copias de Seguridad Automatizadas
+
+Una infraestructura profesional no confía ciegamente en el disco del VPS:
+* Creamos un cron job nocturno que genera un \`pg_dump\` encriptado.
+* El archivo se sube automáticamente a un almacenamiento S3 / Cloudflare R2.
+* Si el servidor VPS se destruye, la infraestructura completa se restaura en menos de 10 minutos.`,
+            prompts: [
+              `Genera un script bash automatizado para backup de PostgreSQL a Cloudflare R2 / AWS S3:
+1. Exportar base de datos con pg_dump comprimido en .sql.gz.
+2. Subir el archivo usando rclone o aws-cli al bucket 'backups-n8n'.
+3. Eliminar backups locales y remotos con más de 30 días de antigüedad.
+4. Enviar notificación de éxito a Telegram.`
+            ],
+            downloads: [
+              { name: "Script_Backup_Postgres_S3.sh", type: "Bash Script", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-6-2",
+            title: "6.2 Integración E2E del Pipeline Empresarial en Producción",
+            duration: "40 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Ensamblaje del pipeline completo en vivo: Recepción de mensaje por WhatsApp -> Validación y clasificación con IA -> Consulta de stock en PostgreSQL -> Registro de pedido -> Notificación al cliente y alerta en Telegram.",
+            content_text: `### El Pipeline Empresarial Completo
+
+Un flujo de extremo a extremo que demuestra la potencia de la infraestructura propia:
+1. **Entrada:** Cliente escribe por WhatsApp pidiendo cotización de un servicio o reserva.
+2. **Procesamiento:** AI Agent con Claude 3.5 Sonnet extrae la entidad y consulta la base de datos PostgreSQL.
+3. **Decisión:** El agente valida disponibilidad y genera la cotización personalizada.
+4. **Salida:** Respuesta inmediata con botones interactivos por WhatsApp y registro del lead en CRM/Base de Datos.`,
+            prompts: [
+              `Revisa la arquitectura del pipeline completo para identificar cuellos de botella:
+- Flujo Webhook -> Parser -> AI Agent -> Tool Postgres -> HTTP WhatsApp.
+- Evalúa tiempos de respuesta y optimizaciones de caché para lograr respuestas sub-segundo.`
+            ],
+            downloads: [
+              { name: "Pipeline_Empresarial_E2E_Completo.json", type: "n8n Workflow Maestro", url: "#" }
+            ]
+          },
+          {
+            id: "n8n-6-3",
+            title: "6.3 Proyecto Final de Certificación y Emisión de tu Diploma Oficial",
+            duration: "30 min",
+            videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0",
+            summary: "Instrucciones de entrega del proyecto final de graduación: presentación de tu VPS activo, flujo funcional de WhatsApp con base de datos PostgreSQL y emisión automática de tu Diploma Oficial con código QR de verificación.",
+            content_text: `### Requisitos de Graduación del Bootcamp
+
+Para recibir tu Diploma Oficial de Arquitecto de Pipelines & Agentes IA:
+1. **Completar el 100% de las 18 lecciones del bootcamp.**
+2. **Aprobar los 6 quizes evaluativos con calificación mínima del 75%.**
+3. **Entregar evidencias de tu infraestructura en producción:**
+   - URL de tu servidor n8n con certificado HTTPS válido.
+   - Captura de ejecución de un flujo de WhatsApp integrado con PostgreSQL y AI Agent.
+   - Configuración de alerta de error en Telegram.
+4. **Hacer clic en 'Emitir Certificado Oficial' para generar tu diploma verificable.**`,
+            prompts: [
+              `Eres el Evaluador Técnico del Bootcamp de Inteligencia Neuronal. Revisa la entrega del proyecto final:
+- URL de n8n: [Tu Subdominio]
+- Repositorio / Flujo JSON exportado: [Detalles]
+- Captura de logs en PostgreSQL y Telegram: [Evidencias]
+
+Evalúa según la rúbrica de arquitectura soberana, seguridad y buenas prácticas, entregando el veredicto de certificación.`
+            ],
+            downloads: [
+              { name: "Guia_Proyecto_Final_Bootcamp_n8n.pdf", type: "Guía PDF", url: "#" },
+              { name: "Rubrica_Evaluacion_Arquitecto_Pipelines.pdf", type: "Rúbrica PDF", url: "#" }
+            ]
+          }
+        ],
+        quiz: {
+          enabled: true,
+          passingScore: 75,
+          questions: [
+            {
+              question: "¿Cuál es el principal valor de contar con una infraestructura de automatización propia (self-hosted) frente a herramientas SaaS?",
+              options: [
+                "Control total de los datos, costos fijos predecibles sin importar el volumen de operaciones y libertad total para conectar modelos de IA y bases de datos.",
+                "Tener que pagar más facturas cada mes.",
+                "No poder conectar aplicaciones web."
+              ],
+              correctIndex: 0,
+              explanation: "El autoalojamiento (self-hosting) otorga soberanía tecnológica absoluta, privacidad para datos sensibles y escalabilidad económica ilimitada."
+            },
+            {
+              question: "¿Por qué es crucial implementar copias de seguridad automáticas en un bucket externo (S3/R2)?",
+              options: [
+                "Para garantizar la recuperación completa de flujos, credenciales y bases de datos ante cualquier desastre o fallo de hardware en el VPS.",
+                "Para ocupar espacio en internet.",
+                "Para borrar los archivos del cliente."
+              ],
+              correctIndex: 0,
+              explanation: "Los backups externos garantizan continuidad del negocio y resiliencia total frente a caídas o incidencias en el proveedor de servidores."
             }
           ]
         }
