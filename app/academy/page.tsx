@@ -448,48 +448,55 @@ const REAL_COURSES: Course[] = [
 // ── CATÁLOGO BASE DE RECURSOS ──
 const DEFAULT_RESOURCES: ResourceItem[] = [
   {
-    id: "escandallos",
-    title: "Matriz Maestra de Escandallos & Costos Gastronómicos",
-    desc: "Plantilla en Excel totalmente formulada para costeo crudo/cocido, factor de rendimiento y mermas técnicas de cocina industrial.",
-    tag: "XLSX PARAMETRIZADO",
-    format: "Plantilla Excel Parametrizada",
-    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
-    stripeColor: "from-[#1DACE3] to-[#0284c7]",
-    access: "GRATIS",
-    downloads: "0",
-  },
-  {
     id: "sops",
     title: "Framework de Manuales Operativos (SOPs) y Checklists",
-    desc: "Estructura modular para estandarizar procesos de cocina, compras y apertura/cierre antes de integrar automatizaciones agénticas.",
+    desc: "Estructura modular en Notion para estandarizar procesos de cocina, compras, servicio y apertura/cierre antes de integrar automatizaciones agénticas.",
     tag: "WORKSPACE NOTION",
     format: "Plantilla Notion Duplicable",
     previewImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#FEAD2B] to-[#ea580c]",
     access: "GRATIS",
+    price: "GRATIS",
+    fileUrl: "https://notion.so/",
     downloads: "0",
   },
   {
     id: "haccp",
     title: "Checklist de Auditoría de Puntos Críticos HACCP",
-    desc: "Plantilla de control de temperaturas, rotación de inventarios y protocolos de inocuidad según estándares internacionales.",
+    desc: "Plantilla interactiva de control de temperaturas, rotación FIFO/PEPS, matriz de límites críticos y protocolos de inocuidad según estándares internacionales.",
     tag: "PDF INTERACTIVO",
     format: "Guía de Auditoría PDF",
     previewImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#86C537] to-[#059669]",
     access: "GRATIS",
+    price: "GRATIS",
+    fileUrl: "/downloads/checklist-haccp.pdf",
     downloads: "0",
   },
   {
     id: "aeo-rag",
     title: "Guía de Indexación para Motores de Respuesta IA (AEO & RAG)",
-    desc: "Arquitectura técnica para estructurar microdatos JSON-LD y Schema.org para que ChatGPT, Gemini y Perplexity indexen tu negocio.",
+    desc: "Manual de arquitectura técnica para estructurar microdatos JSON-LD y Schema.org para que ChatGPT, Gemini y Perplexity indexen y citen tu negocio.",
     tag: "GUÍA TÉCNICA",
     format: "Manual de Arquitectura AEO",
     previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
     stripeColor: "from-[#EA0C7F] to-[#971B8D]",
     access: "PREMIUM",
-    price: "$27 USD",
+    price: "$5 USD",
+    fileUrl: "/downloads/guia-aeo-rag.pdf",
+    downloads: "0",
+  },
+  {
+    id: "escandallos",
+    title: "Matriz Maestra de Escandallos & Costos Gastronómicos",
+    desc: "Plantilla en Excel totalmente formulada para costeo crudo/cocido, factor de rendimiento, mermas técnicas y cálculo de precio sugerido por Food Cost.",
+    tag: "XLSX PARAMETRIZADO",
+    format: "Plantilla Excel Parametrizada",
+    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+    stripeColor: "from-[#1DACE3] to-[#0284c7]",
+    access: "GRATIS",
+    price: "GRATIS",
+    fileUrl: "/downloads/matriz-escandallos.xlsx",
     downloads: "0",
   }
 ];
@@ -595,7 +602,8 @@ export default function AcademyPage() {
             previewImage: r.preview_image || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
             stripeColor: r.stripe_color || "from-[#1DACE3] to-[#0284c7]",
             access: r.access_type?.includes("PREMIUM") ? "PREMIUM" : "GRATIS",
-            price: r.price_display || (r.price_usd ? `$${r.price_usd} USD` : undefined),
+            price: r.price_display || (r.price_usd ? `$${r.price_usd} USD` : (r.access_type?.includes("PREMIUM") ? "$5 USD" : "GRATIS")),
+            fileUrl: r.file_url || (r.id === 'escandallos' ? '/downloads/matriz-escandallos.xlsx' : r.id === 'haccp' ? '/downloads/checklist-haccp.pdf' : r.id === 'aeo-rag' ? '/downloads/guia-aeo-rag.pdf' : 'https://notion.so/'),
             downloads: `${r.downloads_count || 0}`,
           }));
           setResources(mappedRes);
@@ -1584,12 +1592,22 @@ export default function AcademyPage() {
             </div>
 
             {downloadState.success ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-2 text-center">
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-3 text-center">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
                 <p className="font-bold">{downloadState.message}</p>
                 <p className="text-[11px] text-emerald-700">
-                  Si no lo visualizas en 2 minutos, revisa tu carpeta de promociones o spam.
+                  Si no lo visualizas en tu correo en 2 minutos, también puedes descargarlo directamente aquí:
                 </p>
+                <a
+                  href={selectedResourceForDownload.fileUrl || `/downloads/${selectedResourceForDownload.id === 'escandallos' ? 'matriz-escandallos.xlsx' : selectedResourceForDownload.id === 'haccp' ? 'checklist-haccp.pdf' : selectedResourceForDownload.id === 'aeo-rag' ? 'guia-aeo-rag.pdf' : 'framework-sops-checklists.pdf'}`}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors w-full"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Descargar Archivo Ahora</span>
+                </a>
               </div>
             ) : (
               <form onSubmit={handleResourceSubmit} className="space-y-4">

@@ -16,7 +16,20 @@ export async function GET() {
       return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, resources: resources || [] });
+    const formatted = (resources || []).map((r) => {
+      const isPremium = r.access_type?.includes("PREMIUM") || r.access_type?.includes("$");
+      const priceMatch = r.access_type?.match(/\$([0-9.]+)/);
+      const priceUsd = priceMatch ? Number(priceMatch[1]) : (isPremium ? 5 : 0);
+      const priceDisplay = isPremium ? (priceMatch ? `$${priceMatch[1]} USD` : "$5 USD") : "GRATIS";
+
+      return {
+        ...r,
+        price_display: priceDisplay,
+        price_usd: priceUsd,
+      };
+    });
+
+    return NextResponse.json({ success: true, resources: formatted });
   } catch (err: any) {
     console.error("[GET /api/resources Error]", err);
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
@@ -32,27 +45,29 @@ export async function POST(req: NextRequest) {
     const id = rawId.replace(/^res-/, "");
     const slug = body.slug || id;
 
+    const accessType = body.access_type?.includes('PREMIUM') || body.access?.includes('PREMIUM') || (body.price_usd && Number(body.price_usd) > 0)
+      ? (body.price_display ? `PREMIUM (${body.price_display})` : `PREMIUM ($${body.price_usd || 5} USD)`)
+      : (body.access_type || body.access || "GRATUITO (LEAD)");
+
+    const insertPayload: any = {
+      id,
+      slug,
+      title: body.title || body.name,
+      description: body.description || "",
+      tag: (body.tag || "RECURSO").toUpperCase(),
+      format: body.format || "PDF / Guía",
+      preview_image: body.preview_image || body.previewImage || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
+      stripe_color: body.stripe_color || body.stripeColor || "from-[#1DACE3] to-[#0284c7]",
+      file_url: body.file_url || body.fileUrl || "#",
+      access_type: accessType,
+      downloads_count: Number(body.downloads_count || body.downloads) || 0,
+      is_active: body.is_active !== undefined ? body.is_active : true,
+      order_index: Number(body.order_index) || 0,
+    };
+
     const { data: newResource, error } = await db
       .from("academy_resources")
-      .insert([
-        {
-          id,
-          slug,
-          title: body.title || body.name,
-          description: body.description || "",
-          tag: (body.tag || "RECURSO").toUpperCase(),
-          format: body.format || "PDF / Guía",
-          preview_image: body.preview_image || body.previewImage || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
-          stripe_color: body.stripe_color || body.stripeColor || "from-[#1DACE3] to-[#0284c7]",
-          file_url: body.file_url || body.fileUrl || "#",
-          access_type: body.access_type || body.access || "GRATUITO (LEAD)",
-          price_display: body.price_display || body.price || (body.access_type?.includes('PREMIUM') || body.access?.includes('PREMIUM') ? "$27 USD" : "GRATIS"),
-          price_usd: Number(body.price_usd) || (body.access_type?.includes('PREMIUM') || body.access?.includes('PREMIUM') ? 27 : 0),
-          downloads_count: Number(body.downloads_count || body.downloads) || 0,
-          is_active: body.is_active !== undefined ? body.is_active : true,
-          order_index: Number(body.order_index) || 0,
-        },
-      ])
+      .insert([insertPayload])
       .select()
       .single();
 
@@ -77,6 +92,10 @@ export async function PUT(req: NextRequest) {
     const id = body.id;
     const cleanId = id.replace(/^res-/, "");
 
+    const accessType = body.access_type?.includes('PREMIUM') || body.access?.includes('PREMIUM') || (body.price_usd && Number(body.price_usd) > 0)
+      ? (body.price_display ? `PREMIUM (${body.price_display})` : `PREMIUM ($${body.price_usd || 5} USD)`)
+      : (body.access_type || body.access || "GRATUITO (LEAD)");
+
     const updatePayload: any = {
       title: body.title || body.name,
       description: body.description,
@@ -85,9 +104,7 @@ export async function PUT(req: NextRequest) {
       preview_image: body.preview_image || body.previewImage,
       stripe_color: body.stripe_color || body.stripeColor,
       file_url: body.file_url || body.fileUrl,
-      access_type: body.access_type || body.access,
-      price_display: body.price_display || body.price,
-      price_usd: body.price_usd !== undefined ? Number(body.price_usd) : undefined,
+      access_type: accessType,
       is_active: body.is_active,
     };
 
