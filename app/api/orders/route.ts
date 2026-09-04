@@ -32,21 +32,37 @@ export async function GET(req: NextRequest) {
           .order("created_at", { ascending: false });
 
         if (enrollData && enrollData.length > 0) {
-          orders = enrollData.map((en: any, idx: number) => ({
-            id: en.id || `ORD-ENR-${idx + 100}`,
-            folio: en.order_folio || `ORD-98${idx + 10}`,
-            customer_name: en.full_name || "Alumno Academy",
-            customer_email: en.email,
-            customer_phone: en.phone || "No registrado",
-            course_id: en.course_id || "masterclass-ia-restaurantes",
-            course_title: en.course_title || (en.course_id?.includes("bootcamp") ? "Bootcamp n8n" : en.course_id?.includes("aeo") ? "Dominio Local AEO" : "Masterclass IA"),
-            amount: en.amount || "$97 USD",
-            currency: "USD",
-            payment_method: en.payment_method || "pagomovil",
-            reference_number: en.reference_number || "REG-DIRECTO",
-            status: en.status === "active" ? "ACTIVO" : (en.status?.toUpperCase() || "ACTIVO"),
-            created_at: en.created_at || new Date().toISOString(),
-          }));
+          const priceMap: Record<string, string> = {
+            "bootcamp-n8n": "$197 USD",
+            "bootcamp-n8n-ia": "$197 USD",
+            "masterclass-ia-restaurantes": "$97 USD",
+            "ia-restaurantes": "$97 USD",
+            "crecimiento-aeo-local": "$67 USD",
+            "crecimiento-aeo": "$67 USD",
+            "masterclass-antigravity": "$47 USD",
+          };
+
+          orders = enrollData.map((en: any, idx: number) => {
+            const courseId = en.course_id || "bootcamp-n8n";
+            const calculatedPrice = en.amount || priceMap[courseId] || "$97 USD";
+            const courseTitle = en.course_title || (courseId.includes("bootcamp") ? "Bootcamp n8n & Agentes IA" : courseId.includes("aeo") ? "Dominio Local AEO Gastronómico" : courseId.includes("antigravity") ? "Masterclass Antigravity" : "Masterclass IA Restaurantes");
+
+            return {
+              id: en.id || `ORD-ENR-${idx + 100}`,
+              folio: en.order_folio || `ORD-98${idx + 10}`,
+              customer_name: en.full_name || "Alumno Academy",
+              customer_email: en.email || en.student_email,
+              customer_phone: en.phone || "No registrado",
+              course_id: courseId,
+              course_title: courseTitle,
+              amount: calculatedPrice,
+              currency: "USD",
+              payment_method: en.payment_method || "pagomovil",
+              reference_number: en.reference_number || "REG-DIRECTO",
+              status: en.status === "active" ? "ACTIVO" : (en.status?.toUpperCase() || "ACTIVO"),
+              created_at: en.created_at || new Date().toISOString(),
+            };
+          });
         }
       } catch (e) {
         console.warn("[Orders fallback enroll warning]", e);
@@ -109,8 +125,17 @@ export async function POST(req: NextRequest) {
     const cleanEmail = customerEmail.trim().toLowerCase();
     const cleanName = customerName.trim();
     const cleanPhone = customerPhone ? customerPhone.trim() : "";
-    const cleanTitle = courseTitle || "Programa Oficial Inteligencia Neuronal Academy";
-    const cleanAmount = amount || "$97 USD";
+    const cleanTitle = courseTitle ? courseTitle.trim() : courseId;
+    const priceMap: Record<string, string> = {
+      "bootcamp-n8n": "$197 USD",
+      "bootcamp-n8n-ia": "$197 USD",
+      "masterclass-ia-restaurantes": "$97 USD",
+      "ia-restaurantes": "$97 USD",
+      "crecimiento-aeo-local": "$67 USD",
+      "crecimiento-aeo": "$67 USD",
+      "masterclass-antigravity": "$47 USD",
+    };
+    const cleanAmount = amount || priceMap[courseId] || "$97 USD";
     const cleanRef = referenceNumber.trim() || `REF-${Math.floor(100000 + Math.random() * 900000)}`;
     const randomFolio = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
     const paymentDateVal = paymentDate || new Date().toISOString().split("T")[0];

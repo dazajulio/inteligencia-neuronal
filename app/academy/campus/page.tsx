@@ -37,7 +37,10 @@ import {
   Mail,
   Building,
   CheckCircle,
-  ChevronRight
+  ChevronRight,
+  Star,
+  Clock,
+  Terminal
 } from "lucide-react";
 
 // ── MODELOS DE DATOS ──
@@ -2637,6 +2640,69 @@ const FAQ_LIST = [
   }
 ];
 
+const ACADEMY_CATALOG = [
+  {
+    id: "bootcamp-n8n",
+    badge: "PROGRAMA TÉCNICO // EN VIVO",
+    level: "Intermedio a Avanzado",
+    title: "Bootcamp: Arquitectura de Pipelines con n8n & Agentes IA",
+    tagline: "Despliegue de infraestructura soberana sobre VPS dedicado, webhooks reversos y orquestación de agentes con PostgreSQL.",
+    duration: "6 Semanas Intensivas",
+    rating: 4.9,
+    reviewsCount: 140,
+    price: "$197 USD",
+    originalPrice: "$390 USD",
+    discount: "50% OFF",
+    previewImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+    tools: ["n8n Self-Hosted", "Docker & Caddy", "PostgreSQL", "Meta Cloud API"]
+  },
+  {
+    id: "masterclass-ia-restaurantes",
+    badge: "OPERATIVO & ESTRATÉGICO",
+    level: "Operativo & Estratégico",
+    title: "Masterclass: Automatización Agéntica con IA para Restaurantes",
+    tagline: "Aprende a implementar agentes inteligentes que atienden por WhatsApp, capturan pedidos, controlan recetas y calculan escandallos sin alucinaciones.",
+    duration: "5 Módulos Intensivos • Acceso de por vida",
+    rating: 4.8,
+    reviewsCount: 112,
+    price: "$97 USD",
+    originalPrice: "$197 USD",
+    discount: "50% OFF",
+    previewImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+    tools: ["WhatsApp Cloud API", "Gemini Pro", "Escandallos XLSX", "HACCP Digital"]
+  },
+  {
+    id: "crecimiento-aeo-local",
+    badge: "CRECIMIENTO & MARKETING",
+    level: "Estratégico / Marketing",
+    title: "Masterclass: Dominio Local & AEO Gastronómico (ChatGPT, Perplexity & Apple Maps)",
+    tagline: "Estrategia de posicionamiento en motores de respuesta IA y optimización de perfiles locales para atraer comensales de alto valor.",
+    duration: "4 Módulos Prácticos • Acceso de por vida",
+    rating: 4.9,
+    reviewsCount: 88,
+    price: "$67 USD",
+    originalPrice: "$134 USD",
+    discount: "50% OFF",
+    previewImage: "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80",
+    tools: ["AEO Architecture", "JSON-LD Schemas", "Google Business", "Apple Maps"]
+  },
+  {
+    id: "masterclass-antigravity",
+    badge: "NUEVO // ALTA DEMANDA",
+    level: "Desarrollo Agéntico",
+    title: "Masterclass: Ingeniería Agéntica & Creación de Software con Google Antigravity",
+    tagline: "Aprende a crear aplicaciones completas, flujos de trabajo autónomos y herramientas internas con Google Antigravity.",
+    duration: "4 Módulos Intensivos • Acceso de por vida",
+    rating: 5.0,
+    reviewsCount: 94,
+    price: "$47 USD",
+    originalPrice: "$94 USD",
+    discount: "50% OFF",
+    previewImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
+    tools: ["Google AGY", "Subagentes", "Custom Skills", "Generative UI"]
+  }
+];
+
 function CampusContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -2653,11 +2719,11 @@ function CampusContent() {
 
   // Student Profile Data
   const [studentProfile, setStudentProfile] = useState({
-    fullName: "Julio Alberto Daza",
-    email: "dazajulio@gmail.com",
-    phone: "+58 414-881-7137",
-    company: "Grupo Gastronómico El Velero",
-    role: "Director de Operaciones & Fundador",
+    fullName: "Carlos Mendoza",
+    email: "carlos@empresa.com",
+    phone: "+58 412 000-0000",
+    company: "Empresa Gastronómica",
+    role: "Director de Operaciones",
   });
 
   // Gating de cursos matriculados
@@ -3017,8 +3083,8 @@ function CampusContent() {
         <header className="border-b border-zinc-800 bg-zinc-950/60 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#1DACE3] to-[#EA0C7F] flex items-center justify-center text-white font-black text-sm shadow-md">
-                IN
+              <div className="w-8 h-8 sm:w-9 sm:h-9 relative shrink-0 flex items-center justify-center">
+                <img src="/logo.png" alt="Inteligencia Neuronal" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-white tracking-tight">CAMPUS VIRTUAL</span>
@@ -3039,8 +3105,8 @@ function CampusContent() {
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#1DACE3] via-[#EA0C7F] to-[#FEAD2B]" />
 
             <div className="space-y-2">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] flex items-center justify-center text-white shadow-lg mb-3">
-                <GraduationCap className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-center shadow-lg mb-3 p-2">
+                <img src="/logo.png" alt="Inteligencia Neuronal" className="w-full h-full object-contain" />
               </div>
               <div className="font-mono text-[10px] font-bold text-[#1DACE3] uppercase tracking-wider">
                 Acceso de Alumnos // Campus Virtual
@@ -3130,17 +3196,17 @@ function CampusContent() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#0284c7] selection:text-white font-sans">
       
-      {/* ── HEADER DEDICADO DEL CAMPUS VIRTUAL (100% LIMPIO, SIN MARKETING NAVBAR) ── */}
+      {/* ── HEADER DEDICADO DEL CAMPUS VIRTUAL (100% LIMPIO, CON LOGO OFICIAL) ── */}
       <header className="bg-[#1F242D] text-white border-b border-zinc-800 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
-          {/* Logo Campus Virtual */}
+          {/* Logo Campus Virtual Oficial */}
           <div
             onClick={() => setCurrentView("dashboard")}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1DACE3] to-[#EA0C7F] flex items-center justify-center text-white font-black text-sm shadow-md group-hover:scale-105 transition-transform">
-              IN
+            <div className="w-8 h-8 sm:w-9 sm:h-9 relative shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <img src="/logo.png" alt="Inteligencia Neuronal" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="text-xs font-black tracking-wide text-white flex items-center gap-2">
@@ -3293,42 +3359,107 @@ function CampusContent() {
               </div>
             </div>
 
-            {/* SECCIÓN 2: CATÁLOGO DE OTROS PROGRAMAS DISPONIBLES */}
-            {Object.values(PROGRAMS).filter((p) => !enrolledCourseIds.includes(p.id)).length > 0 && (
-              <div className="space-y-4 pt-6 border-t border-zinc-200">
-                <h2 className="text-base font-bold text-zinc-900 uppercase font-mono tracking-wider flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-[#EA0C7F]" />
-                  <span>Otros Programas Disponibles en Academy</span>
-                </h2>
+            {/* SECCIÓN 2: CATÁLOGO DE OTROS PROGRAMAS DISPONIBLES (DISEÑO UDEMY IGUAL A ACADEMY) */}
+            {ACADEMY_CATALOG.filter((c) => !enrolledCourseIds.includes(c.id)).length > 0 && (
+              <div className="space-y-6 pt-6 border-t border-zinc-200">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0284c7] uppercase tracking-wider mb-1">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Programas y Especializaciones</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-zinc-900 tracking-tight font-heading">
+                      Otros Cursos Disponibles en Academy
+                    </h2>
+                    <p className="text-xs text-zinc-600 mt-0.5">
+                      Desarrolla habilidades altamente demandadas con programas prácticos en entornos reales.
+                    </p>
+                  </div>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.values(PROGRAMS)
-                    .filter((p) => !enrolledCourseIds.includes(p.id))
-                    .map((prog) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {ACADEMY_CATALOG
+                    .filter((course) => !enrolledCourseIds.includes(course.id))
+                    .map((course) => (
                       <div
-                        key={prog.id}
-                        className="p-6 rounded-3xl bg-zinc-50 border border-zinc-200/80 flex flex-col justify-between space-y-4"
+                        key={course.id}
+                        className="group rounded-2xl border border-zinc-200/90 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                       >
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-200 text-zinc-700">
-                              {prog.badge}
-                            </span>
-                            <span className="font-mono text-[10px] font-bold text-zinc-400">
-                              NO MATRICULADO
-                            </span>
+                        <div>
+                          {/* Thumbnail 16:9 con zoom hover */}
+                          <div className="relative aspect-[16/9] w-full overflow-hidden bg-zinc-900">
+                            <img
+                              src={course.previewImage}
+                              alt={course.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                            
+                            {/* Badge de Nivel */}
+                            <div className="absolute top-2.5 left-2.5">
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-900/85 text-white backdrop-blur-md border border-white/20">
+                                {course.level}
+                              </span>
+                            </div>
+
+                            {/* Duración */}
+                            <div className="absolute bottom-2 right-2 flex items-center gap-1 text-[10px] font-mono font-medium text-white/90 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm">
+                              <Clock className="w-3 h-3 text-[#FEAD2B]" />
+                              <span>{course.duration}</span>
+                            </div>
                           </div>
-                          <h3 className="text-base font-bold text-zinc-800">{prog.title}</h3>
-                          <p className="text-xs text-zinc-500 line-clamp-2">{prog.tagline}</p>
+
+                          {/* Cuerpo de la Tarjeta */}
+                          <div className="p-4 space-y-2">
+                            <h3 className="font-bold text-sm text-zinc-900 leading-snug line-clamp-2 min-h-[2.4rem] group-hover:text-[#0284c7] transition-colors">
+                              {course.title}
+                            </h3>
+
+                            <p className="text-xs text-zinc-500 line-clamp-2">
+                              {course.tagline}
+                            </p>
+
+                            {/* Fila de Calificación e Insignia */}
+                            <div className="flex items-center gap-2 pt-1 flex-wrap">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E6F4F1] text-[#007765]">
+                                Inscripciones Abiertas
+                              </span>
+
+                              <div className="flex items-center gap-1 text-xs font-bold text-amber-700">
+                                <span>{course.rating.toFixed(1)}</span>
+                                <div className="flex text-amber-400">
+                                  <Star className="w-3.5 h-3.5 fill-current" />
+                                </div>
+                              </div>
+
+                              <span className="text-[11px] text-zinc-400">
+                                ({course.reviewsCount} reseñas)
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-3 border-t border-zinc-200 text-xs">
-                          <span className="font-mono text-zinc-500">{prog.modules.length} Módulos</span>
+                        {/* Pie de Tarjeta con Precios y Botón */}
+                        <div className="px-4 pb-4 pt-2 border-t border-zinc-100 space-y-3">
+                          <div className="flex items-baseline justify-between">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-lg font-black text-zinc-900 font-heading">
+                                {course.price}
+                              </span>
+                              <span className="text-xs line-through text-zinc-400 font-mono">
+                                {course.originalPrice}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              {course.discount}
+                            </span>
+                          </div>
+
                           <Link
                             href="/academy"
-                            className="font-bold text-white bg-zinc-900 hover:bg-zinc-800 px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#1DACE3] hover:opacity-95 text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                           >
-                            <span>Inscribirme</span>
+                            <span>Inscribirme al Programa</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                           </Link>
                         </div>

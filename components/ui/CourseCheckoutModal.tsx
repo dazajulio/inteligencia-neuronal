@@ -157,7 +157,7 @@ export function CourseCheckoutModal() {
                     required
                     value={fullName}
                     onChange={(e) => setFormField("fullName", e.target.value)}
-                    placeholder="Ej: Julio Daza"
+                    placeholder="Ej: Carlos Mendoza"
                     className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
                   />
                 </div>
@@ -172,7 +172,7 @@ export function CourseCheckoutModal() {
                       required
                       value={email}
                       onChange={(e) => setFormField("email", e.target.value)}
-                      placeholder="tu@empresa.com"
+                      placeholder="carlos@empresa.com"
                       className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
                     />
                   </div>
@@ -186,7 +186,7 @@ export function CourseCheckoutModal() {
                       required
                       value={phone}
                       onChange={(e) => setFormField("phone", e.target.value)}
-                      placeholder="+58 414 1234567"
+                      placeholder="+58 412 000-0000"
                       className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
                     />
                   </div>
