@@ -300,15 +300,18 @@ export function CourseCheckoutModal() {
                   <Smartphone className="w-3.5 h-3.5" />
                   <span>COORDENADAS DE PAGO MÓVIL (VENEZUELA)</span>
                 </div>
-                <p className="text-xs text-slate-600">
-                  Realiza el pago móvil calculando el monto en Bolívares a la <strong>Tasa Oficial BCV del día</strong>.
-                </p>
+                <div className="flex items-center justify-center gap-2 text-xs text-slate-600 font-mono">
+                  <span>Tasa Oficial BCV:</span>
+                  <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Bs. {useCheckoutStore.getState().bcvRate?.toFixed(2) || "40.50"} / USD
+                  </span>
+                </div>
               </div>
 
               {/* Data Card with Copy Buttons */}
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 font-mono text-xs">
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
-                  <span className="text-slate-500 font-sans">Banco:</span>
+                  <span className="text-slate-500 font-sans">Banco Receptor:</span>
                   <span className="font-bold text-slate-900">
                     {paymentSettings.pagoMovil.banco}{" "}
                     {paymentSettings.pagoMovil.bancoCodigo ? `(${paymentSettings.pagoMovil.bancoCodigo})` : ""}
@@ -321,7 +324,7 @@ export function CourseCheckoutModal() {
                     <span className="font-bold text-slate-900">{paymentSettings.pagoMovil.cedulaRif}</span>
                     <button
                       onClick={() => copyToClipboard(paymentSettings.pagoMovil.cedulaRif.replace(/\D/g, ""), "ci")}
-                      className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded"
+                      className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded cursor-pointer"
                     >
                       {copiedField === "ci" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
@@ -329,12 +332,12 @@ export function CourseCheckoutModal() {
                 </div>
 
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
-                  <span className="text-slate-500 font-sans">Teléfono:</span>
+                  <span className="text-slate-500 font-sans">Teléfono Receptor:</span>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-900">{paymentSettings.pagoMovil.telefono}</span>
                     <button
                       onClick={() => copyToClipboard(paymentSettings.pagoMovil.telefono.replace(/\D/g, ""), "phone")}
-                      className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded"
+                      className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded cursor-pointer"
                     >
                       {copiedField === "phone" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
@@ -342,36 +345,98 @@ export function CourseCheckoutModal() {
                 </div>
 
                 <div className="flex items-center justify-between py-1.5">
-                  <span className="text-slate-500 font-sans">Tasa / Monto:</span>
-                  <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                    {selectedCourse.price} ({paymentSettings.pagoMovil.tasaInfo || "al cambio BCV"})
-                  </span>
+                  <span className="text-slate-500 font-sans">Monto a Transferir:</span>
+                  <div className="text-right">
+                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-mono text-sm block">
+                      Bs. {((parseFloat((selectedCourse.price || "97").replace(/[^0-9.]/g, "")) || 97) * (useCheckoutStore.getState().bcvRate || 40.5)).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-sans">Equivalente a {selectedCourse.price} a Tasa BCV</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Reference Input */}
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
-                  <span>Número de Referencia de Pago Móvil *</span>
-                  <span className="text-[10px] text-indigo-600 font-sans font-medium">Validación instantánea</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={referenceNumber}
-                  onChange={(e) => setFormField("referenceNumber", e.target.value)}
-                  placeholder="Ej: 849201 ó últimos 6 dígitos"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none transition-all font-mono"
-                />
+              {/* Extended Payment Confirmation Fields */}
+              <div className="space-y-3 bg-white p-4 rounded-2xl border border-slate-200">
+                <span className="font-mono text-[11px] font-bold text-slate-800 uppercase block border-b border-slate-100 pb-2">
+                  Datos de Confirmación de tu Pago:
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                      Banco Emisor (Desde dónde pagaste) *
+                    </label>
+                    <select
+                      value={useCheckoutStore.getState().originBank || "Banesco"}
+                      onChange={(e) => setFormField("originBank", e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none"
+                    >
+                      <option value="Banesco">Banesco</option>
+                      <option value="Banco de Venezuela (BDV)">Banco de Venezuela (BDV)</option>
+                      <option value="Mercantil">Mercantil</option>
+                      <option value="BBVA Provincial">BBVA Provincial</option>
+                      <option value="Bancamiga">Bancamiga</option>
+                      <option value="BNC (Banco Nacional de Crédito)">BNC</option>
+                      <option value="Bancaribe">Bancaribe</option>
+                      <option value="Pago Móvil Interbancario (Otro)">Pago Móvil Interbancario (Otro)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                      Fecha del Pago *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={useCheckoutStore.getState().paymentDate || new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setFormField("paymentDate", e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                      Monto Pagado (Bs.) *
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        useCheckoutStore.getState().paidAmountBs ||
+                        `Bs. ${((parseFloat((selectedCourse.price || "97").replace(/[^0-9.]/g, "")) || 97) * (useCheckoutStore.getState().bcvRate || 40.5)).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      }
+                      onChange={(e) => setFormField("paidAmountBs", e.target.value)}
+                      placeholder="Ej: Bs. 3,928.50"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none font-mono font-bold text-emerald-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1 flex items-center justify-between">
+                      <span>Nro. de Referencia *</span>
+                      <span className="text-[9px] text-indigo-600">Requerido</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={referenceNumber}
+                      onChange={(e) => setFormField("referenceNumber", e.target.value)}
+                      placeholder="Ej: 849201 ó últimos 6 dígitos"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none font-mono font-bold"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Automated Registration Banner */}
               <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-100 flex items-start gap-2.5 text-xs text-indigo-950">
                 <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <span className="font-bold block">Acceso Inmediato y Automatizado:</span>
+                  <span className="font-bold block">Matrícula Inmediata y Acceso al Campus:</span>
                   <p className="text-[11px] text-indigo-800 leading-relaxed">
-                    Al confirmar, tu matrícula quedará <strong>ACTIVA</strong> de inmediato. Serás redirigido al Campus Virtual y recibirás tus credenciales en <strong>{email}</strong>.
+                    Al confirmar tu pago, tu cuenta quedará <strong>ACTIVA</strong> de inmediato. Recibirás tus credenciales en <strong>{email}</strong> y serás redirigido directamente a tu aula virtual.
                   </p>
                 </div>
               </div>
@@ -401,7 +466,7 @@ export function CourseCheckoutModal() {
                 <button
                   type="button"
                   onClick={() => useCheckoutStore.setState({ step: "form" })}
-                  className="w-full py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Modificar datos o vía de pago</span>

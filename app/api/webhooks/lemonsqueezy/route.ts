@@ -74,12 +74,13 @@ export async function POST(req: NextRequest) {
 
         // 3. Enviar correo de bienvenida al alumno con acceso directo al Campus
         try {
+          const generatedTempPass = Math.random().toString(36).slice(-8) + "IN#";
           await sendAcademyWelcomeEmail({
             to: customerEmail,
             fullName: customerName,
             courseTitle: courseTitle,
             campusUrl: "https://inteligencianeuronal.com/academy/campus",
-            whatsappVipUrl: "https://wa.me/584148817137?text=" + encodeURIComponent(`Hola Julio, acabo de pagar en Lemon Squeezy el curso ${courseTitle}.`),
+            temporaryPassword: generatedTempPass,
           });
         } catch (emailErr) {
           console.warn("[Lemon Squeezy Welcome Email Warning]", emailErr);

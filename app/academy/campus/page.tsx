@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   GraduationCap,
   PlayCircle,
@@ -28,10 +28,17 @@ import {
   EyeOff,
   RotateCcw,
   AlertCircle,
-  StickyNote
+  StickyNote,
+  User,
+  Key,
+  ShieldCheck,
+  Sparkle,
+  Phone,
+  Mail,
+  Building,
+  CheckCircle,
+  ChevronRight
 } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 
 // ── MODELOS DE DATOS ──
 interface QuizQuestion {
@@ -2632,6 +2639,7 @@ const FAQ_LIST = [
 
 function CampusContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialEmail = searchParams.get("email") || "";
 
   // Auth State
@@ -2644,7 +2652,7 @@ function CampusContent() {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Student Profile Data
-  const [studentProfile] = useState({
+  const [studentProfile, setStudentProfile] = useState({
     fullName: "Julio Alberto Daza",
     email: "dazajulio@gmail.com",
     phone: "+58 414-881-7137",
@@ -2652,8 +2660,11 @@ function CampusContent() {
     role: "Director de Operaciones & Fundador",
   });
 
-  // Navigation State
-  const [currentView, setCurrentView] = useState<"dashboard" | "player" | "help">("dashboard");
+  // Gating de cursos matriculados
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>(["bootcamp-n8n"]);
+
+  // Navigation State: dashboard (Mis Programas), player (Aula), certificates (Mis Certificados), account (Mi Cuenta)
+  const [currentView, setCurrentView] = useState<"dashboard" | "player" | "certificates" | "account">("dashboard");
 
   // Selected Program & Lesson State
   const [selectedProgramId, setSelectedProgramId] = useState<string>("bootcamp-n8n");
@@ -2677,17 +2688,49 @@ function CampusContent() {
 
   // Certificate Modal State
   const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [certificateToView, setCertificateToView] = useState<ProgramData | null>(null);
 
   // FAQ Accordion State
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
-  // Cargar progreso guardado en LocalStorage
+  // Profile Edit & Password State
+  const [editFullName, setEditFullName] = useState(studentProfile.fullName);
+  const [editPhone, setEditPhone] = useState(studentProfile.phone);
+  const [editCompany, setEditCompany] = useState(studentProfile.company);
+  const [currentPasswordInput, setCurrentPasswordInput] = useState("");
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Cargar progreso guardado en LocalStorage y sincronizar con servidor
   useEffect(() => {
     const savedEmail = localStorage.getItem("in_student_email") || initialEmail;
     if (savedEmail) {
       setStudentEmail(savedEmail);
       setIsAuthenticated(true);
       
+      const savedProfile = localStorage.getItem("in_profile_" + savedEmail);
+      if (savedProfile) {
+        try {
+          const parsed = JSON.parse(savedProfile);
+          setStudentProfile(parsed);
+          setEditFullName(parsed.fullName || "");
+          setEditPhone(parsed.phone || "");
+          setEditCompany(parsed.company || "");
+        } catch {}
+      }
+
+      const savedEnrolled = localStorage.getItem("in_enrolled_" + savedEmail);
+      if (savedEnrolled) {
+        try {
+          const parsedEnrolled = JSON.parse(savedEnrolled);
+          if (Array.isArray(parsedEnrolled) && parsedEnrolled.length > 0) {
+            setEnrolledCourseIds(parsedEnrolled);
+          }
+        } catch {}
+      }
+
       const storedCompleted = localStorage.getItem("in_completed_" + savedEmail + "_" + selectedProgramId);
       if (storedCompleted) {
         try { setCompletedLessons(JSON.parse(storedCompleted)); } catch {}
@@ -2730,9 +2773,15 @@ function CampusContent() {
     ? Math.round((completedInProgram / totalLessonsCount) * 100)
     : 0;
 
-  const isProgramFullyCompleted = progressPercentage === 100;
+  // Verificación estricta de Diploma: 100% de lecciones Y todos los quizes aprobados
+  const requiredQuizesCount = currentProgram.modules.filter((m) => m.quiz?.enabled).length;
+  const passedQuizesInProgram = currentProgram.modules
+    .filter((m) => m.quiz?.enabled && passedQuizes.includes(m.id))
+    .length;
+  const areAllQuizesPassed = requiredQuizesCount === 0 || passedQuizesInProgram >= requiredQuizesCount;
+  const isProgramFullyCompleted = progressPercentage === 100 && areAllQuizesPassed;
 
-  // Generar y enviar certificado automáticamente al completar el 100%
+  // Generar y registrar certificado cuando se complete
   const [certGeneratedCode, setCertGeneratedCode] = useState<string>("IN-2026-OFICIAL");
 
   useEffect(() => {
@@ -2756,7 +2805,7 @@ function CampusContent() {
         })
         .catch((e) => console.warn("Auto cert error", e));
     }
-  }, [isProgramFullyCompleted, studentEmail, selectedProgramId]);
+  }, [isProgramFullyCompleted, studentEmail, selectedProgramId, currentProgram.title, studentProfile.fullName]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2787,8 +2836,26 @@ function CampusContent() {
       if (data.success && data.authenticated) {
         setIsAuthenticated(true);
         localStorage.setItem("in_student_email", studentEmail.trim().toLowerCase());
+        if (data.enrolledCourses && Array.isArray(data.enrolledCourses) && data.enrolledCourses.length > 0) {
+          setEnrolledCourseIds(data.enrolledCourses);
+          localStorage.setItem("in_enrolled_" + studentEmail.trim().toLowerCase(), JSON.stringify(data.enrolledCourses));
+        }
+        if (data.student) {
+          const prof = {
+            fullName: data.student.full_name || studentProfile.fullName,
+            email: data.student.email || studentEmail,
+            phone: data.student.phone || studentProfile.phone,
+            company: data.student.company || studentProfile.company,
+            role: data.student.role || studentProfile.role,
+          };
+          setStudentProfile(prof);
+          setEditFullName(prof.fullName);
+          setEditPhone(prof.phone);
+          setEditCompany(prof.company);
+          localStorage.setItem("in_profile_" + studentEmail.trim().toLowerCase(), JSON.stringify(prof));
+        }
       } else {
-        setAuthError(data.message || "Credenciales incorrectas.");
+        setAuthError(data.message || "Credenciales incorrectas. Verifica tu contraseña.");
       }
     } catch {
       setIsAuthenticated(true);
@@ -2880,47 +2947,129 @@ function CampusContent() {
     setQuizScore(null);
   };
 
-  // Pantalla de Login si no está autenticado
+  // Guardar cambios en Mi Cuenta (Nombre para el certificado y nueva contraseña)
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMessage(null);
+
+    if (newPasswordInput && newPasswordInput !== confirmPasswordInput) {
+      setProfileMessage({ type: "error", text: "Las contraseñas nuevas no coinciden." });
+      return;
+    }
+
+    if (newPasswordInput && newPasswordInput.length < 6) {
+      setProfileMessage({ type: "error", text: "La contraseña debe tener al menos 6 caracteres." });
+      return;
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const res = await fetch("/api/campus/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: studentEmail,
+          fullName: editFullName.trim(),
+          phone: editPhone.trim(),
+          company: editCompany.trim(),
+          currentPassword: currentPasswordInput,
+          newPassword: newPasswordInput || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const updatedProf = {
+          ...studentProfile,
+          fullName: editFullName.trim(),
+          phone: editPhone.trim(),
+          company: editCompany.trim(),
+        };
+        setStudentProfile(updatedProf);
+        localStorage.setItem("in_profile_" + studentEmail, JSON.stringify(updatedProf));
+        setProfileMessage({ type: "success", text: "Perfil y credenciales actualizados exitosamente." });
+        setCurrentPasswordInput("");
+        setNewPasswordInput("");
+        setConfirmPasswordInput("");
+      } else {
+        setProfileMessage({ type: "error", text: data.message || "Error al actualizar perfil." });
+      }
+    } catch {
+      const updatedProf = {
+        ...studentProfile,
+        fullName: editFullName.trim(),
+        phone: editPhone.trim(),
+        company: editCompany.trim(),
+      };
+      setStudentProfile(updatedProf);
+      localStorage.setItem("in_profile_" + studentEmail, JSON.stringify(updatedProf));
+      setProfileMessage({ type: "success", text: "Cambios guardados localmente." });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  // Pantalla de Login limpia y profesional si no está autenticado
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#0284c7] selection:text-white">
-        <Navbar />
-        <main className="flex-1 flex items-center justify-center p-4 sm:p-6 py-24">
-          <div className="w-full max-w-md p-8 sm:p-10 rounded-3xl bg-white border border-zinc-200 shadow-xl space-y-6 text-left relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#1DACE3] via-[#EA0C7F] to-[#FEAD2B]" />
+      <div className="min-h-screen bg-[#1F242D] text-zinc-100 flex flex-col justify-between selection:bg-[#EA0C7F] selection:text-white font-sans">
+        
+        {/* Header simple de login */}
+        <header className="border-b border-zinc-800 bg-zinc-950/60 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#1DACE3] to-[#EA0C7F] flex items-center justify-center text-white font-black text-sm shadow-md">
+                IN
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-white tracking-tight">CAMPUS VIRTUAL</span>
+                <span className="text-[10px] font-mono text-zinc-400">Inteligencia Neuronal Academy</span>
+              </div>
+            </div>
+            <Link
+              href="/"
+              className="text-xs font-mono text-zinc-400 hover:text-white transition-colors"
+            >
+              ← Volver al Sitio Principal
+            </Link>
+          </div>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center p-4 sm:p-6 py-16">
+          <div className="w-full max-w-md p-8 sm:p-10 rounded-3xl bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6 text-left relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#1DACE3] via-[#EA0C7F] to-[#FEAD2B]" />
 
             <div className="space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] flex items-center justify-center text-white shadow-lg mb-3">
                 <GraduationCap className="w-6 h-6" />
               </div>
-              <div className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider">
-                Portal del Alumno // Inteligencia Neuronal Academy
+              <div className="font-mono text-[10px] font-bold text-[#1DACE3] uppercase tracking-wider">
+                Acceso de Alumnos // Campus Virtual
               </div>
-              <h1 className="text-2xl font-extrabold text-zinc-900 tracking-tight">
-                {needsPasswordSetup ? "Crea tu Contraseña" : "Ingresar al Campus Virtual"}
+              <h1 className="text-2xl font-extrabold text-white tracking-tight">
+                {needsPasswordSetup ? "Crea tu Contraseña" : "Ingresar a tus Clases"}
               </h1>
-              <p className="text-xs text-zinc-600 leading-relaxed">
+              <p className="text-xs text-zinc-400 leading-relaxed">
                 {needsPasswordSetup
-                  ? "Define tu contraseña para acceder a tus lecciones y evaluaciones."
-                  : "Ingresa con tu correo registrado para continuar con tus clases."}
+                  ? "Define tu clave de acceso personal para ingresar a tus lecciones y evaluaciones."
+                  : "Ingresa con tu correo registrado y tu clave para continuar con tu aprendizaje."}
               </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CORREO DEL ALUMNO</label>
+                <label className="block text-xs font-mono font-bold text-zinc-300 mb-1">CORREO ELECTRÓNICO</label>
                 <input
                   type="email"
                   required
-                  placeholder="alumno@empresa.com"
+                  placeholder="tu@email.com"
                   value={studentEmail}
                   onChange={(e) => setStudentEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:ring-2 focus:ring-[#1DACE3] outline-none placeholder-zinc-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CONTRASEÑA</label>
+                <label className="block text-xs font-mono font-bold text-zinc-300 mb-1">CONTRASEÑA</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -2928,12 +3077,12 @@ function CampusContent() {
                     placeholder="••••••••"
                     value={studentPassword}
                     onChange={(e) => setStudentPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none pr-10"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-950 text-white text-xs focus:ring-2 focus:ring-[#1DACE3] outline-none pr-10 placeholder-zinc-500 font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 text-xs"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 text-xs cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -2941,8 +3090,8 @@ function CampusContent() {
               </div>
 
               {authError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
+                <div className="p-3 rounded-xl bg-red-950/50 border border-red-800 text-red-300 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
                   <span>{authError}</span>
                 </div>
               )}
@@ -2950,60 +3099,91 @@ function CampusContent() {
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] hover:opacity-95 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer"
               >
-                <span>{isVerifying ? "Verificando..." : "Ingresar a mis Clases"}</span>
+                <span>{isVerifying ? "Verificando acceso..." : "Ingresar al Campus"}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
+
+            <div className="pt-3 border-t border-zinc-800 text-center">
+              <p className="text-[11px] text-zinc-500">
+                ¿Aún no tienes matrícula?{" "}
+                <Link href="/academy" className="text-[#1DACE3] font-bold hover:underline">
+                  Explorar Programas Formativos
+                </Link>
+              </p>
+            </div>
           </div>
         </main>
-        <Footer />
+
+        <footer className="border-t border-zinc-800 py-4 text-center text-zinc-500 text-[11px] font-mono">
+          © 2026 Inteligencia Neuronal Academy • Soporte: admin@inteligencianeuronal.com
+        </footer>
       </div>
     );
   }
 
+  // Comprobar si el curso seleccionado está matriculado
+  const isCurrentCourseEnrolled = enrolledCourseIds.includes(selectedProgramId);
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 flex flex-col justify-between selection:bg-[#0284c7] selection:text-white font-sans">
-      <Navbar />
-
-      {/* ── SUB-HEADER DEL CAMPUS CON NAVEGACIÓN Y PERFIL ── */}
-      <header className="bg-white border-b border-zinc-200 shadow-xs">
+      
+      {/* ── HEADER DEDICADO DEL CAMPUS VIRTUAL (100% LIMPIO, SIN MARKETING NAVBAR) ── */}
+      <header className="bg-[#1F242D] text-white border-b border-zinc-800 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] flex items-center justify-center text-white shadow-sm">
-              <GraduationCap className="w-5 h-5" />
+          
+          {/* Logo Campus Virtual */}
+          <div
+            onClick={() => setCurrentView("dashboard")}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#1DACE3] to-[#EA0C7F] flex items-center justify-center text-white font-black text-sm shadow-md group-hover:scale-105 transition-transform">
+              IN
             </div>
             <div>
-              <div className="text-xs font-extrabold text-zinc-900 flex items-center gap-1.5">
-                <span>Campus Virtual</span>
-                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-emerald-100 text-emerald-800">
+              <div className="text-xs font-black tracking-wide text-white flex items-center gap-2">
+                <span>CAMPUS VIRTUAL</span>
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                   ALUMNO ACTIVO
                 </span>
               </div>
-              <div className="text-[11px] text-zinc-500 font-mono">
-                {studentProfile.fullName} • {studentProfile.company}
+              <div className="text-[10px] text-zinc-400 font-mono">
+                {studentProfile.fullName}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Navegación del Alumno */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            
             <button
               onClick={() => setCurrentView("dashboard")}
-              className={"px-3.5 py-2 rounded-xl text-xs font-bold transition-all " + (currentView === "dashboard" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100")}
+              className={"px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer " + (currentView === "dashboard" ? "bg-[#1DACE3] text-white shadow-sm" : "text-zinc-300 hover:bg-zinc-800 hover:text-white")}
             >
-              Dashboard
+              Mis Programas
             </button>
+
             <button
-              onClick={() => setCurrentView("player")}
-              className={"px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 " + (currentView === "player" ? "bg-[#0284c7] text-white" : "text-zinc-600 hover:bg-zinc-100")}
+              onClick={() => setCurrentView("certificates")}
+              className={"px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer " + (currentView === "certificates" ? "bg-[#EA0C7F] text-white shadow-sm" : "text-zinc-300 hover:bg-zinc-800 hover:text-white")}
             >
-              <PlayCircle className="w-3.5 h-3.5" />
-              <span>Aula Virtual</span>
+              <Award className="w-3.5 h-3.5" />
+              <span>Mis Certificados</span>
             </button>
+
+            <button
+              onClick={() => setCurrentView("account")}
+              className={"px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer " + (currentView === "account" ? "bg-zinc-700 text-white shadow-sm" : "text-zinc-300 hover:bg-zinc-800 hover:text-white")}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Mi Cuenta</span>
+            </button>
+
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              className="p-2 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors ml-1 cursor-pointer"
               title="Cerrar Sesión"
             >
               <LogOut className="w-4 h-4" />
@@ -3015,7 +3195,7 @@ function CampusContent() {
       {/* ── CONTENIDO PRINCIPAL SEGÚN VISTA ── */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* ════════ TAB 1: DASHBOARD DEL ALUMNO ════════ */}
+        {/* ════════ TAB 1: DASHBOARD / MIS PROGRAMAS (CON GATING CLARO) ════════ */}
         {currentView === "dashboard" && (
           <div className="space-y-8 animate-in fade-in duration-200">
             
@@ -3026,127 +3206,73 @@ function CampusContent() {
                   Panel de Aprendizaje
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight font-heading">
-                  Bienvenido de nuevo, {studentProfile.fullName.split(" ")[0]}
+                  Bienvenido, {studentProfile.fullName.split(" ")[0]}
                 </h1>
                 <p className="text-xs text-zinc-600">
-                  Programa seleccionado: <strong>{currentProgram.title}</strong>
+                  Estás matriculado en <strong>{enrolledCourseIds.length} programa(s) formativo(s)</strong> activo(s).
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
-                {isProgramFullyCompleted && (
-                  <button
-                    onClick={() => setShowCertificateModal(true)}
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer animate-bounce"
-                  >
-                    <Award className="w-4 h-4" />
-                    <span>Ver Certificado Oficial</span>
-                  </button>
-                )}
                 <button
-                  onClick={() => setCurrentView("player")}
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0284c7] hover:bg-[#0369a1] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+                  onClick={() => setCurrentView("certificates")}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all cursor-pointer"
                 >
-                  <PlayCircle className="w-4 h-4" />
-                  <span>Continuar Clases</span>
+                  <Award className="w-4 h-4 text-[#EA0C7F]" />
+                  <span>Ver Mis Diplomas</span>
                 </button>
               </div>
             </div>
 
-            {/* KPIs Calculados Matemáticamente en Tiempo Real */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
-                <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Progreso Global</span>
-                  <TrendingUp className="w-4 h-4 text-[#0284c7]" />
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900">{progressPercentage}%</div>
-                <div className="w-full h-2 rounded-full bg-zinc-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-[#0284c7] transition-all duration-500"
-                    style={{ width: `${progressPercentage}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
-                <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Lecciones Vistas</span>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900">
-                  {completedInProgram} / {totalLessonsCount}
-                </div>
-                <div className="text-[11px] text-zinc-500">Registradas con persistencia</div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
-                <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Quizes Aprobados</span>
-                  <Award className="w-4 h-4 text-[#EA0C7F]" />
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900">
-                  {passedQuizes.length} Evaluaciones
-                </div>
-                <div className="text-[11px] text-zinc-500">Aprobadas con ≥ 75%</div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1.5">
-                <div className="flex items-center justify-between text-zinc-500">
-                  <span className="font-mono text-[10px] font-bold uppercase">Diploma Oficial</span>
-                  <Award className="w-4 h-4 text-amber-500" />
-                </div>
-                <div className="text-2xl font-extrabold text-zinc-900">
-                  {isProgramFullyCompleted ? "Desbloqueado" : "En Progreso"}
-                </div>
-                <div className="text-[11px] text-zinc-500">
-                  {isProgramFullyCompleted ? "Listo para descargar" : "Requiere 100% de avance"}
-                </div>
-              </div>
-            </div>
-
-            {/* Selector de Programa / Mis Cursos */}
+            {/* SECCIÓN 1: MIS PROGRAMAS MATRICULADOS */}
             <div className="space-y-4">
-              <h2 className="text-base font-bold text-zinc-900 uppercase font-mono tracking-wider">
-                Mis Programas Matriculados
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-zinc-900 uppercase font-mono tracking-wider flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-[#0284c7]" />
+                  <span>Mis Programas Matriculados ({enrolledCourseIds.length})</span>
+                </h2>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.values(PROGRAMS).map((prog) => {
-                  const isSelected = prog.id === selectedProgramId;
+                {enrolledCourseIds.map((courseId) => {
+                  const prog = PROGRAMS[courseId] || PROGRAMS["bootcamp-n8n"];
+                  const allLessons = prog.modules.flatMap((m) => m.lessons);
+                  const completed = completedLessons.filter((id) => allLessons.some((l) => l.id === id)).length;
+                  const pct = allLessons.length > 0 ? Math.round((completed / allLessons.length) * 100) : 0;
 
                   return (
                     <div
                       key={prog.id}
-                      onClick={() => {
-                        setSelectedProgramId(prog.id);
-                        setActiveModuleIndex(0);
-                        setActiveLessonIndex(0);
-                      }}
-                      className={"p-6 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 " + (isSelected ? "bg-white border-[#0284c7] ring-2 ring-[#0284c7]/20 shadow-md" : "bg-zinc-50/50 border-zinc-200 hover:bg-white hover:border-zinc-300")}
+                      className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">
-                            {prog.badge}
+                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700">
+                            MATRÍCULA ACTIVA
                           </span>
-                          {isSelected && (
-                            <span className="font-mono text-[10px] font-bold text-[#0284c7] flex items-center gap-1">
-                              <Check className="w-3.5 h-3.5" />
-                              ACTIVO AHORA
-                            </span>
-                          )}
+                          <span className="font-mono text-[11px] font-bold text-[#0284c7]">
+                            {pct}% completado
+                          </span>
                         </div>
                         <h3 className="text-base font-bold text-zinc-900">{prog.title}</h3>
                         <p className="text-xs text-zinc-600 line-clamp-2">{prog.tagline}</p>
+
+                        {/* Barra de Progreso */}
+                        <div className="w-full h-2 rounded-full bg-zinc-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-[#0284c7] transition-all duration-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
-                        <span className="font-mono text-zinc-500">{prog.modules.length} Módulos</span>
+                      <div className="flex items-center justify-between pt-3 border-t border-zinc-100 text-xs">
+                        <span className="font-mono text-zinc-500">
+                          {completed}/{allLessons.length} lecciones
+                        </span>
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             setSelectedProgramId(prog.id);
                             setActiveModuleIndex(0);
                             setActiveLessonIndex(0);
@@ -3155,10 +3281,10 @@ function CampusContent() {
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }
                           }}
-                          className="font-bold text-white bg-[#0284c7] hover:bg-[#0369a1] px-3.5 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="font-bold text-white bg-[#0284c7] hover:bg-[#0369a1] px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
+                          <PlayCircle className="w-3.5 h-3.5" />
                           <span>Entrar al Aula</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -3167,7 +3293,52 @@ function CampusContent() {
               </div>
             </div>
 
-            {/* Preguntas Frecuentes */}
+            {/* SECCIÓN 2: CATÁLOGO DE OTROS PROGRAMAS DISPONIBLES */}
+            {Object.values(PROGRAMS).filter((p) => !enrolledCourseIds.includes(p.id)).length > 0 && (
+              <div className="space-y-4 pt-6 border-t border-zinc-200">
+                <h2 className="text-base font-bold text-zinc-900 uppercase font-mono tracking-wider flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#EA0C7F]" />
+                  <span>Otros Programas Disponibles en Academy</span>
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Object.values(PROGRAMS)
+                    .filter((p) => !enrolledCourseIds.includes(p.id))
+                    .map((prog) => (
+                      <div
+                        key={prog.id}
+                        className="p-6 rounded-3xl bg-zinc-50 border border-zinc-200/80 flex flex-col justify-between space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-200 text-zinc-700">
+                              {prog.badge}
+                            </span>
+                            <span className="font-mono text-[10px] font-bold text-zinc-400">
+                              NO MATRICULADO
+                            </span>
+                          </div>
+                          <h3 className="text-base font-bold text-zinc-800">{prog.title}</h3>
+                          <p className="text-xs text-zinc-500 line-clamp-2">{prog.tagline}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-zinc-200 text-xs">
+                          <span className="font-mono text-zinc-500">{prog.modules.length} Módulos</span>
+                          <Link
+                            href="/academy"
+                            className="font-bold text-white bg-zinc-900 hover:bg-zinc-800 px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <span>Inscribirme</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Preguntas Frecuentes del Alumno */}
             <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-4">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-[#0284c7]" />
@@ -3179,7 +3350,7 @@ function CampusContent() {
                   <div key={idx} className="border border-zinc-200 rounded-xl overflow-hidden">
                     <button
                       onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
-                      className="w-full p-4 text-left text-xs font-bold text-zinc-800 flex justify-between items-center hover:bg-zinc-50"
+                      className="w-full p-4 text-left text-xs font-bold text-zinc-800 flex justify-between items-center hover:bg-zinc-50 cursor-pointer"
                     >
                       <span>{faq.q}</span>
                       <ChevronDown className={"w-4 h-4 text-zinc-400 transition-transform " + (expandedFaq === idx ? "rotate-180" : "")} />
@@ -3197,425 +3368,732 @@ function CampusContent() {
           </div>
         )}
 
-        {/* ════════ TAB 2: AULA / REPRODUCTOR DE CLASES & QUIZES ════════ */}
+        {/* ════════ TAB 2: AULA VIRTUAL (CON GATING ESTRICTO) ════════ */}
         {currentView === "player" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-200">
-            
-            {/* Columna Izquierda: Video Player + Controles + Tabs (8 cols) */}
-            <div className="lg:col-span-8 space-y-6">
-              
-              {/* Video Player Box */}
-              <div className="rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-200 shadow-lg aspect-video relative flex items-center justify-center">
-                {currentLesson?.videoUrl ? (
-                  <iframe
-                    src={currentLesson.videoUrl}
-                    title={currentLesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full border-0"
-                  />
-                ) : (
-                  <div className="text-center space-y-3 p-6 text-white">
-                    <PlayCircle className="w-16 h-16 text-zinc-600 mx-auto" />
-                    <p className="text-xs font-mono text-zinc-400">Selecciona una lección para reproducir</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Controles de Navegación Rápida (Udemy style) */}
-              <div className="p-5 rounded-3xl bg-white border border-zinc-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider block mb-1">
-                    {currentModule?.title}
-                  </span>
-                  <h2 className="text-base sm:text-lg font-bold text-zinc-900 leading-snug">
-                    {currentLesson?.title}
-                  </h2>
+          <div>
+            {/* Si no está matriculado en este programa, mostrar bloqueo */}
+            {!isCurrentCourseEnrolled ? (
+              <div className="p-8 rounded-3xl bg-white border border-zinc-200 text-center max-w-lg mx-auto my-12 space-y-4 shadow-md">
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mx-auto">
+                  <Lock className="w-7 h-7" />
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
+                <h2 className="text-lg font-bold text-zinc-900">Acceso Restringido</h2>
+                <p className="text-xs text-zinc-600 leading-relaxed">
+                  Aún no estás matriculado en el programa <strong>{currentProgram.title}</strong>. Para acceder a todas sus lecciones, blueprints y certificados, realiza tu inscripción.
+                </p>
+                <div className="flex items-center justify-center gap-3 pt-2">
                   <button
-                    onClick={handlePrevLesson}
-                    disabled={activeModuleIndex === 0 && activeLessonIndex === 0}
-                    className="p-2.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                    title="Lección Anterior"
+                    onClick={() => setCurrentView("dashboard")}
+                    className="px-4 py-2 rounded-xl border border-zinc-300 text-xs font-bold text-zinc-700 hover:bg-zinc-50"
                   >
-                    <ArrowLeft className="w-4 h-4" />
+                    ← Volver a Mis Programas
                   </button>
-
-                  <button
-                    onClick={() => currentLesson && toggleLessonCompleted(currentLesson.id)}
-                    className={"inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all " + (currentLesson && completedLessons.includes(currentLesson.id) ? "bg-emerald-50 border border-emerald-300 text-emerald-700" : "bg-zinc-900 text-white hover:bg-zinc-800")}
+                  <Link
+                    href="/academy"
+                    className="px-4 py-2 rounded-xl bg-[#0284c7] text-white text-xs font-bold shadow-md hover:bg-[#0369a1]"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>
-                      {currentLesson && completedLessons.includes(currentLesson.id)
-                        ? "Completada"
-                        : "Marcar Completada"}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={handleNextLesson}
-                    disabled={
-                      activeModuleIndex === currentProgram.modules.length - 1 &&
-                      activeLessonIndex === currentModule.lessons.length - 1
-                    }
-                    className="p-2.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                    title="Siguiente Lección"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                    Inscribirme Ahora
+                  </Link>
                 </div>
               </div>
-
-              {/* Tabs: Resumen, Prompts, Blueprints, Quiz del Módulo, Notas */}
-              <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-200">
                 
-                <div className="flex items-center gap-2 border-b border-zinc-100 pb-3 overflow-x-auto">
-                  <button
-                    onClick={() => setActivePlayerTab("summary")}
-                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "summary" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>Resumen</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActivePlayerTab("content")}
-                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "content" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Guía Escrita</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActivePlayerTab("prompts")}
-                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "prompts" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
-                  >
-                    <Code2 className="w-3.5 h-3.5" />
-                    <span>Prompts ({currentLesson?.prompts?.length || 0})</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActivePlayerTab("downloads")}
-                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "downloads" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Descargas ({currentLesson?.downloads?.length || 0})</span>
-                  </button>
-
-                  {currentModule?.quiz?.enabled && (
+                {/* Columna Izquierda: Video Player + Controles + Tabs (8 cols) */}
+                <div className="lg:col-span-8 space-y-6">
+                  
+                  {/* Botón Volver a Mis Programas */}
+                  <div className="flex items-center justify-between">
                     <button
-                      onClick={() => setActivePlayerTab("quiz")}
-                      className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "quiz" ? "bg-[#EA0C7F] text-white shadow-xs" : "bg-pink-50 text-[#EA0C7F] hover:bg-pink-100")}
+                      onClick={() => setCurrentView("dashboard")}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer"
                     >
-                      <Award className="w-3.5 h-3.5" />
-                      <span>Quiz Aprobatorio</span>
-                      {passedQuizes.includes(currentModule.id) && (
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500 ml-1" />
-                      )}
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Volver al Panel de Mis Programas</span>
                     </button>
-                  )}
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-200 text-zinc-700">
+                      {currentProgram.badge}
+                    </span>
+                  </div>
 
-                  <button
-                    onClick={() => setActivePlayerTab("notes")}
-                    className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " + (activePlayerTab === "notes" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
-                  >
-                    <StickyNote className="w-3.5 h-3.5" />
-                    <span>Mis Apuntes</span>
-                  </button>
+                  {/* Video Player Box */}
+                  <div className="rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-200 shadow-lg aspect-video relative flex items-center justify-center">
+                    {currentLesson?.videoUrl ? (
+                      <iframe
+                        src={currentLesson.videoUrl}
+                        title={currentLesson.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full border-0"
+                      />
+                    ) : (
+                      <div className="text-center space-y-3 p-6 text-white">
+                        <PlayCircle className="w-16 h-16 text-zinc-600 mx-auto" />
+                        <p className="text-xs font-mono text-zinc-400">Selecciona una lección para reproducir</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Controles de Navegación Rápida (Udemy style) */}
+                  <div className="p-5 rounded-3xl bg-white border border-zinc-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider block mb-1">
+                        {currentModule?.title}
+                      </span>
+                      <h2 className="text-base sm:text-lg font-bold text-zinc-900 leading-snug">
+                        {currentLesson?.title}
+                      </h2>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={handlePrevLesson}
+                        disabled={activeModuleIndex === 0 && activeLessonIndex === 0}
+                        className="p-2.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                        title="Lección Anterior"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        onClick={() => currentLesson && toggleLessonCompleted(currentLesson.id)}
+                        className={"inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer " + (currentLesson && completedLessons.includes(currentLesson.id) ? "bg-emerald-50 border border-emerald-300 text-emerald-700" : "bg-zinc-900 text-white hover:bg-zinc-800")}
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>
+                          {currentLesson && completedLessons.includes(currentLesson.id)
+                            ? "Completada"
+                            : "Marcar Completada"}
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={handleNextLesson}
+                        disabled={
+                          activeModuleIndex === currentProgram.modules.length - 1 &&
+                          activeLessonIndex === currentModule.lessons.length - 1
+                        }
+                        className="p-2.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                        title="Siguiente Lección"
+                      >
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tabs: Resumen, Prompts, Blueprints, Quiz del Módulo, Notas */}
+                  <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
+                    
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3 overflow-x-auto">
+                      <button
+                        onClick={() => setActivePlayerTab("summary")}
+                        className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer " + (activePlayerTab === "summary" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>Resumen</span>
+                      </button>
+
+                      <button
+                        onClick={() => setActivePlayerTab("content")}
+                        className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer " + (activePlayerTab === "content" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Guía Escrita</span>
+                      </button>
+
+                      <button
+                        onClick={() => setActivePlayerTab("prompts")}
+                        className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer " + (activePlayerTab === "prompts" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                      >
+                        <Code2 className="w-3.5 h-3.5" />
+                        <span>Prompts ({currentLesson?.prompts?.length || 0})</span>
+                      </button>
+
+                      <button
+                        onClick={() => setActivePlayerTab("downloads")}
+                        className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer " + (activePlayerTab === "downloads" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Descargas ({currentLesson?.downloads?.length || 0})</span>
+                      </button>
+
+                      {currentModule?.quiz?.enabled && (
+                        <button
+                          onClick={() => setActivePlayerTab("quiz")}
+                          className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer " + (activePlayerTab === "quiz" ? "bg-[#EA0C7F] text-white shadow-xs" : "bg-pink-50 text-[#EA0C7F] hover:bg-pink-100")}
+                        >
+                          <Award className="w-3.5 h-3.5" />
+                          <span>Quiz Aprobatorio</span>
+                          {passedQuizes.includes(currentModule.id) && (
+                            <CheckCircle2 className="w-3 h-3 text-emerald-500 ml-1" />
+                          )}
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => setActivePlayerTab("notes")}
+                        className={"flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer " + (activePlayerTab === "notes" ? "bg-zinc-900 text-white shadow-xs" : "text-zinc-600 hover:bg-zinc-100")}
+                      >
+                        <StickyNote className="w-3.5 h-3.5" />
+                        <span>Mis Apuntes</span>
+                      </button>
+                    </div>
+
+                    {/* Tab: Resumen */}
+                    {activePlayerTab === "summary" && (
+                      <div className="space-y-4 text-xs text-zinc-700 leading-relaxed">
+                        <p className="text-zinc-800 text-sm leading-relaxed">{currentLesson?.summary}</p>
+                        <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
+                          <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase block">
+                            💡 Objetivo de Aprendizaje:
+                          </span>
+                          <p className="text-zinc-600">
+                            Aplica los conceptos técnicos, consulta la pestaña <strong>Guía Escrita</strong> y descarga los blueprints asociados para probarlos en tu propio entorno.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab: Guía Escrita */}
+                    {activePlayerTab === "content" && (
+                      <div className="space-y-4 text-xs text-zinc-800 leading-relaxed">
+                        <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 whitespace-pre-wrap font-sans text-xs leading-relaxed">
+                          {currentLesson?.content_text || currentLesson?.summary || "Esta lección incluye el reproductor de video interactivo y materiales descargables en las pestañas superiores."}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab: Prompts */}
+                    {activePlayerTab === "prompts" && (
+                      <div className="space-y-4">
+                        {currentLesson?.prompts && currentLesson.prompts.length > 0 ? (
+                          currentLesson.prompts.map((p, idx) => (
+                            <div key={idx} className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-mono text-[10px] font-bold text-[#0284c7]">PROMPT #0{idx + 1}</span>
+                                <button
+                                  onClick={() => handleCopyPrompt(p, idx)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-zinc-300 hover:border-[#0284c7] text-[#0284c7] text-xs font-bold transition-all cursor-pointer"
+                                >
+                                  {copiedPromptIndex === idx ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span className="text-emerald-600">¡Copiado!</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5" />
+                                      <span>Copiar Prompt</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                              <pre className="text-xs text-zinc-800 font-mono whitespace-pre-wrap bg-white p-3.5 rounded-xl border border-zinc-200">
+                                {p}
+                              </pre>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-zinc-400 font-mono">No hay prompts adicionales en esta lección.</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Tab: Descargas */}
+                    {activePlayerTab === "downloads" && (
+                      <div className="space-y-3">
+                        {currentLesson?.downloads && currentLesson.downloads.length > 0 ? (
+                          currentLesson.downloads.map((d, idx) => (
+                            <div
+                              key={idx}
+                              className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between gap-4"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                                  <FileText className="w-4 h-4" />
+                                </div>
+                                <div>
+                                  <h4 className="text-xs font-bold text-zinc-900">{d.name}</h4>
+                                  <span className="font-mono text-[10px] text-zinc-500">{d.type}</span>
+                                </div>
+                              </div>
+
+                              <a
+                                href={d.url}
+                                download
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold transition-colors border border-zinc-300 cursor-pointer"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span>Descargar</span>
+                              </a>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-zinc-400 font-mono">No hay archivos adjuntos en esta lección.</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Tab: Quiz Aprobatorio */}
+                    {activePlayerTab === "quiz" && currentModule?.quiz && (
+                      <div className="space-y-6">
+                        <div className="p-4 rounded-2xl bg-pink-50/50 border border-pink-100 flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <span className="text-xs font-bold text-[#EA0C7F]">
+                              Evaluación Técnica: {currentModule.title}
+                            </span>
+                            <p className="text-[11px] text-zinc-600">
+                              Responde las preguntas y obtén al menos {currentModule.quiz.passingScore}% para aprobar el módulo.
+                            </p>
+                          </div>
+                          {passedQuizes.includes(currentModule.id) && (
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
+                              MÓDULO APROBADO ✓
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="space-y-6">
+                          {currentModule.quiz.questions.map((q, qIdx) => {
+                            return (
+                              <div key={qIdx} className="space-y-3 p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+                                <h4 className="text-xs font-bold text-zinc-900">
+                                  {qIdx + 1}. {q.question}
+                                </h4>
+
+                                <div className="space-y-2">
+                                  {q.options.map((opt, oIdx) => {
+                                    const isChosen = quizAnswers[qIdx] === oIdx;
+                                    const isCorrect = q.correctIndex === oIdx;
+
+                                    let optionStyle = "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-100 cursor-pointer";
+                                    if (isChosen && !quizSubmitted) {
+                                      optionStyle = "bg-zinc-900 text-white border-zinc-900 font-bold";
+                                    } else if (quizSubmitted) {
+                                      if (isCorrect) {
+                                        optionStyle = "bg-emerald-50 border-emerald-300 text-emerald-800 font-bold";
+                                      } else if (isChosen && !isCorrect) {
+                                        optionStyle = "bg-red-50 border-red-300 text-red-800 line-through";
+                                      }
+                                    }
+
+                                    return (
+                                      <button
+                                        key={oIdx}
+                                        type="button"
+                                        onClick={() => handleAnswerSelect(qIdx, oIdx)}
+                                        className={"w-full p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between " + optionStyle}
+                                      >
+                                        <span>{opt}</span>
+                                        {quizSubmitted && isCorrect && (
+                                          <Check className="w-4 h-4 text-emerald-600" />
+                                        )}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+
+                                {quizSubmitted && (
+                                  <div className="p-3 rounded-xl bg-white border border-zinc-200 text-[11px] text-zinc-600 space-y-1">
+                                    <span className="font-bold text-zinc-800">💡 Explicación Técnica:</span>
+                                    <p>{q.explanation}</p>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2">
+                          {!quizSubmitted ? (
+                            <button
+                              onClick={handleEvaluateQuiz}
+                              disabled={Object.keys(quizAnswers).length < currentModule.quiz.questions.length}
+                              className="px-6 py-3 rounded-xl bg-[#EA0C7F] hover:bg-[#c7096b] disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-md flex items-center gap-2 cursor-pointer"
+                            >
+                              <span>Calificar Evaluación</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <div className="flex items-center justify-between w-full">
+                              <div className="text-xs font-bold">
+                                Tu puntaje:{" "}
+                                <span className={quizScore! >= currentModule.quiz.passingScore ? "text-emerald-600" : "text-red-600"}>
+                                  {quizScore}% ({quizScore! >= currentModule.quiz.passingScore ? "Aprobado 🎉" : "No alcanzaste el mínimo requerido"})
+                                </span>
+                              </div>
+                              <button
+                                onClick={handleResetQuiz}
+                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-300 text-xs font-bold hover:bg-zinc-50 transition-colors cursor-pointer"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                                <span>Reintentar Quiz</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab: Apuntes */}
+                    {activePlayerTab === "notes" && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-zinc-900">
+                            Notas personales para: {currentLesson?.title}
+                          </span>
+                          <span className="text-[10px] font-mono text-zinc-400">Autoguardado local activo</span>
+                        </div>
+                        <textarea
+                          rows={6}
+                          value={currentNote}
+                          onChange={(e) => handleSaveNote(e.target.value)}
+                          placeholder="Escribe tus apuntes, comandos o dudas aquí..."
+                          className="w-full p-4 rounded-2xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none font-mono"
+                        />
+                      </div>
+                    )}
+
+                  </div>
+
                 </div>
 
-                {/* Tab: Resumen */}
-                {activePlayerTab === "summary" && (
-                  <div className="space-y-4 text-xs text-zinc-700 leading-relaxed">
-                    <p className="text-zinc-800 text-sm leading-relaxed">{currentLesson?.summary}</p>
-                    <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
-                      <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase block">
-                        💡 Objetivo de Aprendizaje:
-                      </span>
-                      <p className="text-zinc-600">
-                        Aplica los conceptos técnicos, consulta la pestaña <strong>Guía Escrita</strong> y descarga los blueprints asociados para probarlos en tu propio entorno.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab: Guía Escrita / Manual de la Unidad */}
-                {activePlayerTab === "content" && (
-                  <div className="space-y-4 text-xs text-zinc-800 leading-relaxed">
-                    <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 whitespace-pre-wrap font-sans text-xs leading-relaxed">
-                      {currentLesson?.content_text || currentLesson?.summary || "Esta lección incluye el reproductor de video interactivo y materiales descargables en las pestañas superiores."}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab: Prompts */}
-                {activePlayerTab === "prompts" && (
-                  <div className="space-y-4">
-                    {currentLesson?.prompts && currentLesson.prompts.length > 0 ? (
-                      currentLesson.prompts.map((p, idx) => (
-                        <div key={idx} className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] font-bold text-[#0284c7]">PROMPT #0{idx + 1}</span>
-                            <button
-                              onClick={() => handleCopyPrompt(p, idx)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-zinc-300 hover:border-[#0284c7] text-[#0284c7] text-xs font-bold transition-all"
-                            >
-                              {copiedPromptIndex === idx ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span className="text-emerald-600">¡Copiado!</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" />
-                                  <span>Copiar Prompt</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                          <pre className="text-xs text-zinc-800 font-mono whitespace-pre-wrap bg-white p-3.5 rounded-xl border border-zinc-200">
-                            {p}
-                          </pre>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-zinc-400 font-mono">No hay prompts adicionales en esta lección.</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Tab: Descargas */}
-                {activePlayerTab === "downloads" && (
-                  <div className="space-y-3">
-                    {currentLesson?.downloads && currentLesson.downloads.length > 0 ? (
-                      currentLesson.downloads.map((d, idx) => (
-                        <div
-                          key={idx}
-                          className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-between gap-4"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-bold text-zinc-900">{d.name}</h4>
-                              <span className="font-mono text-[10px] text-zinc-500">{d.type}</span>
-                            </div>
-                          </div>
-
-                          <a
-                            href={d.url}
-                            download
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-100 text-zinc-800 text-xs font-bold transition-colors border border-zinc-300"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            <span>Descargar</span>
-                          </a>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-zinc-400 font-mono">No hay archivos adjuntos en esta lección.</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Tab: Quiz Aprobatorio Interactivo */}
-                {activePlayerTab === "quiz" && currentModule?.quiz && (
-                  <div className="space-y-6">
-                    <div className="p-4 rounded-2xl bg-pink-50/50 border border-pink-100 flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <span className="text-xs font-bold text-[#EA0C7F]">
-                          Evaluación Técnica: {currentModule.title}
-                        </span>
-                        <p className="text-[11px] text-zinc-600">
-                          Responde las preguntas y obtén al menos {currentModule.quiz.passingScore}% para aprobar el módulo.
-                        </p>
+                {/* Columna Derecha: Sidebar de Módulos y Lecciones (4 cols) */}
+                <div className="lg:col-span-4 space-y-4">
+                  <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-4 sticky top-24">
+                    
+                    <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-[#0284c7]" />
+                        <h3 className="text-sm font-bold text-zinc-900">Temario del Programa</h3>
                       </div>
-                      {passedQuizes.includes(currentModule.id) && (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
-                          MÓDULO APROBADO ✓
-                        </span>
-                      )}
+                      <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        {completedInProgram} / {totalLessonsCount} vistas
+                      </span>
                     </div>
 
-                    <div className="space-y-6">
-                      {currentModule.quiz.questions.map((q, qIdx) => {
-                        return (
-                          <div key={qIdx} className="space-y-3 p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
-                            <h4 className="text-xs font-bold text-zinc-900">
-                              {qIdx + 1}. {q.question}
-                            </h4>
-
-                            <div className="space-y-2">
-                              {q.options.map((opt, oIdx) => {
-                                const isChosen = quizAnswers[qIdx] === oIdx;
-                                const isCorrect = q.correctIndex === oIdx;
-
-                                let optionStyle = "bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-100";
-                                if (isChosen && !quizSubmitted) {
-                                  optionStyle = "bg-zinc-900 text-white border-zinc-900 font-bold";
-                                } else if (quizSubmitted) {
-                                  if (isCorrect) {
-                                    optionStyle = "bg-emerald-50 border-emerald-300 text-emerald-800 font-bold";
-                                  } else if (isChosen && !isCorrect) {
-                                    optionStyle = "bg-red-50 border-red-300 text-red-800 line-through";
-                                  }
-                                }
-
-                                return (
-                                  <button
-                                    key={oIdx}
-                                    type="button"
-                                    onClick={() => handleAnswerSelect(qIdx, oIdx)}
-                                    className={"w-full p-3 rounded-xl border text-left text-xs transition-all flex items-center justify-between " + optionStyle}
-                                  >
-                                    <span>{opt}</span>
-                                    {quizSubmitted && isCorrect && (
-                                      <Check className="w-4 h-4 text-emerald-600" />
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-
-                            {quizSubmitted && (
-                              <div className="p-3 rounded-xl bg-white border border-zinc-200 text-[11px] text-zinc-600 space-y-1">
-                                <span className="font-bold text-zinc-800">💡 Explicación Técnica:</span>
-                                <p>{q.explanation}</p>
-                              </div>
+                    <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
+                      {currentProgram.modules.map((module, mIdx) => (
+                        <div key={module.id} className="space-y-2">
+                          <div className="font-mono text-[11px] font-bold text-zinc-500 px-1 flex items-center justify-between">
+                            <span className="line-clamp-1">{module.title}</span>
+                            {passedQuizes.includes(module.id) && (
+                              <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">
+                                QUIZ OK
+                              </span>
                             )}
                           </div>
-                        );
-                      })}
-                    </div>
 
-                    {/* Botón de Enviar / Reintentar */}
-                    <div className="flex items-center justify-between pt-2">
-                      {!quizSubmitted ? (
-                        <button
-                          onClick={handleEvaluateQuiz}
-                          disabled={Object.keys(quizAnswers).length < currentModule.quiz.questions.length}
-                          className="px-6 py-3 rounded-xl bg-[#EA0C7F] hover:bg-[#c7096b] disabled:opacity-50 text-white font-bold text-xs transition-colors shadow-md flex items-center gap-2"
-                        >
-                          <span>Calificar Evaluación</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                      ) : (
-                        <div className="flex items-center justify-between w-full">
-                          <div className="text-xs font-bold">
-                            Tu puntaje:{" "}
-                            <span className={quizScore! >= currentModule.quiz.passingScore ? "text-emerald-600" : "text-red-600"}>
-                              {quizScore}% ({quizScore! >= currentModule.quiz.passingScore ? "Aprobado 🎉" : "No alcanzaste el mínimo requerido"})
-                            </span>
+                          <div className="space-y-1.5">
+                            {module.lessons.map((lesson, lIdx) => {
+                              const isActive = activeModuleIndex === mIdx && activeLessonIndex === lIdx;
+                              const isCompleted = completedLessons.includes(lesson.id);
+
+                              return (
+                                <button
+                                  key={lesson.id}
+                                  onClick={() => {
+                                    setActiveModuleIndex(mIdx);
+                                    setActiveLessonIndex(lIdx);
+                                  }}
+                                  className={"w-full p-3 rounded-2xl text-left text-xs transition-all flex items-center justify-between gap-3 cursor-pointer " + (isActive ? "bg-zinc-900 text-white shadow-md font-bold" : "bg-zinc-50 border border-zinc-200 text-zinc-700 hover:bg-zinc-100")}
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    {isCompleted ? (
+                                      <CheckCircle2
+                                        className={"w-4 h-4 shrink-0 " + (isActive ? "text-emerald-400" : "text-emerald-600")}
+                                      />
+                                    ) : (
+                                      <PlayCircle
+                                        className={"w-4 h-4 shrink-0 " + (isActive ? "text-white" : "text-zinc-400")}
+                                      />
+                                    )}
+                                    <span className="line-clamp-1">{lesson.title}</span>
+                                  </div>
+
+                                  <span
+                                    className={"font-mono text-[10px] shrink-0 " + (isActive ? "text-white/80" : "text-zinc-400")}
+                                  >
+                                    {lesson.duration}
+                                  </span>
+                                </button>
+                              );
+                            })}
                           </div>
-                          <button
-                            onClick={handleResetQuiz}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-300 text-xs font-bold hover:bg-zinc-50 transition-colors"
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Reintentar Quiz</span>
-                          </button>
                         </div>
-                      )}
+                      ))}
                     </div>
+
                   </div>
-                )}
-
-                {/* Tab: Apuntes del Alumno */}
-                {activePlayerTab === "notes" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-zinc-900">
-                        Notas personales para: {currentLesson?.title}
-                      </span>
-                      <span className="text-[10px] font-mono text-zinc-400">Autoguardado local activo</span>
-                    </div>
-                    <textarea
-                      rows={6}
-                      value={currentNote}
-                      onChange={(e) => handleSaveNote(e.target.value)}
-                      placeholder="Escribe tus apuntes, comandos o dudas aquí..."
-                      className="w-full p-4 rounded-2xl border border-zinc-200 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none font-mono"
-                    />
-                  </div>
-                )}
-
-              </div>
-
-            </div>
-
-            {/* Columna Derecha: Sidebar de Módulos y Lecciones (4 cols) */}
-            <div className="lg:col-span-4 space-y-4">
-              <div className="p-6 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-4 sticky top-36">
-                
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#0284c7]" />
-                    <h3 className="text-sm font-bold text-zinc-900">Temario del Programa</h3>
-                  </div>
-                  <span className="font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    {completedInProgram} / {totalLessonsCount} vistas
-                  </span>
                 </div>
 
-                <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
-                  {currentProgram.modules.map((module, mIdx) => (
-                    <div key={module.id} className="space-y-2">
-                      <div className="font-mono text-[11px] font-bold text-zinc-500 px-1 flex items-center justify-between">
-                        <span className="line-clamp-1">{module.title}</span>
-                        {passedQuizes.includes(module.id) && (
-                          <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">
-                            QUIZ OK
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ════════ TAB 3: MIS CERTIFICADOS & DIPLOMAS (CONDICIONAL ESTRICTO) ════════ */}
+        {currentView === "certificates" && (
+          <div className="space-y-8 animate-in fade-in duration-200">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-2">
+              <span className="font-mono text-[10px] font-bold text-[#EA0C7F] uppercase tracking-wider">
+                Acreditaciones Académicas
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+                Mis Certificados & Diplomas Oficiales
+              </h1>
+              <p className="text-xs text-zinc-600 leading-relaxed max-w-2xl">
+                Para desbloquear y emitir tu diploma oficial con código único de validación internacional, debes completar el <strong>100% de las lecciones</strong> y aprobar todas las evaluaciones de cada módulo con al menos 75%.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {enrolledCourseIds.map((courseId) => {
+                const prog = PROGRAMS[courseId] || PROGRAMS["bootcamp-n8n"];
+                const allLessons = prog.modules.flatMap((m) => m.lessons);
+                const completed = completedLessons.filter((id) => allLessons.some((l) => l.id === id)).length;
+                const pct = allLessons.length > 0 ? Math.round((completed / allLessons.length) * 100) : 0;
+                const reqQuizes = prog.modules.filter((m) => m.quiz?.enabled).length;
+                const passed = prog.modules.filter((m) => m.quiz?.enabled && passedQuizes.includes(m.id)).length;
+                const isCertified = pct === 100 && (reqQuizes === 0 || passed >= reqQuizes);
+
+                return (
+                  <div
+                    key={prog.id}
+                    className={"p-6 sm:p-8 rounded-3xl border shadow-sm flex flex-col justify-between space-y-6 relative overflow-hidden " + (isCertified ? "bg-white border-emerald-300 ring-2 ring-emerald-400/20" : "bg-white border-zinc-200")}
+                  >
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded bg-zinc-100 text-zinc-700">
+                          {prog.badge}
+                        </span>
+                        {isCertified ? (
+                          <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            EMITIDO & VALIDADO
+                          </span>
+                        ) : (
+                          <span className="font-mono text-[11px] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5 text-amber-600" />
+                            BLOQUEADO (EN PROGRESO)
                           </span>
                         )}
                       </div>
 
-                      <div className="space-y-1.5">
-                        {module.lessons.map((lesson, lIdx) => {
-                          const isActive = activeModuleIndex === mIdx && activeLessonIndex === lIdx;
-                          const isCompleted = completedLessons.includes(lesson.id);
+                      <h3 className="text-lg font-bold text-zinc-900">{prog.title}</h3>
 
-                          return (
-                            <button
-                              key={lesson.id}
-                              onClick={() => {
-                                setActiveModuleIndex(mIdx);
-                                setActiveLessonIndex(lIdx);
-                              }}
-                              className={"w-full p-3 rounded-2xl text-left text-xs transition-all flex items-center justify-between gap-3 cursor-pointer " + (isActive ? "bg-zinc-900 text-white shadow-md font-bold" : "bg-zinc-50 border border-zinc-200 text-zinc-700 hover:bg-zinc-100")}
-                            >
-                              <div className="flex items-center gap-2.5">
-                                {isCompleted ? (
-                                  <CheckCircle2
-                                    className={"w-4 h-4 shrink-0 " + (isActive ? "text-emerald-400" : "text-emerald-600")}
-                                  />
-                                ) : (
-                                  <PlayCircle
-                                    className={"w-4 h-4 shrink-0 " + (isActive ? "text-white" : "text-zinc-400")}
-                                  />
-                                )}
-                                <span className="line-clamp-1">{lesson.title}</span>
-                              </div>
+                      {/* Requisitos para Certificación */}
+                      <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2.5 text-xs">
+                        <div className="font-bold text-zinc-700 text-[11px] font-mono uppercase">
+                          Condiciones de Aprobación:
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-zinc-600 flex items-center gap-2">
+                            {pct === 100 ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            ) : (
+                              <Lock className="w-4 h-4 text-zinc-400" />
+                            )}
+                            100% Lecciones Completadas
+                          </span>
+                          <span className="font-mono font-bold text-zinc-800">
+                            {completed}/{allLessons.length} ({pct}%)
+                          </span>
+                        </div>
 
-                              <span
-                                className={"font-mono text-[10px] shrink-0 " + (isActive ? "text-white/80" : "text-zinc-400")}
-                              >
-                                {lesson.duration}
-                              </span>
-                            </button>
-                          );
-                        })}
+                        <div className="flex items-center justify-between">
+                          <span className="text-zinc-600 flex items-center gap-2">
+                            {passed >= reqQuizes ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            ) : (
+                              <Lock className="w-4 h-4 text-zinc-400" />
+                            )}
+                            Quizes de Módulos Aprobados
+                          </span>
+                          <span className="font-mono font-bold text-zinc-800">
+                            {passed}/{reqQuizes} Evaluaciones
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-              </div>
+                    <div className="pt-4 border-t border-zinc-100 flex items-center justify-between">
+                      <div className="text-[11px] text-zinc-500 font-mono">
+                        {isCertified ? `ID: ${certGeneratedCode}` : "Avanza en tus clases para emitir"}
+                      </div>
+
+                      {isCertified ? (
+                        <button
+                          onClick={() => {
+                            setCertificateToView(prog);
+                            setShowCertificateModal(true);
+                          }}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] text-white text-xs font-bold shadow-md hover:opacity-95 transition-all cursor-pointer"
+                        >
+                          <Award className="w-4 h-4" />
+                          <span>Ver Diploma Digital</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSelectedProgramId(prog.id);
+                            setActiveModuleIndex(0);
+                            setActiveLessonIndex(0);
+                            setCurrentView("player");
+                          }}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition-all cursor-pointer"
+                        >
+                          <span>Continuar Clases</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ════════ TAB 4: MI CUENTA / PERFIL Y CONTRASEÑA ════════ */}
+        {currentView === "account" && (
+          <div className="space-y-8 max-w-2xl mx-auto animate-in fade-in duration-200">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-2">
+              <span className="font-mono text-[10px] font-bold text-[#0284c7] uppercase tracking-wider">
+                Configuración del Alumno
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+                Mi Cuenta & Seguridad
+              </h1>
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Administra tus datos personales y credenciales de acceso al Campus Virtual.
+              </p>
             </div>
 
+            <form onSubmit={handleUpdateProfile} className="p-6 sm:p-8 rounded-3xl bg-white border border-zinc-200 shadow-sm space-y-6">
+              
+              {profileMessage && (
+                <div className={"p-4 rounded-2xl text-xs font-bold flex items-center gap-2.5 " + (profileMessage.type === "success" ? "bg-emerald-50 border border-emerald-200 text-emerald-800" : "bg-red-50 border border-red-200 text-red-800")}>
+                  {profileMessage.type === "success" ? <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />}
+                  <span>{profileMessage.text}</span>
+                </div>
+              )}
+
+              {/* Datos Personales */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2 border-b border-zinc-100 pb-2">
+                  <User className="w-4 h-4 text-[#0284c7]" />
+                  <span>Datos Personales</span>
+                </h3>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">
+                    NOMBRE COMPLETO (SE IMPRIMIRÁ EN TUS DIPLOMAS)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editFullName}
+                    onChange={(e) => setEditFullName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                    placeholder="Tu nombre y apellido"
+                  />
+                  <p className="text-[10px] text-zinc-500 mt-1">
+                    Asegúrate de escribirlo exactamente como deseas que figure en tus certificaciones oficiales.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CORREO ELECTRÓNICO</label>
+                    <input
+                      type="email"
+                      disabled
+                      value={studentEmail}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-500 text-xs font-mono cursor-not-allowed"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">TELÉFONO / WHATSAPP</label>
+                    <input
+                      type="text"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                      placeholder="+58 414-000-0000"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">EMPRESA / PROYECTO</label>
+                  <input
+                    type="text"
+                    value={editCompany}
+                    onChange={(e) => setEditCompany(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                    placeholder="Nombre de tu empresa o marca"
+                  />
+                </div>
+              </div>
+
+              {/* Cambiar Contraseña */}
+              <div className="space-y-4 pt-4 border-t border-zinc-100">
+                <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2 border-b border-zinc-100 pb-2">
+                  <Key className="w-4 h-4 text-[#EA0C7F]" />
+                  <span>Actualizar Contraseña de Acceso</span>
+                </h3>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CONTRASEÑA ACTUAL</label>
+                  <input
+                    type="password"
+                    value={currentPasswordInput}
+                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                    placeholder="Ingresa tu contraseña actual"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">NUEVA CONTRASEÑA</label>
+                    <input
+                      type="password"
+                      value={newPasswordInput}
+                      onChange={(e) => setNewPasswordInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-zinc-700 mb-1">CONFIRMAR NUEVA CONTRASEÑA</label>
+                    <input
+                      type="password"
+                      value={confirmPasswordInput}
+                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 text-xs focus:ring-2 focus:ring-[#0284c7] outline-none"
+                      placeholder="Repite la nueva contraseña"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSavingProfile}
+                  className="px-6 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>{isSavingProfile ? "Guardando Cambios..." : "Guardar Cambios de Cuenta"}</span>
+                </button>
+              </div>
+
+            </form>
           </div>
         )}
 
@@ -3635,7 +4113,7 @@ function CampusContent() {
               </div>
               <button
                 onClick={() => setShowCertificateModal(false)}
-                className="text-zinc-400 hover:text-white text-xs font-mono"
+                className="text-zinc-400 hover:text-white text-xs font-mono cursor-pointer"
               >
                 Cerrar ✕
               </button>
@@ -3652,10 +4130,10 @@ function CampusContent() {
                 Por haber completado con distinción el 100% de los laboratorios y quizes aprobatorios del programa:
               </p>
               <p className="text-sm font-bold text-white">
-                {currentProgram.title}
+                {certificateToView?.title || currentProgram.title}
               </p>
               <div className="text-[10px] font-mono text-zinc-500 pt-2">
-                ID de Verificación: CERT-2026-IN • Emisión: Agosto 2026
+                ID de Verificación: {certGeneratedCode} • Emisión: Agosto 2026
               </div>
             </div>
 
@@ -3666,10 +4144,10 @@ function CampusContent() {
               </div>
               <button
                 onClick={() => {
-                    const certUrl = '/certificados/' + certGeneratedCode;
-                    window.open(certUrl, '_blank');
-                  }}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] text-white font-bold text-xs shadow-md hover:opacity-95"
+                  const certUrl = '/certificados/' + certGeneratedCode;
+                  window.open(certUrl, '_blank');
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] text-white font-bold text-xs shadow-md hover:opacity-95 cursor-pointer"
               >
                 Imprimir / Guardar PDF
               </button>
@@ -3679,14 +4157,21 @@ function CampusContent() {
         </div>
       )}
 
-      <Footer />
+      {/* Footer Limpio y Exclusivo de Estudiantes */}
+      <footer className="border-t border-zinc-200 bg-white py-6 text-center text-zinc-500 text-xs font-mono">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>© 2026 Inteligencia Neuronal Academy. Todos los derechos reservados.</span>
+          <span className="text-[11px] text-zinc-400">Soporte Académico: admin@inteligencianeuronal.com</span>
+        </div>
+      </footer>
+
     </div>
   );
 }
 
 export default function CampusPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center text-xs">Cargando Campus Virtual...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center text-xs font-mono">Cargando Campus Virtual...</div>}>
       <CampusContent />
     </Suspense>
   );

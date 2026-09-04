@@ -22,6 +22,11 @@ interface CheckoutStoreState {
   email: string;
   phone: string;
   referenceNumber: string;
+  originBank: string;
+  paymentDate: string;
+  paidAmountBs: string;
+  bcvRate: number;
+  isFetchingBcv: boolean;
   
   // Status
   isSubmitting: boolean;
@@ -31,7 +36,8 @@ interface CheckoutStoreState {
   openCheckout: (course: CheckoutCourse) => void;
   closeCheckout: () => void;
   setPaymentMethod: (method: "lemon" | "pagomovil") => void;
-  setFormField: (field: "fullName" | "email" | "phone" | "referenceNumber", value: string) => void;
+  setFormField: (field: "fullName" | "email" | "phone" | "referenceNumber" | "originBank" | "paymentDate" | "paidAmountBs", value: string) => void;
+  fetchBcvRate: () => Promise<void>;
   submitRegistration: () => Promise<boolean>;
   confirmPagoMovil: () => Promise<boolean>;
   reset: () => void;
@@ -47,16 +53,38 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   email: "",
   phone: "",
   referenceNumber: "",
+  originBank: "Banesco",
+  paymentDate: new Date().toISOString().split("T")[0],
+  paidAmountBs: "",
+  bcvRate: 40.50,
+  isFetchingBcv: false,
   
   isSubmitting: false,
   errorMessage: null,
 
+  fetchBcvRate: async () => {
+    try {
+      set({ isFetchingBcv: true });
+      const res = await fetch("/api/bcv");
+      const data = await res.json();
+      if (data.success && data.rate) {
+        set({ bcvRate: data.rate });
+      }
+    } catch (e) {
+      console.warn("[Fetch BCV Rate warning]", e);
+    } finally {
+      set({ isFetchingBcv: false });
+    }
+  },
+
   openCheckout: (course) => {
+    get().fetchBcvRate();
     set({
       isCheckoutOpen: true,
       selectedCourse: course,
       step: "form",
       errorMessage: null,
+      paymentDate: new Date().toISOString().split("T")[0],
     });
   },
 
@@ -162,10 +190,25 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   },
 
   confirmPagoMovil: async () => {
-    const { fullName, email, phone, referenceNumber, selectedCourse } = get();
+    const {
+      fullName,
+      email,
+      phone,
+      referenceNumber,
+      originBank,
+      paymentDate,
+      paidAmountBs,
+      bcvRate,
+      selectedCourse,
+    } = get();
 
     if (!fullName.trim() || !email.includes("@")) {
       set({ errorMessage: "Faltan datos de contacto del alumno." });
+      return false;
+    }
+
+    if (!referenceNumber.trim()) {
+      set({ errorMessage: "Por favor ingresa el número de referencia del pago." });
       return false;
     }
 
@@ -174,7 +217,11 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
     try {
       const cleanEmail = email.trim().toLowerCase();
       const cleanName = fullName.trim();
-      const cleanRef = referenceNumber.trim() || `PM-${Math.floor(100000 + Math.random() * 900000)}`;
+      const cleanRef = referenceNumber.trim();
+
+      // Calcular monto en Bs. si no está seteado
+      const numPrice = parseFloat((selectedCourse?.price || "97").replace(/[^0-9.]/g, "")) || 97;
+      const calculatedBs = paidAmountBs || `Bs. ${(numPrice * bcvRate).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
       // 1. Registrar venta y matrícula automática en /api/orders
       const res = await fetch("/api/orders", {
@@ -187,6 +234,10 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
           courseId: selectedCourse?.id || "masterclass-ia-restaurantes",
           courseTitle: selectedCourse?.title || "Programa Oficial Academy",
           amount: selectedCourse?.price || "$97 USD",
+          amountBs: calculatedBs,
+          bcvRate: `Bs. ${bcvRate.toFixed(2)}`,
+          originBank: originBank || "Banesco",
+          paymentDate: paymentDate || new Date().toISOString().split("T")[0],
           currency: "USD",
           paymentMethod: "pagomovil",
           referenceNumber: cleanRef,
@@ -204,6 +255,9 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
         localStorage.setItem("in_student_email", cleanEmail);
         localStorage.setItem("in_student_name", cleanName);
         localStorage.setItem("in_enrolled_course", selectedCourse?.id || "masterclass-ia-restaurantes");
+        if (data.temporaryPassword) {
+          localStorage.setItem("in_student_temp_pass", data.temporaryPassword);
+        }
       }
 
       set({ isSubmitting: false, isCheckoutOpen: false });
@@ -222,4 +276,5 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
     }
   },
 }));
+
 

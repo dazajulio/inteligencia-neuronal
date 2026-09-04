@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/client";
 import { sendAcademyWelcomeEmail, sendAdminSaleNotificationEmail } from "@/lib/resend/client";
 
@@ -90,6 +90,10 @@ export async function POST(req: NextRequest) {
       courseId,
       courseTitle,
       amount,
+      amountBs = "N/A",
+      bcvRate = "N/A",
+      originBank = "Banesco",
+      paymentDate,
       currency = "USD",
       paymentMethod = "pagomovil",
       referenceNumber = "REG-AUTO",
@@ -109,6 +113,8 @@ export async function POST(req: NextRequest) {
     const cleanAmount = amount || "$97 USD";
     const cleanRef = referenceNumber.trim() || `REF-${Math.floor(100000 + Math.random() * 900000)}`;
     const randomFolio = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    const paymentDateVal = paymentDate || new Date().toISOString().split("T")[0];
+    const generatedPassword = `campus${Math.floor(1000 + Math.random() * 9000)}`;
     const nowIso = new Date().toISOString();
 
     const orderRecord = {
@@ -120,6 +126,10 @@ export async function POST(req: NextRequest) {
       course_id: courseId,
       course_title: cleanTitle,
       amount: cleanAmount,
+      amount_bs: amountBs,
+      bcv_rate: bcvRate,
+      origin_bank: originBank,
+      payment_date: paymentDateVal,
       currency: currency,
       payment_method: paymentMethod,
       reference_number: cleanRef,
@@ -143,6 +153,7 @@ export async function POST(req: NextRequest) {
         full_name: cleanName,
         phone: cleanPhone || null,
         course_id: courseId,
+        password: generatedPassword,
         status: "active",
         created_at: nowIso,
       });
@@ -164,10 +175,8 @@ export async function POST(req: NextRequest) {
         to: cleanEmail,
         fullName: cleanName,
         courseTitle: cleanTitle,
+        temporaryPassword: generatedPassword,
         campusUrl: "https://inteligencianeuronal.com/academy/campus",
-        whatsappVipUrl: `https://wa.me/584148817137?text=${encodeURIComponent(
-          `Hola Julio, me inscribí en ${cleanTitle} (Ref: ${cleanRef}) y quiero unirme al grupo VIP.`
-        )}`,
       });
     } catch (emailErr) {
       console.warn("[Student welcome email warning]", emailErr);
@@ -181,9 +190,12 @@ export async function POST(req: NextRequest) {
         customerPhone: cleanPhone,
         courseTitle: cleanTitle,
         amount: cleanAmount,
+        amountBs: amountBs,
+        bcvRate: bcvRate,
+        originBank: originBank,
         paymentMethod: paymentMethod === "pagomovil" ? "Pago Móvil (Bs.)" : "Lemon Squeezy / Tarjeta",
         referenceNumber: cleanRef,
-        date: new Date().toLocaleString("es-ES", { timeZone: "America/Caracas" }),
+        date: `${paymentDateVal} (${new Date().toLocaleTimeString("es-VE")})`,
         status: "ACTIVO",
       });
     } catch (adminEmailErr) {
@@ -194,6 +206,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: `¡Venta procesada con éxito! Acceso inmediato al campus otorgado para ${cleanName}.`,
       order: orderRecord,
+      temporaryPassword: generatedPassword,
       redirectUrl: `/academy/campus?email=${encodeURIComponent(cleanEmail)}`,
     });
   } catch (error: any) {

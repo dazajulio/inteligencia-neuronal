@@ -173,6 +173,10 @@ export interface OrderSaleItem {
   currency?: string;
   payment_method: string;
   reference_number?: string;
+  origin_bank?: string;
+  payment_date?: string;
+  amount_bs?: string;
+  bcv_rate?: number;
   status: 'ACTIVO' | 'PENDIENTE' | 'SUSPENDIDO' | 'REEMBOLSADO';
   created_at: string;
 }
@@ -198,6 +202,7 @@ export default function AdminDashboard() {
 
   // ── 0. VENTAS & ÓRDENES STATE (DATOS REALES) ──
   const [ordersList, setOrdersList] = useState<OrderSaleItem[]>([]);
+  const [selectedOrderForModal, setSelectedOrderForModal] = useState<OrderSaleItem | null>(null);
 
   // ── 1. NOTIFICACIONES & AUDITORÍAS STATE (DATOS REALES) ──
   const [notifications, setNotifications] = useState<AuditNotification[]>([]);
@@ -2629,14 +2634,14 @@ export default function AdminDashboard() {
 
                               {/* Acciones */}
                               <td className="py-4 text-right">
-                                <Link
-                                  href={`/academy/campus?email=${encodeURIComponent(ord.customer_email)}`}
-                                  target="_blank"
-                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs"
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedOrderForModal(ord)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs cursor-pointer"
                                 >
-                                  <ExternalLink className="w-3 h-3 text-[#971B8D]" />
-                                  <span>Campus</span>
-                                </Link>
+                                  <Eye className="w-3.5 h-3.5 text-[#971B8D]" />
+                                  <span>Ver Ficha</span>
+                                </button>
                               </td>
                             </tr>
                           );
@@ -5028,6 +5033,196 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL: FICHA DE PAGO & DETALLE DE VENTA ── */}
+        {selectedOrderForModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-xl rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-zinc-900 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#EA0C7F] via-[#971B8D] to-[#1DACE3]" />
+
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#EA0C7F] to-[#971B8D] text-white flex items-center justify-center shadow-md">
+                    <DollarSign className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-zinc-900">Ficha de Pago & Verificación</h3>
+                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-800">
+                        {selectedOrderForModal.folio || selectedOrderForModal.id}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 font-mono">
+                      Registrada el {new Date(selectedOrderForModal.created_at).toLocaleString('es-ES')}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedOrderForModal(null)}
+                  className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-xl hover:bg-zinc-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Datos del Alumno */}
+              <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
+                <span className="font-mono text-[10px] font-bold text-[#971B8D] uppercase tracking-wider block">
+                  Datos del Alumno / Comprador
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <span className="text-zinc-500 block text-[11px]">Nombre Completo:</span>
+                    <strong className="text-zinc-900">{selectedOrderForModal.customer_name}</strong>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 block text-[11px]">Correo Electrónico:</span>
+                    <strong className="text-zinc-900 font-mono">{selectedOrderForModal.customer_email}</strong>
+                  </div>
+                  {selectedOrderForModal.customer_phone && selectedOrderForModal.customer_phone !== 'No registrado' && (
+                    <div>
+                      <span className="text-zinc-500 block text-[11px]">Teléfono / WhatsApp:</span>
+                      <a
+                        href={`https://wa.me/${selectedOrderForModal.customer_phone.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-700 font-bold hover:underline flex items-center gap-1 font-mono"
+                      >
+                        <Phone className="w-3 h-3" /> {selectedOrderForModal.customer_phone}
+                      </a>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-zinc-500 block text-[11px]">Programa Adquirido:</span>
+                    <strong className="text-zinc-900">{selectedOrderForModal.course_title}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desglose del Pago y Verificación Bancaria */}
+              <div className="space-y-3">
+                <span className="font-mono text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                  Desglose de la Transacción
+                </span>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                    <span className="text-[10px] text-zinc-500 font-mono block">MÉTODO</span>
+                    <strong className="text-xs text-zinc-900 capitalize font-mono">
+                      {selectedOrderForModal.payment_method}
+                    </strong>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                    <span className="text-[10px] text-zinc-500 font-mono block">BANCO DE ORIGEN</span>
+                    <strong className="text-xs text-zinc-900 font-semibold">
+                      {selectedOrderForModal.origin_bank || 'No especificado'}
+                    </strong>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                    <span className="text-[10px] text-zinc-500 font-mono block">FECHA DEL PAGO</span>
+                    <strong className="text-xs text-zinc-900 font-mono">
+                      {selectedOrderForModal.payment_date || new Date(selectedOrderForModal.created_at).toLocaleDateString()}
+                    </strong>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                    <span className="text-[10px] text-zinc-500 font-mono block">MONTO (USD)</span>
+                    <strong className="text-sm font-extrabold text-zinc-900 font-mono">
+                      {selectedOrderForModal.amount}
+                    </strong>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                    <span className="text-[10px] text-zinc-500 font-mono block">MONTO (BOLÍVARES)</span>
+                    <strong className="text-sm font-extrabold text-emerald-700 font-mono">
+                      {selectedOrderForModal.amount_bs ? `Bs. ${selectedOrderForModal.amount_bs}` : 'N/A'}
+                    </strong>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-200">
+                    <span className="text-[10px] text-zinc-500 font-mono block">TASA BCV APLICADA</span>
+                    <strong className="text-xs font-bold text-zinc-700 font-mono">
+                      {selectedOrderForModal.bcv_rate ? `Bs. ${Number(selectedOrderForModal.bcv_rate).toFixed(2)}` : 'N/A'}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Número de Referencia */}
+                <div className="p-4 rounded-2xl bg-zinc-900 text-white flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono text-zinc-400 block uppercase">
+                      Número de Referencia Bancaria
+                    </span>
+                    <div className="text-base font-extrabold font-mono tracking-wider text-emerald-400">
+                      {selectedOrderForModal.reference_number || 'N/A'}
+                    </div>
+                  </div>
+
+                  {selectedOrderForModal.reference_number && (
+                    <button
+                      type="button"
+                      onClick={() => copySaleReference(selectedOrderForModal.reference_number || '', selectedOrderForModal.folio || selectedOrderForModal.id)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors cursor-pointer"
+                    >
+                      {copiedRef === (selectedOrderForModal.folio || selectedOrderForModal.id) ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-400">¡Copiado!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copiar</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Modificar Estatus del Pedido */}
+              <div className="pt-2 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-zinc-700">Modificar Estatus:</span>
+                  <select
+                    value={selectedOrderForModal.status}
+                    onChange={(e) => {
+                      const newStat = e.target.value;
+                      handleUpdateOrderStatus(
+                        selectedOrderForModal.id,
+                        selectedOrderForModal.folio,
+                        newStat,
+                        selectedOrderForModal.customer_email
+                      );
+                      setSelectedOrderForModal({
+                        ...selectedOrderForModal,
+                        status: newStat as any,
+                      });
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-zinc-300 text-xs font-mono font-bold bg-white focus:ring-2 focus:ring-[#971B8D] outline-none cursor-pointer"
+                  >
+                    <option value="ACTIVO">● ACTIVO (Acceso Total)</option>
+                    <option value="PENDIENTE">⏳ PENDIENTE (En Revisión)</option>
+                    <option value="SUSPENDIDO">✕ SUSPENDIDO</option>
+                    <option value="REEMBOLSADO">↩ REEMBOLSADO</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForModal(null)}
+                  className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
+                >
+                  Cerrar Ficha
+                </button>
+              </div>
+
             </div>
           </div>
         )}

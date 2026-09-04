@@ -52,14 +52,15 @@ export async function POST(req: NextRequest) {
       console.warn("[Enroll Supabase warning]", dbErr);
     }
 
-    // 2. Disparar Correo de Bienvenida por Resend
+    // 2. Disparar Correo de Bienvenida por Resend con Credenciales y Acceso Oficial
     if (sendEmail) {
+      const generatedTempPassword = Math.random().toString(36).slice(-8) + "IN#";
       await sendAcademyWelcomeEmail({
         to: cleanEmail,
         fullName: fullName.trim(),
         courseTitle: title,
         campusUrl: "https://inteligencianeuronal.com/academy/campus",
-        whatsappVipUrl: "https://wa.me/584148817137?text=" + encodeURIComponent(`Hola Julio, me matriculé en ${title} y quiero unirme al grupo VIP.`),
+        temporaryPassword: generatedTempPassword,
       });
     }
 

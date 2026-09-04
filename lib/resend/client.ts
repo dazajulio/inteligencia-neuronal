@@ -333,12 +333,12 @@ export interface AcademyWelcomeEmailPayload {
   to: string;
   fullName: string;
   courseTitle: string;
+  temporaryPassword?: string;
   campusUrl?: string;
-  whatsappVipUrl?: string;
 }
 
 /**
- * 4. Envío Automático de Bienvenida y Acceso al Campus Virtual
+ * 4. Envío Automático de Bienvenida y Credenciales al Campus Virtual
  */
 export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayload) {
   const resend = getResendClient();
@@ -351,8 +351,8 @@ export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayloa
     to,
     fullName,
     courseTitle,
+    temporaryPassword = "campus" + Math.floor(1000 + Math.random() * 9000),
     campusUrl = "https://inteligencianeuronal.com/academy/campus",
-    whatsappVipUrl = "https://chat.whatsapp.com/sample-academy-vip",
   } = payload;
 
   const htmlContent = `
@@ -374,13 +374,17 @@ export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayloa
     .intro-text { font-size: 14px; line-height: 1.6; color: #cbd5e1; margin-bottom: 24px; }
     .course-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid #475569; border-radius: 18px; padding: 24px; margin-bottom: 28px; position: relative; }
     .course-tag { font-family: monospace; font-size: 10px; font-weight: 800; color: #1DACE3; text-transform: uppercase; margin-bottom: 6px; }
-    .course-title { font-size: 18px; font-weight: 800; color: #ffffff; line-height: 1.35; margin-bottom: 8px; }
-    .btn-campus { display: block; width: 100%; box-sizing: border-box; text-align: center; background: linear-gradient(90deg, #971B8D, #EA0C7F); color: #ffffff !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 16px 24px; border-radius: 14px; box-shadow: 0 4px 20px rgba(234, 12, 127, 0.4); margin-top: 16px; }
+    .course-title { font-size: 18px; font-weight: 800; color: #ffffff; line-height: 1.35; margin-bottom: 14px; }
+    .credentials-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 16px 20px; margin-bottom: 18px; font-family: monospace; font-size: 13px; }
+    .cred-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #1e293b; }
+    .cred-row:last-child { border-bottom: none; }
+    .cred-label { color: #94a3b8; font-sans font-weight: 600; }
+    .cred-val { color: #38bdf8; font-weight: 800; }
+    .btn-campus { display: block; width: 100%; box-sizing: border-box; text-align: center; background: linear-gradient(90deg, #971B8D, #EA0C7F); color: #ffffff !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 16px 24px; border-radius: 14px; box-shadow: 0 4px 20px rgba(234, 12, 127, 0.4); margin-top: 10px; }
     .steps-box { background-color: #0f172a; border: 1px solid #334155; border-radius: 16px; padding: 20px; margin-top: 24px; }
     .steps-title { font-size: 14px; font-weight: 800; color: #FEAD2B; margin-bottom: 12px; }
     .step-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 13px; color: #94a3b8; line-height: 1.5; }
     .step-num { background-color: #334155; color: #ffffff; font-weight: 800; font-family: monospace; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; shrink-0; }
-    .btn-whatsapp { display: inline-block; background-color: #22c55e; color: #ffffff !important; font-size: 13px; font-weight: 700; text-decoration: none; padding: 10px 18px; border-radius: 10px; margin-top: 8px; }
     .footer { background-color: #0f172a; padding: 24px 32px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #334155; }
   </style>
 </head>
@@ -393,13 +397,24 @@ export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayloa
     <div class="body-content">
       <div class="greeting">¡Hola, ${fullName}! Te damos la bienvenida oficial.</div>
       <p class="intro-text">
-        Tu inscripción al programa <strong>${courseTitle}</strong> ha sido validada con éxito. A partir de este momento tienes acceso exclusivo a los módulos grabados, arquitecturas de automatización en n8n y plantillas operativas.
+        Tu inscripción al programa <strong>${courseTitle}</strong> ha sido validada con éxito. A partir de este momento tienes acceso exclusivo a las lecciones interactivas, prompts y blueprints descargables.
       </p>
 
       <div class="course-card">
-        <div class="course-tag">ACCESO PERMANENTE AL CAMPUS VIRTUAL</div>
+        <div class="course-tag">CREDENCIALES DE ACCESO // CAMPUS VIRTUAL</div>
         <div class="course-title">${courseTitle}</div>
-        <p style="font-size: 12px; color: #94a3b8; margin: 0 0 12px 0;">Tu usuario de acceso es tu correo: <strong>${to}</strong></p>
+
+        <div class="credentials-box">
+          <div class="cred-row">
+            <span class="cred-label">Usuario / Email:</span>
+            <span class="cred-val">${to}</span>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label">Contraseña Asignada:</span>
+            <span class="cred-val" style="color: #facc15;">${temporaryPassword}</span>
+          </div>
+        </div>
+
         <a href="${campusUrl}?email=${encodeURIComponent(to)}" class="btn-campus" target="_blank">
           🚀 Ingresar al Campus Virtual
         </a>
@@ -409,13 +424,15 @@ export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayloa
         <div class="steps-title">Tus siguientes pasos recomendados:</div>
         <div class="step-item">
           <div class="step-num">1</div>
-          <div><strong>Accede al Campus:</strong> Explora las lecciones y descarga los blueprints de n8n y prompts de ChatGPT.</div>
+          <div><strong>Ingresa a tu aula:</strong> Haz clic en el botón superior y accede inmediatamente a tus módulos.</div>
         </div>
         <div class="step-item">
           <div class="step-num">2</div>
-          <div><strong>Únete a la Comunidad VIP:</strong> Conéctate directamente con Julio Daza y otros directores para resolver dudas técnicas.<br>
-            <a href="${whatsappVipUrl}" class="btn-whatsapp" target="_blank">💬 Unirme al Grupo VIP de WhatsApp</a>
-          </div>
+          <div><strong>Personaliza tu cuenta:</strong> Puedes cambiar tu contraseña y verificar tu nombre para la certificación oficial en la pestaña <em>Mi Cuenta</em> dentro del Campus.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div><strong>Obtén tu Certificación:</strong> Completa las unidades y aprueba los quizes evaluativos para desbloquear tu Diploma Oficial con código QR.</div>
         </div>
       </div>
     </div>
@@ -432,7 +449,7 @@ export async function sendAcademyWelcomeEmail(payload: AcademyWelcomeEmailPayloa
     const data = await resend.emails.send({
       from: DEFAULT_FROM,
       to: [to],
-      subject: `🎉 ¡Bienvenido(a) a ${courseTitle}! — Acceso a tu Campus Virtual`,
+      subject: `🎉 ¡Bienvenido(a) a ${courseTitle}! — Acceso y Credenciales a tu Campus Virtual`,
       html: htmlContent,
     });
     return { success: true, data };
@@ -449,7 +466,10 @@ export interface AdminSaleAlertPayload {
   customerPhone?: string;
   courseTitle: string;
   amount: string;
+  amountBs?: string;
+  bcvRate?: string;
   paymentMethod: string;
+  originBank?: string;
   referenceNumber?: string;
   date?: string;
   status?: string;
@@ -472,7 +492,10 @@ export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayl
     customerPhone = "No especificado",
     courseTitle,
     amount,
+    amountBs = "N/A",
+    bcvRate = "N/A",
     paymentMethod,
+    originBank = "No especificado",
     referenceNumber = "N/A",
     date = new Date().toLocaleString("es-ES", { timeZone: "America/Caracas" }),
     status = "ACTIVO",
@@ -495,6 +518,7 @@ export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayl
     .amount-box { background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); border: 1px solid #059669; border-radius: 18px; padding: 24px; text-align: center; margin-bottom: 24px; }
     .amount-label { font-size: 11px; font-family: monospace; font-weight: 700; color: #34d399; text-transform: uppercase; }
     .amount-val { font-size: 32px; font-weight: 900; color: #ffffff; margin-top: 4px; font-family: monospace; }
+    .amount-sub { font-size: 14px; font-family: monospace; color: #a7f3d0; margin-top: 4px; }
     .details-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px; }
     .details-table td { padding: 12px 14px; border-bottom: 1px solid #334155; }
     .details-label { color: #94a3b8; font-weight: 600; width: 38%; }
@@ -513,6 +537,7 @@ export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayl
       <div class="amount-box">
         <div class="amount-label">Monto de la Transacción</div>
         <div class="amount-val">${amount}</div>
+        ${amountBs !== "N/A" ? `<div class="amount-sub">Equivalente: ${amountBs} (Tasa: ${bcvRate})</div>` : ""}
       </div>
 
       <table class="details-table">
@@ -541,11 +566,15 @@ export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayl
           <td class="details-val" style="text-transform: uppercase;">${paymentMethod}</td>
         </tr>
         <tr>
+          <td class="details-label">Banco Emisor / Origen:</td>
+          <td class="details-val" style="color: #facc15;">${originBank}</td>
+        </tr>
+        <tr>
           <td class="details-label">Nro. de Referencia:</td>
           <td class="details-val" style="font-family: monospace; color: #facc15;">${referenceNumber}</td>
         </tr>
         <tr>
-          <td class="details-label">Fecha y Hora:</td>
+          <td class="details-label">Fecha del Pago:</td>
           <td class="details-val font-mono" style="font-size: 12px; color: #94a3b8;">${date}</td>
         </tr>
         <tr>
@@ -579,4 +608,5 @@ export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayl
     return { success: false, error };
   }
 }
+
 
