@@ -74,7 +74,7 @@ export function ServicesGrid() {
         microText: "(Toca para volver al resumen ⟲)",
       },
       externalCta: {
-        label: "1. Auditoría de Ecosistema Digital",
+        label: "Paso 01: Auditoría Digital",
         price: "$450 USD",
         actionLabel: "Contratar Ya",
       },
@@ -113,9 +113,9 @@ export function ServicesGrid() {
         microText: "(Toca para volver al resumen ⟲)",
       },
       externalCta: {
-        label: "2. Sistemas Agénticos Autónomos",
+        label: "Paso 02: Agentes Autónomos",
         price: "$450 - $950 USD",
-        actionLabel: "Contratar Ya",
+        actionLabel: "Solicitar Plan",
       },
     },
     {
@@ -152,9 +152,9 @@ export function ServicesGrid() {
         microText: "(Toca para volver al resumen ⟲)",
       },
       externalCta: {
-        label: "3. Infraestructura & Plataformas FoodTech",
+        label: "Paso 03: Plataformas FoodTech",
         price: "$1,150 - $5,000 USD",
-        actionLabel: "Contratar Ya",
+        actionLabel: "Cotizar Proyecto",
       },
     },
   ];

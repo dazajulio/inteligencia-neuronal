@@ -83,17 +83,17 @@ export function HeroSection() {
           {/* Tag Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100/90 backdrop-blur-sm border border-zinc-200 text-xs font-bold text-zinc-800 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-zinc-800 animate-pulse" />
-            <span>ARQUITECTURA TECNOLÓGICA & DASHBOARDS</span>
+            <span>SOLUCIONES FOODTECH & IA OPERATIVA</span>
           </div>
 
           {/* H1 Exact Headline */}
           <h1 className="font-heading text-3xl sm:text-4xl lg:text-[2.85rem] font-bold tracking-tight text-slate-900 leading-[1.12]">
-            Arquitectura Tecnológica y Automatización para la Industria de la Gastronomía.
+            Arquitectura Tecnológica y Automatización para la Industria Gastronómica.
           </h1>
 
           {/* H2 Subtitle */}
           <h2 className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed">
-            Transformamos operaciones en ecosistemas precisos, escalables y altamente rentables mediante Inteligencia Artificial.
+            Desarrollamos software inteligente a la medida, implementamos agentes de IA y capacitamos a tu equipo operativo para blindar márgenes y escalar tu negocio.
           </h2>
 
           {/* CTA Action Buttons */}
@@ -115,14 +115,14 @@ export function HeroSection() {
           </div>
 
           {/* Trust Assurances */}
-          <div className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center gap-6 text-xs font-mono text-slate-600">
-            <span className="flex items-center gap-1.5">
+          <div className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center gap-5 text-xs font-mono text-slate-700">
+            <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-slate-200/60 shadow-xs">
               <ShieldCheck className="w-4 h-4 text-zinc-700" /> NDA Confidencial
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-slate-200/60 shadow-xs">
               <Activity className="w-4 h-4 text-emerald-600" /> Monitoreo 24/7
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-slate-200/60 shadow-xs">
               <Cpu className="w-4 h-4 text-[#c49258]" /> Zero-Training Policy
             </span>
           </div>

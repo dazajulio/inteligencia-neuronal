@@ -495,3 +495,47 @@ VALUES
     ('IN-AUDIT-98213', 'diagnostico', 'Carlos Mendoza', 'Bistro Gourmet 54', 'gerencia@bistro54.mx', '+525549123456', 'Dark Kitchen / Cocina Central', '500 - 2,000 ordenes / dia', 'Toast POS', 'Demoras en WhatsApp y ordenes de compras manuales a proveedores sin prediccion.', 'Sistemas Agenticos Autonomos', 'En Evaluacion', 'hero_soy_empresa'),
     ('IN-AUDIT-98212', 'diagnostico', 'Valeria Gomez', 'Burger Lab Express', 'operaciones@burgerlab.co', '+573109876543', 'Franquicia Multisede', '> 10,000 ordenes / dia (Enterprise)', 'Soft Restaurant', 'Altas comisiones pagadas a plataformas de delivery externas (30% margen perdido).', 'Infraestructura & Plataformas FoodTech', 'Contactado', 'soluciones_card')
 ON CONFLICT (folio) DO NOTHING;
+
+-- ==============================================================================
+-- 9. TABLA DE INSCRIPCIONES A CURSOS PRESENCIALES Y ONLINE
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.course_registrations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    folio VARCHAR(64) UNIQUE NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone_whatsapp VARCHAR(64) NOT NULL,
+    tier VARCHAR(64) NOT NULL DEFAULT 'general', -- 'ula', 'camara', 'general', 'online'
+    tier_label VARCHAR(128) NOT NULL DEFAULT 'Público General',
+    organization_or_id VARCHAR(255),
+    modality VARCHAR(64) NOT NULL DEFAULT 'presencial', -- 'presencial', 'online_academy'
+    cohort_date VARCHAR(128) DEFAULT 'Sábado 10 de Octubre de 2026',
+    amount VARCHAR(64) NOT NULL DEFAULT '$50 USD',
+    payment_method VARCHAR(128) NOT NULL DEFAULT 'pago_movil',
+    payment_reference VARCHAR(128),
+    attachment_url TEXT,
+    status VARCHAR(64) NOT NULL DEFAULT 'pendiente_verificacion', -- 'pendiente_verificacion', 'confirmado', 'cancelado'
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Habilitar RLS en course_registrations
+ALTER TABLE public.course_registrations ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de seguridad para course_registrations
+CREATE POLICY "Anon insert course registrations"
+    ON public.course_registrations FOR INSERT
+    WITH CHECK (true);
+
+CREATE POLICY "Admin full access course registrations"
+    ON public.course_registrations FOR ALL
+    USING (true)
+    WITH CHECK (true);
+
+-- Índices de consulta rápida
+CREATE INDEX IF NOT EXISTS idx_course_registrations_email ON public.course_registrations(email);
+CREATE INDEX IF NOT EXISTS idx_course_registrations_tier ON public.course_registrations(tier);
+CREATE INDEX IF NOT EXISTS idx_course_registrations_status ON public.course_registrations(status);
+CREATE INDEX IF NOT EXISTS idx_course_registrations_folio ON public.course_registrations(folio);
+

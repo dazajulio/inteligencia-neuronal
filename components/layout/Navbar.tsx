@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Timer, Phone, Menu, X } from "lucide-react";
+import { Timer, Phone, Menu, X, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLeadStore } from "@/store/useLeadStore";
 
@@ -67,10 +67,14 @@ export function Navbar() {
           </Link>
           <Link
             href="/academy/campus"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold transition-all shadow-xs"
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+              isDarkHero && !isScrolled
+                ? "text-zinc-300 border-white/20 hover:text-white hover:border-white/40 bg-white/5"
+                : "text-zinc-600 border-zinc-200 hover:text-zinc-900 hover:border-zinc-300 bg-zinc-50/80"
+            }`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#1DACE3] animate-pulse" />
-            <span>Campus</span>
+            <GraduationCap className="w-3.5 h-3.5 text-[#1DACE3]" />
+            <span>Campus Virtual</span>
           </Link>
         </nav>
 
@@ -150,10 +154,13 @@ export function Navbar() {
             <Link
               href="/academy/campus"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-[#971B8D] font-bold py-1 transition-colors flex items-center justify-between"
+              className="text-zinc-700 font-semibold py-1 transition-colors flex items-center justify-between hover:text-zinc-900"
             >
-              <span>Campus Virtual (Alumnos)</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#971B8D]/10">ACCESO</span>
+              <span className="flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-[#1DACE3]" />
+                <span>Campus Virtual (Alumnos)</span>
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 text-zinc-600 border border-zinc-200">ACCESO</span>
             </Link>
           </div>
 

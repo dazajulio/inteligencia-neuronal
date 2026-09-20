@@ -609,4 +609,217 @@ export async function sendAdminSaleNotificationEmail(payload: AdminSaleAlertPayl
   }
 }
 
+export interface CourseRegistrationEmailPayload {
+  to: string;
+  fullName: string;
+  courseTitle: string;
+  folio: string;
+  tierLabel: string;
+  amount: string;
+  paymentMethod: string;
+  paymentReference: string;
+  eventDate?: string;
+  eventTime?: string;
+  eventLocation?: string;
+  whatsappGroupUrl?: string;
+}
+
+/**
+ * 6. Envío de Confirmación de Inscripción al Curso Presencial
+ */
+export async function sendCourseRegistrationEmail(payload: CourseRegistrationEmailPayload) {
+  const resend = getResendClient();
+  if (!resend) {
+    console.warn("[Resend Course Registration] No se pudo enviar porque falta RESEND_API_KEY.");
+    return { success: false, error: "Missing RESEND_API_KEY" };
+  }
+
+  const {
+    to,
+    fullName,
+    courseTitle,
+    folio,
+    tierLabel,
+    amount,
+    paymentMethod,
+    paymentReference,
+    eventDate = "Sábado 10 de Octubre de 2026",
+    eventTime = "8:30 AM a 12:30 PM (4 Horas Prácticas)",
+    eventLocation = "Coworking Mérida (Respaldo Eléctrico & Fibra Óptica)",
+    whatsappGroupUrl = "https://wa.me/584148817137?text=Hola%2C%20me%20acabo%20de%20inscribir%20en%20el%20curso%20presencial%20de%20Octubre",
+  } = payload;
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscripción al Curso — ${folio}</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; }
+    .wrapper { width: 100%; max-width: 620px; margin: 30px auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .header { background-color: #1F242D; padding: 36px 32px; border-bottom: 4px solid #1DACE3; }
+    .brand-logo { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+    .brand-accent { background: linear-gradient(90deg, #1DACE3, #971B8D, #EA0C7F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .badge { display: inline-block; padding: 4px 12px; background-color: rgba(134, 197, 55, 0.15); border: 1px solid #86C537; color: #86C537; border-radius: 9999px; font-size: 11px; font-weight: 700; font-family: monospace; margin-top: 8px; }
+    .body-content { padding: 36px 32px; }
+    .greeting { font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+    .intro-text { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+    .summary-card { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px; margin-bottom: 24px; font-size: 13px; }
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: #64748b; font-weight: 600; }
+    .summary-value { color: #0f172a; font-weight: 700; }
+    .folio-box { background: linear-gradient(135deg, #1F242D, #0f172a); color: #ffffff; padding: 18px; border-radius: 14px; text-align: center; margin-bottom: 24px; border: 1px solid #334155; }
+    .folio-title { font-size: 11px; font-family: monospace; color: #1DACE3; font-weight: 700; text-transform: uppercase; }
+    .folio-number { font-size: 22px; font-family: monospace; font-weight: 900; color: #ffffff; letter-spacing: 2px; margin-top: 4px; }
+    .logistics-box { background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 18px; margin-bottom: 24px; font-size: 13px; line-height: 1.6; color: #1e3a8a; }
+    .btn-whatsapp { display: block; width: 100%; box-sizing: border-box; text-align: center; background-color: #22c55e; color: #ffffff !important; font-size: 14px; font-weight: 800; text-decoration: none; padding: 14px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
+    .footer { background-color: #f1f5f9; padding: 24px 32px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="brand-logo">Inteligencia <span class="brand-accent">Neuronal</span></div>
+      <div><span class="badge">INSCRIPCIÓN REGISTRADA</span></div>
+    </div>
+    <div class="body-content">
+      <div class="greeting">¡Hola, ${fullName}!</div>
+      <p class="intro-text">
+        Hemos registrado tu solicitud de inscripción para el taller presencial <strong>${courseTitle}</strong> en Mérida.
+      </p>
+
+      <div class="folio-box">
+        <div class="folio-title">Folio de Registro / Comprobante</div>
+        <div class="folio-number">${folio}</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="summary-label">Categoría / Entrada:</span>
+          <span class="summary-value">${tierLabel}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Monto de Inversión:</span>
+          <span class="summary-value">${amount}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Método de Pago:</span>
+          <span class="summary-value">${paymentMethod}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Referencia:</span>
+          <span class="summary-value font-mono">${paymentReference}</span>
+        </div>
+      </div>
+
+      <div class="logistics-box">
+        <strong>📍 Información del Evento Presencial:</strong><br>
+        📅 <strong>Fecha:</strong> ${eventDate}<br>
+        ⏰ <strong>Horario:</strong> ${eventTime}<br>
+        🏢 <strong>Lugar:</strong> ${eventLocation}<br>
+        💻 <strong>Requisito:</strong> Llevar tu laptop con cargador para las prácticas en vivo.<br>
+        ☕ <strong>Incluye:</strong> Coffee Break, material digital, blueprints y certificado oficial.
+      </div>
+
+      <a href="${whatsappGroupUrl}" class="btn-whatsapp" target="_blank">
+        💬 Unirme al Grupo de WhatsApp de Alumnos
+      </a>
+    </div>
+    <div class="footer">
+      <p>© 2026 Inteligencia Neuronal LLC. Innovación y Eficiencia Operativa en Gastronomía.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  try {
+    const data = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [to],
+      subject: `🎟️ Tu Registro al Curso Presencial [${folio}] — Inteligencia Neuronal`,
+      html: htmlContent,
+    });
+    return { success: true, data };
+  } catch (error) {
+    console.error("[Resend Course Registration Email Error]", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * 7. Alerta al Administrador por Nueva Inscripción al Curso
+ */
+export async function sendAdminCourseRegistrationAlertEmail(payload: {
+  folio: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  tier: string;
+  amount: string;
+  paymentMethod: string;
+  paymentReference: string;
+  organizationOrId?: string;
+  modality?: string;
+}) {
+  const resend = getResendClient();
+  if (!resend) return;
+
+  const {
+    folio,
+    fullName,
+    email,
+    phone,
+    tier,
+    amount,
+    paymentMethod,
+    paymentReference,
+    organizationOrId = "No especificado",
+    modality = "Presencial Mérida",
+  } = payload;
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; background-color: #f1f5f9; padding: 20px; color: #1e293b;">
+  <div style="max-width: 600px; margin: auto; background: white; border-radius: 14px; border: 1px solid #cbd5e1; overflow: hidden;">
+    <div style="background: #1F242D; padding: 24px; color: white; border-bottom: 4px solid #1DACE3;">
+      <h2 style="margin: 0; font-size: 18px;">🎟️ Nueva Inscripción al Curso (Octubre)</h2>
+      <span style="font-family: monospace; font-size: 12px; color: #86C537;">Folio: ${folio}</span>
+    </div>
+    <div style="padding: 24px; font-size: 13px; line-height: 1.6;">
+      <p><strong>Alumno:</strong> ${fullName}</p>
+      <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+      <p><strong>WhatsApp:</strong> <a href="https://wa.me/${phone.replace(/[^0-9]/g, '')}">${phone}</a></p>
+      <p><strong>Categoría / Tier:</strong> ${tier}</p>
+      <p><strong>Comercio / Carnet / RIF:</strong> ${organizationOrId}</p>
+      <p><strong>Modalidad:</strong> ${modality}</p>
+      <p><strong>Monto:</strong> ${amount}</p>
+      <p><strong>Método de Pago:</strong> ${paymentMethod}</p>
+      <p><strong>Referencia:</strong> <code>${paymentReference}</code></p>
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(fullName)}%2C%20confirmamos%20tu%20inscripción%20al%20curso%20con%20folio%20${folio}" style="display: inline-block; background: #22c55e; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">
+          Contactar por WhatsApp 💬
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [ADMIN_EMAIL],
+      subject: `🎟️ [NUEVO INSCRITO CURSO] ${fullName} — ${tier} (${folio})`,
+      html: htmlContent,
+    });
+  } catch (error) {
+    console.warn("[Resend Admin Course Alert Error]", error);
+  }
+}
 
