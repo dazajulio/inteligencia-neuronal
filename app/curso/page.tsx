@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Zap,
   ArrowRight,
+  ArrowLeft,
   Coffee,
   Award,
   Download,
@@ -36,83 +37,81 @@ import {
   Activity,
   FileCode,
   LineChart,
+  Smartphone,
+  Loader2,
 } from "lucide-react";
-
-interface PaymentOption {
-  id: string;
-  name: string;
-  details: string;
-  copyValue: string;
-  badge?: string;
-  isLemon?: boolean;
-}
-
-const PAYMENT_METHODS: PaymentOption[] = [
-  {
-    id: "pagomovil",
-    name: "Pago Móvil (Bolívares a Tasa BCV)",
-    details: "Banco: Banesco (0134) • CI: 19.345.678 • Tlf: 0414-8817137",
-    copyValue: "0134 04148817137 19345678",
-    badge: "Más utilizado en Mérida",
-  },
-  {
-    id: "lemon",
-    name: "Lemon Squeezy (Tarjeta Internacional / Apple Pay)",
-    details: "Paga de forma segura con tarjeta de crédito o débito internacional.",
-    copyValue: "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407",
-    badge: "Pasarela Oficial",
-    isLemon: true,
-  },
-  {
-    id: "zelle",
-    name: "Zelle (USD)",
-    details: "Correo: pagos@inteligencianeuronal.com • Titular: Inteligencia Neuronal LLC",
-    copyValue: "pagos@inteligencianeuronal.com",
-    badge: "Sin comisiones",
-  },
-  {
-    id: "binance",
-    name: "Binance Pay / USDT",
-    details: "Binance Pay ID: 489201938 • Red: USDT (BEP20 / TRC20)",
-    copyValue: "489201938",
-  },
-  {
-    id: "banesco_transfer",
-    name: "Transferencia Bancaria (Banesco / Mercantil)",
-    details: "Cta Corriente Banesco: 0134-0374-12-3741029384 • Julio Daza",
-    copyValue: "01340374123741029384",
-  },
-  {
-    id: "efectivo",
-    name: "Efectivo en Sede (USD Cash)",
-    details: "Paga el día del evento en el Coworking antes de iniciar el taller.",
-    copyValue: "Efectivo en Sede",
-  },
-];
 
 export default function CursoLandingPage() {
   const formRef = useRef<HTMLDivElement>(null);
 
-  // Estados del formulario
+  // Estados del formulario y flujo de checkout
   const [selectedTier, setSelectedTier] = useState<"ula" | "camara" | "general" | "online">("general");
+  const [checkoutStep, setCheckoutStep] = useState<"form" | "pagomovil" | "success">("form");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [organizationOrId, setOrganizationOrId] = useState("");
-  const [selectedPayment, setSelectedPayment] = useState("pagomovil");
+  const [paymentMethod, setPaymentMethod] = useState<"lemon" | "pagomovil">("pagomovil");
+  
+  // Datos específicos de confirmación Pago Móvil
+  const [originBank, setOriginBank] = useState("Banco de Venezuela (BDV)");
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
   const [paymentReference, setPaymentReference] = useState("");
+  const [paidAmountBs, setPaidAmountBs] = useState("");
   const [includeAcademyAddon, setIncludeAcademyAddon] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  // Estado de envío
+  // Datos dinámicos de pasarelas y BCV
+  const [bcvRate, setBcvRate] = useState<number>(40.50);
+  const [paymentSettings, setPaymentSettings] = useState<{
+    pagoMovil: {
+      banco: string;
+      bancoCodigo: string;
+      cedulaRif: string;
+      telefono: string;
+      whatsapp: string;
+      tasaInfo: string;
+    };
+  }>({
+    pagoMovil: {
+      banco: "Banco de Venezuela",
+      bancoCodigo: "0102",
+      cedulaRif: "V-12.517.086",
+      telefono: "0414-881-7137",
+      whatsapp: "584148817137",
+      tasaInfo: "Calculado a Tasa Oficial BCV del día",
+    },
+  });
+
+  // Estado de envío y confirmación
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
   const [registeredFolio, setRegisteredFolio] = useState("");
   const [whatsappLink, setWhatsappLink] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   // FAQs acordeón
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // Cargar Tasa BCV y Parámetros
+  useEffect(() => {
+    fetch("/api/bcv")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.rate) {
+          setBcvRate(data.rate);
+        }
+      })
+      .catch((e) => console.warn("[BCV fetch fallback]", e));
+
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings?.pagoMovil) {
+          setPaymentSettings(data.settings);
+        }
+      })
+      .catch((e) => console.warn("[Settings fetch fallback]", e));
+  }, []);
 
   const getTierPrice = (tier: string) => {
     switch (tier) {
@@ -126,6 +125,21 @@ export default function CursoLandingPage() {
         return 17;
       default:
         return 25;
+    }
+  };
+
+  const getTierBadge = (tier: string) => {
+    switch (tier) {
+      case "ula":
+        return "TARIFA PREFERENCIAL ULA";
+      case "camara":
+        return "TARIFA GREMIAL CÁMARA";
+      case "general":
+        return "ENTRADA GENERAL PRESENCIAL";
+      case "online":
+        return "VERSIÓN 100% ONLINE (CAMPUS)";
+      default:
+        return "TALLER OFICIAL MÉRIDA";
     }
   };
 
@@ -150,29 +164,94 @@ export default function CursoLandingPage() {
     return base + addon;
   };
 
+  const totalUSD = calculateTotal();
+  const calculatedTotalBs = (totalUSD * bcvRate).toLocaleString("es-VE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   const scrollToForm = (tier?: "ula" | "camara" | "general" | "online") => {
     if (tier) setSelectedTier(tier);
+    setCheckoutStep("form");
     formRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2500);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2500);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Manejar el submit del paso 1 (Formulario)
+  const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!fullName.trim() || !email.trim() || !phone.trim()) {
-      setErrorMessage("Por favor completa tu Nombre, Correo y WhatsApp.");
+    if (!fullName.trim()) {
+      setErrorMessage("Por favor ingresa tu nombre completo.");
+      return;
+    }
+
+    if (!email.includes("@") || !email.includes(".")) {
+      setErrorMessage("Por favor ingresa un correo electrónico válido.");
+      return;
+    }
+
+    if (phone.trim().length < 7) {
+      setErrorMessage("Por favor ingresa un número de teléfono o WhatsApp válido.");
+      return;
+    }
+
+    if (paymentMethod === "lemon") {
+      // Registrar Lead y Redirigir a Lemon Squeezy
+      setIsSubmitting(true);
+      try {
+        const res = await fetch("/api/course-register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName,
+            email,
+            phone,
+            tier: selectedTier,
+            tierLabel: getTierName(selectedTier),
+            organizationOrId: organizationOrId || "No especificado",
+            modality: selectedTier === "online" ? "online_academy" : "presencial",
+            amount: `$${totalUSD} USD`,
+            paymentMethod: "Lemon Squeezy (Tarjeta Internacional / Apple Pay)",
+            paymentReference: "Checkout Lemon Squeezy",
+            notes: includeAcademyAddon ? "Incluye Add-on Campus Academy (+10 USD)" : "",
+          }),
+        });
+
+        const data = await res.json();
+        const baseLemonUrl = "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407";
+        const folio = data?.folio || `IN-${Date.now()}`;
+        const prefilledLemonUrl = `${baseLemonUrl}?checkout[email]=${encodeURIComponent(email)}&checkout[name]=${encodeURIComponent(fullName)}&checkout[custom][phone]=${encodeURIComponent(phone)}&checkout[custom][folio]=${encodeURIComponent(folio)}`;
+        
+        window.location.href = prefilledLemonUrl;
+      } catch (err) {
+        setIsSubmitting(false);
+        setErrorMessage("Error al conectar con la pasarela. Intenta de nuevo o elige Pago Móvil.");
+      }
+    } else {
+      // Pasar a la pantalla de Pago Móvil con instrucciones y coordenadas
+      setPaidAmountBs(`Bs. ${calculatedTotalBs}`);
+      setCheckoutStep("pagomovil");
+      formRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Manejar el submit final de Pago Móvil
+  const handlePagoMovilConfirm = async () => {
+    setErrorMessage("");
+
+    if (!paymentReference.trim()) {
+      setErrorMessage("Por favor ingresa el número de referencia del Pago Móvil.");
       return;
     }
 
     setIsSubmitting(true);
-
-    const isLemonMethod = selectedPayment === "lemon";
 
     try {
       const res = await fetch("/api/course-register", {
@@ -186,37 +265,30 @@ export default function CursoLandingPage() {
           tierLabel: getTierName(selectedTier),
           organizationOrId: organizationOrId || "No especificado",
           modality: selectedTier === "online" ? "online_academy" : "presencial",
-          amount: `$${calculateTotal()} USD`,
-          paymentMethod: isLemonMethod ? "Lemon Squeezy (Pasarela Tarjeta)" : PAYMENT_METHODS.find((p) => p.id === selectedPayment)?.name || selectedPayment,
-          paymentReference: isLemonMethod ? "Checkout Lemon Squeezy" : paymentReference || "Pendiente de comprobante",
-          notes: includeAcademyAddon ? "Incluye Add-on Campus Academy (+10 USD)" : "",
+          amount: `$${totalUSD} USD (Bs. ${paidAmountBs || calculatedTotalBs})`,
+          paymentMethod: `Pago Móvil - ${paymentSettings.pagoMovil.banco} (Emisor: ${originBank})`,
+          paymentReference: paymentReference.trim(),
+          notes: `Fecha: ${paymentDate} | Tasa BCV: Bs. ${bcvRate} | ${includeAcademyAddon ? "Incluye Add-on Campus Academy (+10 USD)" : ""}`,
         }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setRegisteredFolio(data.folio || `IN-MERIDA-${Math.floor(10000 + Math.random() * 90000)}`);
-        setWhatsappLink(
-          data.whatsappGroupUrl ||
-            `https://wa.me/584148817137?text=Hola%20Julio%2C%20me%20inscrib%C3%AD%20en%20el%20curso%20presencial%20Dominio%20Local.%20Mi%20folio%20es%20${data.folio}`
-        );
-
-        if (isLemonMethod) {
-          // Redirigir directamente a Lemon Squeezy con pre-llenado de datos
-          const baseLemonUrl = "https://inteligencia-neuronal.lemonsqueezy.com/checkout/buy/f1296f2f-a896-4fe3-87eb-0f8046fe1407";
-          const prefilledLemonUrl = `${baseLemonUrl}?checkout[email]=${encodeURIComponent(email)}&checkout[name]=${encodeURIComponent(fullName)}&checkout[custom][phone]=${encodeURIComponent(phone)}&checkout[custom][folio]=${encodeURIComponent(data.folio)}`;
-          window.location.href = prefilledLemonUrl;
-          return;
-        }
-
-        setSubmitSuccess(true);
+        const generatedFolio = data.folio || `IN-MERIDA-${Math.floor(10000 + Math.random() * 90000)}`;
+        setRegisteredFolio(generatedFolio);
+        
+        const cleanWhatsApp = (paymentSettings.pagoMovil.whatsapp || "584148817137").replace(/\D/g, "");
+        const message = `👋 Hola Julio, acabo de registrar mi Pago Móvil para el taller *Dominio Local: AEO & SEO* en Mérida.\n\n*Datos del Alumno:*\n• Folio: *${generatedFolio}*\n• Nombre: ${fullName}\n• Correo: ${email}\n• WhatsApp: ${phone}\n• Entrada: ${getTierName(selectedTier)} ($${totalUSD} USD / ${paidAmountBs || "Bs. " + calculatedTotalBs})\n• Banco Emisor: ${originBank}\n• Nro. Referencia: ${paymentReference}\n\nAdjunto capture del comprobante. ¡Nos vemos en el taller!`;
+        
+        setWhatsappLink(`https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`);
+        setCheckoutStep("success");
         formRef.current?.scrollIntoView({ behavior: "smooth" });
       } else {
-        setErrorMessage(data.message || "Ocurrió un error al procesar tu inscripción. Intenta de nuevo.");
+        setErrorMessage(data.message || "Ocurrió un error al registrar el pago. Intenta de nuevo.");
       }
     } catch (err) {
-      setErrorMessage("Error de conexión. Puedes completar tu inscripción directamente por WhatsApp.");
+      setErrorMessage("Error de conexión al enviar el comprobante. Puedes enviarlo directamente por WhatsApp.");
     } finally {
       setIsSubmitting(false);
     }
@@ -267,7 +339,7 @@ export default function CursoLandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 relative flex items-center justify-center">
-              <Image src="/logo.png" alt="Inteligencia Neuronal" fill className="object-contain" />
+              <Image src="/logo.png" alt="Inteligencia Neuronal" fill className="object-contain" priority />
             </div>
             <span className="font-heading font-bold text-lg text-white tracking-tight">
               Inteligencia <span className="bg-gradient-to-r from-sky-400 to-fuchsia-400 bg-clip-text text-transparent">Neuronal</span>
@@ -544,7 +616,7 @@ export default function CursoLandingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                <span>Geolocalización técnica de fotos de platos y cartas en alta resolución.</span>
+                <span>Geolocalización técnica de platos y cartas en alta resolución.</span>
               </li>
             </ul>
           </div>
@@ -603,7 +675,7 @@ export default function CursoLandingPage() {
         </div>
       </section>
 
-      {/* ── 4. TABLA DE INVERSIÓN ACTUALIZADA (3 TIERS) ── */}
+      {/* ── 4. TABLA DE INVERSIÓN (3 TIERS) ── */}
       <section className="py-20 max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest">
@@ -613,7 +685,7 @@ export default function CursoLandingPage() {
             Tarifas de Inversión
           </h2>
           <p className="text-sm text-slate-400">
-            Aceptamos Pago Móvil (a tasa BCV), Lemon Squeezy (Tarjeta Internacional), Zelle, Binance y Efectivo en sede.
+            Aceptamos Pago Móvil (a tasa oficial BCV) y Lemon Squeezy (Tarjeta Internacional / Apple Pay).
           </p>
         </div>
 
@@ -674,7 +746,7 @@ export default function CursoLandingPage() {
 
             <button
               type="button"
-              className="mt-6 w-full py-3 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-600 text-white transition-all text-center"
+              className="mt-6 w-full py-3 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-600 text-white transition-all text-center cursor-pointer"
             >
               Seleccionar Tarifa ULA ($15)
             </button>
@@ -741,7 +813,7 @@ export default function CursoLandingPage() {
 
             <button
               type="button"
-              className="mt-6 w-full py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:opacity-90 text-white transition-all text-center"
+              className="mt-6 w-full py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:opacity-90 text-white transition-all text-center cursor-pointer"
             >
               Seleccionar Tarifa Cámara ($20)
             </button>
@@ -802,7 +874,7 @@ export default function CursoLandingPage() {
 
             <button
               type="button"
-              className="mt-6 w-full py-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all text-center"
+              className="mt-6 w-full py-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all text-center cursor-pointer"
             >
               Seleccionar Entrada General ($25)
             </button>
@@ -841,49 +913,522 @@ export default function CursoLandingPage() {
         </div>
       </section>
 
-      {/* ── 5. FORMULARIO DE REGISTRO INTEGRADO CON LEMON SQUEEZY & PAGO MÓVIL ── */}
+      {/* ── 5. PASARELA DE PAGO & CHECKOUT PROFESIONAL ── */}
       <section ref={formRef} id="registro" className="py-20 bg-slate-900/70 border-t border-slate-800">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
           
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-slate-900">
             
-            {/* Header del Formulario */}
-            <div className="text-center space-y-2 pb-6 border-b border-slate-800">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
-                <Lock className="w-3.5 h-3.5" />
-                <span>PASARELA & FORMULARIO OFICIAL</span>
+            {/* 1. Header Bar de Registro */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-pulse" />
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-700 font-bold">
+                  Inscripción // Inteligencia Neuronal Academy
+                </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-                Completa tu Registro y Asegura tu Cupo
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400">
-                Aceptamos Pago Móvil BCV, Lemon Squeezy (Tarjetas Internacionales / Apple Pay), Zelle, Binance y Efectivo.
-              </p>
+              <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
+                Cupos Disponibles
+              </span>
             </div>
 
-            {/* Si ya se registró con éxito */}
-            {submitSuccess ? (
-              <div className="space-y-6 text-center py-6 animate-in fade-in zoom-in duration-300">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto">
+            {/* 2. Course & Tier Summary Dark Card (Match Exact Modal Design) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-md flex items-center justify-between gap-4 border border-slate-800">
+              <div className="space-y-1 text-left">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white/10 text-cyan-300 border border-cyan-400/20">
+                  {getTierBadge(selectedTier)}
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
+                  Dominio Local: AEO & SEO en Motores de IA
+                </h3>
+                <p className="text-xs text-slate-300">
+                  {selectedTier === "online"
+                    ? "Acceso Vitalicio Campus • Lecciones HD • Bonuses"
+                    : "4 Horas Prácticas • Laboratorio • Coffee Break • Bonuses • Certificado QR"}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-2xl sm:text-3xl font-black font-mono text-cyan-300">
+                  ${totalUSD} <span className="text-xs text-slate-300 font-sans">USD</span>
+                </div>
+                <span className="text-[10px] font-mono text-slate-400 block">
+                  Pago único ({bcvRate ? `Bs. ${calculatedTotalBs}` : "BCV"})
+                </span>
+              </div>
+            </div>
+
+            {/* Selector de Categoría Rápido */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-[11px] font-mono font-bold text-slate-700 uppercase tracking-wider block">
+                Selecciona tu Categoría de Entrada:
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier("ula")}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                    selectedTier === "ula"
+                      ? "bg-sky-50 border-sky-600 text-sky-950 ring-2 ring-sky-600/20"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="text-[9px] text-sky-700 font-mono">ESTUDIANTE</div>
+                  <div className="text-xs">ULA ($15)</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier("camara")}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                    selectedTier === "camara"
+                      ? "bg-fuchsia-50 border-fuchsia-600 text-fuchsia-950 ring-2 ring-fuchsia-600/20"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="text-[9px] text-fuchsia-700 font-mono">GREMIAL</div>
+                  <div className="text-xs">Cámara ($20)</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier("general")}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                    selectedTier === "general"
+                      ? "bg-indigo-50 border-indigo-600 text-indigo-950 ring-2 ring-indigo-600/20"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="text-[9px] text-indigo-700 font-mono">GENERAL</div>
+                  <div className="text-xs">Presencial ($25)</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedTier("online")}
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                    selectedTier === "online"
+                      ? "bg-cyan-50 border-cyan-600 text-cyan-950 ring-2 ring-cyan-600/20"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="text-[9px] text-cyan-700 font-mono">DIGITAL</div>
+                  <div className="text-xs">Online ($17)</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium text-left">
+                {errorMessage}
+              </div>
+            )}
+
+            {/* ── STEP 1: FORMULARIO Y SELECTOR DE PASARELAS ── */}
+            {checkoutStep === "form" && (
+              <form onSubmit={handleStep1Submit} className="space-y-5 text-left">
+                
+                {/* Campos Principales */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
+                      Nombre Completo del Alumno *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Ej: Carlos Mendoza"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
+                        Correo Electrónico (Material & Campus) *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="carlos@empresa.com"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
+                        Teléfono / WhatsApp *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+58 414 000-0000"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
+                      {selectedTier === "ula"
+                        ? "Cédula / Carnet ULA (Opcional)"
+                        : selectedTier === "camara"
+                        ? "Nombre del Restaurante / Comercio Afiliado"
+                        : "Nombre de tu Proyecto o Negocio (Opcional)"}
+                    </label>
+                    <input
+                      type="text"
+                      value={organizationOrId}
+                      onChange={(e) => setOrganizationOrId(e.target.value)}
+                      placeholder={
+                        selectedTier === "ula"
+                          ? "V-26.123.456 (Escuela Gastronomía/FACES)"
+                          : selectedTier === "camara"
+                          ? "Ej: Café Andino C.A."
+                          : "Ej: Mi Negocio"
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Add-on Opcional */}
+                  {selectedTier !== "online" && (
+                    <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-200/80 flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="addon-checkout"
+                        checked={includeAcademyAddon}
+                        onChange={(e) => setIncludeAcademyAddon(e.target.checked)}
+                        className="mt-0.5 rounded text-indigo-600 focus:ring-0 cursor-pointer"
+                      />
+                      <label htmlFor="addon-checkout" className="text-xs cursor-pointer">
+                        <span className="font-bold text-indigo-950">
+                          Añadir acceso vitalicio a las grabaciones en el Campus Virtual (+ $10 USD)
+                        </span>
+                        <p className="text-indigo-800 text-[11px] mt-0.5">
+                          Incluye todas las clases en video HD, actualizaciones y recursos descargables para repasar cuando quieras.
+                        </p>
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── SELECTOR DE PASARELAS SIDE-BY-SIDE (MATCHING MODAL EXACTLY) ── */}
+                <div className="space-y-3 pt-1">
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase">
+                    Selecciona la Vía de Pago:
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    
+                    {/* Opción 1: Lemon Squeezy */}
+                    <div
+                      onClick={() => setPaymentMethod("lemon")}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-2 ${
+                        paymentMethod === "lemon"
+                          ? "border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-600/20 shadow-sm"
+                          : "border-slate-200 bg-white hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-indigo-600" />
+                          <span className="text-xs font-bold text-slate-900">Internacional (USD)</span>
+                        </div>
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === "lemon" ? "border-indigo-600 bg-indigo-600" : "border-slate-300"}`}>
+                          {paymentMethod === "lemon" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-tight">
+                        Tarjeta de Crédito/Débito, Apple Pay, PayPal vía Lemon Squeezy.
+                      </p>
+                    </div>
+
+                    {/* Opción 2: Pago Móvil */}
+                    <div
+                      onClick={() => setPaymentMethod("pagomovil")}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-2 ${
+                        paymentMethod === "pagomovil"
+                          ? "border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-600/20 shadow-sm"
+                          : "border-slate-200 bg-white hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Smartphone className="w-4 h-4 text-emerald-600" />
+                          <span className="text-xs font-bold text-slate-900">Pago Móvil (Bs.)</span>
+                        </div>
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === "pagomovil" ? "border-indigo-600 bg-indigo-600" : "border-slate-300"}`}>
+                          {paymentMethod === "pagomovil" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-tight">
+                        Transferencia bancaria o Pago Móvil en Venezuela a Tasa Oficial BCV.
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* Botón de Acción Paso 1 */}
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#0284c7] via-[#6366f1] to-[#d946ef] hover:from-[#0369a1] hover:via-[#4f46e5] hover:to-[#c026d3] text-white text-sm font-bold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Procesando inscripción...</span>
+                      </>
+                    ) : paymentMethod === "lemon" ? (
+                      <>
+                        <Lock className="w-4 h-4" />
+                        <span>Continuar al Pago Seguro (Lemon Squeezy)</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    ) : (
+                      <>
+                        <Smartphone className="w-4 h-4" />
+                        <span>Ver Coordenadas de Pago Móvil</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 font-mono mt-3">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Garantía de satisfacción
+                    </span>
+                    <span>•</span>
+                    <span>🔒 Conexión Cifrada SSL 256-bit</span>
+                  </div>
+                </div>
+
+              </form>
+            )}
+
+            {/* ── STEP 2: COORDENADAS DE PAGO MÓVIL & CONFIRMACIÓN DIRECTA ── */}
+            {checkoutStep === "pagomovil" && (
+              <div className="space-y-5 text-left animate-in fade-in slide-in-from-right-4 duration-200">
+                
+                {/* Header Coordenadas */}
+                <div className="text-center space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-mono font-bold border border-emerald-200">
+                    <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>COORDENADAS DE PAGO MÓVIL (VENEZUELA)</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-xs text-slate-600 font-mono pt-1">
+                    <span>Tasa Oficial BCV:</span>
+                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      Bs. {bcvRate?.toFixed(2) || "40.50"} / USD
+                    </span>
+                  </div>
+                </div>
+
+                {/* Data Card with Copy Buttons */}
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 font-mono text-xs">
+                  <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
+                    <span className="text-slate-500 font-sans">Banco Receptor:</span>
+                    <span className="font-bold text-slate-900">
+                      {paymentSettings.pagoMovil.banco}{" "}
+                      {paymentSettings.pagoMovil.bancoCodigo ? `(${paymentSettings.pagoMovil.bancoCodigo})` : ""}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
+                    <span className="text-slate-500 font-sans">Cédula / RIF:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900">{paymentSettings.pagoMovil.cedulaRif}</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(paymentSettings.pagoMovil.cedulaRif.replace(/\D/g, ""), "ci")}
+                        className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded cursor-pointer"
+                        title="Copiar Cédula"
+                      >
+                        {copiedField === "ci" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1.5 border-b border-slate-200">
+                    <span className="text-slate-500 font-sans">Teléfono Receptor:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900">{paymentSettings.pagoMovil.telefono}</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(paymentSettings.pagoMovil.telefono.replace(/\D/g, ""), "phone")}
+                        className="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-slate-200 rounded cursor-pointer"
+                        title="Copiar Teléfono"
+                      >
+                        {copiedField === "phone" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1.5">
+                    <span className="text-slate-500 font-sans">Monto Exacto en Bs.:</span>
+                    <div className="text-right">
+                      <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-mono text-sm block">
+                        Bs. {calculatedTotalBs}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-sans">Equivalente a ${totalUSD} USD a Tasa BCV</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Extended Confirmation Fields */}
+                <div className="space-y-3 bg-white p-4 rounded-2xl border border-slate-200">
+                  <span className="font-mono text-[11px] font-bold text-slate-800 uppercase block border-b border-slate-100 pb-2">
+                    Datos de Confirmación de tu Pago:
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                        Banco Emisor (Desde dónde pagaste) *
+                      </label>
+                      <select
+                        value={originBank}
+                        onChange={(e) => setOriginBank(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none cursor-pointer"
+                      >
+                        <option value="Banco de Venezuela (BDV)">Banco de Venezuela (BDV)</option>
+                        <option value="Banesco">Banesco</option>
+                        <option value="Mercantil">Mercantil</option>
+                        <option value="BBVA Provincial">BBVA Provincial</option>
+                        <option value="Bancamiga">Bancamiga</option>
+                        <option value="BNC (Banco Nacional de Crédito)">BNC</option>
+                        <option value="Bancaribe">Bancaribe</option>
+                        <option value="Pago Móvil Interbancario (Otro)">Pago Móvil Interbancario (Otro)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                        Fecha del Pago *
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={paymentDate}
+                        onChange={(e) => setPaymentDate(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                        Monto Pagado (Bs.) *
+                      </label>
+                      <input
+                        type="text"
+                        value={paidAmountBs}
+                        onChange={(e) => setPaidAmountBs(e.target.value)}
+                        placeholder={`Ej: Bs. ${calculatedTotalBs}`}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none font-mono font-bold text-emerald-800"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1 flex items-center justify-between">
+                        <span>Nro. de Referencia *</span>
+                        <span className="text-[9px] text-indigo-600 font-bold">Requerido</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={paymentReference}
+                        onChange={(e) => setPaymentReference(e.target.value)}
+                        placeholder="Ej: 849201 ó últimos 6 dígitos"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 placeholder-slate-400 focus:border-indigo-600 focus:outline-none font-mono font-bold"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Banner de Matrícula Inmediata */}
+                <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-100 flex items-start gap-2.5 text-xs text-indigo-950">
+                  <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <span className="font-bold block">Confirmación & Aseguramiento de Cupo:</span>
+                    <p className="text-[11px] text-indigo-800 leading-relaxed">
+                      Al confirmar tu pago, tu registro quedará guardado de inmediato. Recibirás tu recibo en <strong>{email}</strong> y serás conectado con el canal oficial de alumnos.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-3 pt-1">
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handlePagoMovilConfirm}
+                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#1DACE3] via-[#971B8D] to-[#EA0C7F] hover:opacity-95 text-white text-sm font-bold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Validando y registrando pago...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-yellow-300" />
+                        <span>Confirmar Pago Móvil & Asegurar Cupo</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutStep("form")}
+                    className="w-full py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Modificar datos o vía de pago</span>
+                  </button>
+                </div>
+
+              </div>
+            )}
+
+            {/* ── STEP 3: PANTALLA DE ÉXITO & WHATSAPP ── */}
+            {checkoutStep === "success" && (
+              <div className="space-y-6 text-center py-4 animate-in fade-in zoom-in duration-300">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-white">¡Inscripción Registrada con Éxito!</h3>
-                  <p className="text-sm text-slate-300 max-w-md mx-auto">
-                    Hemos enviado los detalles completos, recibo y recordatorio a <strong>{email}</strong>.
+                  <h3 className="text-2xl font-bold text-slate-900">¡Inscripción Registrada con Éxito!</h3>
+                  <p className="text-sm text-slate-600 max-w-md mx-auto">
+                    Hemos registrado tu cupo para <strong>Dominio Local: AEO & SEO</strong>. Te enviamos la confirmación a <strong>{email}</strong>.
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 max-w-sm mx-auto">
-                  <div className="text-[11px] font-mono text-cyan-400">FOLIO DE SEGUIMIENTO</div>
-                  <div className="text-2xl font-mono font-black text-white tracking-wider mt-1">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 max-w-sm mx-auto">
+                  <div className="text-[11px] font-mono text-indigo-600 font-bold uppercase tracking-wider">
+                    FOLIO DE REGISTRO
+                  </div>
+                  <div className="text-2xl font-mono font-black text-slate-900 tracking-wider mt-1">
                     {registeredFolio}
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-mono mt-1">
+                    {getTierName(selectedTier)} • ${totalUSD} USD
                   </div>
                 </div>
 
-                {/* BOTÓN GIGANTE DE WHATSAPP */}
-                <div className="pt-4 space-y-3 max-w-md mx-auto">
+                <div className="pt-2 space-y-3 max-w-md mx-auto">
                   <a
                     href={whatsappLink}
                     target="_blank"
@@ -891,304 +1436,13 @@ export default function CursoLandingPage() {
                     className="w-full py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-500/25 transition-all hover:scale-[1.02]"
                   >
                     <MessageCircle className="w-5 h-5 fill-current" />
-                    <span>Unirme al Grupo de WhatsApp de Alumnos</span>
+                    <span>Confirmar Comprobante por WhatsApp</span>
                   </a>
-                  <p className="text-[11px] text-slate-400">
-                    Haz clic para confirmar tu número con Julio Daza y recibir los avisos previos del taller.
+                  <p className="text-[11px] text-slate-500">
+                    Haz clic para notificar directamente a Julio Daza y recibir los accesos al grupo exclusivo del taller.
                   </p>
                 </div>
               </div>
-            ) : (
-              /* FORMULARIO ACTIVO */
-              <form onSubmit={handleSubmit} className="space-y-6">
-                
-                {errorMessage && (
-                  <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 font-semibold">
-                    {errorMessage}
-                  </div>
-                )}
-
-                {/* PASO 1: Selector de Categoría */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-                    1. Selecciona tu Categoría de Entrada
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTier("ula")}
-                      className={`p-3 rounded-xl border text-xs font-bold text-left transition-all ${
-                        selectedTier === "ula"
-                          ? "bg-sky-500/20 border-sky-400 text-white shadow-md ring-1 ring-sky-400"
-                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="text-[10px] text-sky-400 font-mono">ESTUDIANTE</div>
-                      <div>ULA ($15)</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTier("camara")}
-                      className={`p-3 rounded-xl border text-xs font-bold text-left transition-all ${
-                        selectedTier === "camara"
-                          ? "bg-fuchsia-500/20 border-fuchsia-400 text-white shadow-md ring-1 ring-fuchsia-400"
-                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="text-[10px] text-fuchsia-400 font-mono">GREMIAL</div>
-                      <div>Cámara ($20)</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTier("general")}
-                      className={`p-3 rounded-xl border text-xs font-bold text-left transition-all ${
-                        selectedTier === "general"
-                          ? "bg-indigo-500/20 border-indigo-400 text-white shadow-md ring-1 ring-indigo-400"
-                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="text-[10px] text-indigo-400 font-mono">GENERAL</div>
-                      <div>Presencial ($25)</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTier("online")}
-                      className={`p-3 rounded-xl border text-xs font-bold text-left transition-all ${
-                        selectedTier === "online"
-                          ? "bg-cyan-500/20 border-cyan-400 text-white shadow-md ring-1 ring-cyan-400"
-                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="text-[10px] text-cyan-400 font-mono">DIGITAL</div>
-                      <div>Online ($17)</div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* PASO 2: Datos del Participante */}
-                <div className="space-y-4 pt-2">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-                    2. Datos Personales & Contacto
-                  </label>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-slate-300">Nombre y Apellido *</label>
-                      <input
-                        type="text"
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Ej: Carlos Mendoza"
-                        className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-slate-300">WhatsApp (Para coordinar acceso) *</label>
-                      <input
-                        type="tel"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Ej: 0414-1234567"
-                        className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-slate-300">Correo Electrónico (Para recibir material) *</label>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="carlos@gmail.com"
-                        className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-slate-300">
-                        {selectedTier === "ula"
-                          ? "Cédula / Carnet ULA (Opcional)"
-                          : selectedTier === "camara"
-                          ? "Nombre del Restaurante / Comercio"
-                          : "Nombre de tu Proyecto o Negocio (Opcional)"}
-                      </label>
-                      <input
-                        type="text"
-                        value={organizationOrId}
-                        onChange={(e) => setOrganizationOrId(e.target.value)}
-                        placeholder={
-                          selectedTier === "ula"
-                            ? "V-26.123.456 (Escuela Gastronomía/FACES)"
-                            : selectedTier === "camara"
-                            ? "Ej: Café Andino C.A."
-                            : "Ej: Mi Restaurante"
-                        }
-                        className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:outline-none focus:border-cyan-400 transition-colors"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* PASO 3: Selección de Pasarela / Método de Pago */}
-                <div className="space-y-3 pt-2">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-                    3. Selecciona tu Método de Pago
-                  </label>
-
-                  <div className="space-y-2.5">
-                    {PAYMENT_METHODS.map((method) => {
-                      const isSelected = selectedPayment === method.id;
-                      const isCopied = copiedId === method.id;
-
-                      return (
-                        <div
-                          key={method.id}
-                          onClick={() => setSelectedPayment(method.id)}
-                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                            isSelected
-                              ? "bg-slate-900 border-cyan-400/80 shadow-md ring-1 ring-cyan-400/40"
-                              : "bg-slate-900/40 border-slate-800 hover:border-slate-700"
-                          }`}
-                        >
-                          <div className="space-y-0.5 text-left">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="payment"
-                                checked={isSelected}
-                                onChange={() => setSelectedPayment(method.id)}
-                                className="text-cyan-400 focus:ring-0"
-                              />
-                              <span className="text-xs font-bold text-white">{method.name}</span>
-                              {method.badge && (
-                                <span className="px-2 py-0.2 rounded-full text-[9px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                                  {method.badge}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[11px] text-slate-400 pl-5">{method.details}</p>
-                          </div>
-
-                          {!method.isLemon ? (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                copyToClipboard(method.copyValue, method.id);
-                              }}
-                              className="self-end sm:self-center px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono flex items-center gap-1.5 transition-colors shrink-0"
-                            >
-                              {isCopied ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                  <span className="text-emerald-400">¡Copiado!</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" />
-                                  <span>Copiar datos</span>
-                                </>
-                              )}
-                            </button>
-                          ) : (
-                            <span className="self-end sm:self-center text-[11px] font-bold text-indigo-400 flex items-center gap-1">
-                              <span>Redirección Automática</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {selectedPayment !== "lemon" && (
-                    <div className="pt-2">
-                      <label className="text-xs text-slate-300">
-                        Número de Referencia / Comprobante de Pago
-                      </label>
-                      <input
-                        type="text"
-                        value={paymentReference}
-                        onChange={(e) => setPaymentReference(e.target.value)}
-                        placeholder="Ej: 849204 / Zelle Ref / Efectivo en Sede"
-                        className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm font-mono focus:outline-none focus:border-cyan-400"
-                      />
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        Si pagas en efectivo en sede o aún no has transferido, puedes dejar este campo en blanco y enviar el comprobante por WhatsApp.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Add-on Opcional (Campus Virtual Vitalicio) */}
-                {selectedTier !== "online" && (
-                  <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="addon"
-                      checked={includeAcademyAddon}
-                      onChange={(e) => setIncludeAcademyAddon(e.target.checked)}
-                      className="mt-1 rounded text-fuchsia-500 focus:ring-0"
-                    />
-                    <label htmlFor="addon" className="text-xs cursor-pointer">
-                      <span className="font-bold text-white">
-                        Añadir acceso vitalicio a las grabaciones en el Campus Virtual (+ $10 USD)
-                      </span>
-                      <p className="text-slate-400 text-[11px] mt-0.5">
-                        Incluye todas las clases en video HD, actualizaciones y recursos descargables para repasar cuando quieras.
-                      </p>
-                    </label>
-                  </div>
-                )}
-
-                {/* Resumen Total y Botón de Envío */}
-                <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-left">
-                    <div className="text-xs text-slate-400">Total a Invertir:</div>
-                    <div className="text-3xl font-black text-white font-heading">
-                      ${calculateTotal()} <span className="text-xs font-mono font-normal text-slate-400">USD</span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-black bg-gradient-to-r from-[#0284c7] via-[#6366f1] to-[#d946ef] hover:opacity-95 text-white shadow-xl shadow-indigo-500/25 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isSubmitting ? (
-                      <span>Procesando Registro...</span>
-                    ) : selectedPayment === "lemon" ? (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        <span>PAGAR CON LEMON SQUEEZY</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    ) : (
-                      <>
-                        <span>CONFIRMAR INSCRIPCIÓN AHORA</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="text-center">
-                  <span className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    Tus datos están protegidos bajo estricto acuerdo de confidencialidad NDA.
-                  </span>
-                </div>
-
-              </form>
             )}
 
           </div>

@@ -27,9 +27,9 @@ export interface PaymentSettings {
 
 const DEFAULT_SETTINGS: PaymentSettings = {
   pagoMovil: {
-    banco: "Banesco",
-    bancoCodigo: "0134",
-    cedulaRif: "V-12.345.678",
+    banco: "Banco de Venezuela",
+    bancoCodigo: "0102",
+    cedulaRif: "V-12.517.086",
     telefono: "0414-881-7137",
     whatsapp: "584148817137",
     tasaInfo: "Calculado a Tasa Oficial BCV del día",
