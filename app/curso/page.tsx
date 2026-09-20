@@ -554,124 +554,223 @@ export default function CursoLandingPage() {
         </div>
       </section>
 
-      {/* ── 3. TEMARIO Y METODOLOGÍA (INCLUYE ROBOTS.TXT, SITEMAP, GA4) ── */}
+      {/* ── SECCIÓN COMPARATIVA: DE SEO TRADICIONAL A AEO (MOTORES DE IA) ── */}
+      <section className="py-14 bg-slate-900/50 border-b border-slate-800/80">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-8">
+          <div className="text-center max-w-3xl mx-auto space-y-2">
+            <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider">
+              EL CAMBIO DE PARADIGMA EN BÚSQUEDAS
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-white">
+              ¿Por qué el SEO tradicional ya no es suficiente para tu negocio?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Tus clientes ya no leen 10 enlaces azules en Google. Le preguntan directamente a ChatGPT, Perplexity y Gemini: <span className="text-cyan-300 italic">"¿Cuál es el mejor restaurante para cenar hoy en Mérida?"</span>.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Antes: SEO Tradicional */}
+            <div className="p-6 rounded-3xl bg-slate-950/80 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-slate-400 uppercase">SEO Tradicional (En Vía de Extinción)</span>
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono bg-rose-500/10 text-rose-400 border border-rose-500/20">Búsqueda Antigua</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-rose-400 font-bold shrink-0">✕</span>
+                  <span>Optimizado para palabras clave rígidas que nadie usa al hablar.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-rose-400 font-bold shrink-0">✕</span>
+                  <span>Compite por clics en una lista de 10 enlaces azules donde el usuario se pierde.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-rose-400 font-bold shrink-0">✕</span>
+                  <span>Ignora cómo los modelos de lenguaje (LLMs) procesan datos estructurados.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-rose-400 font-bold shrink-0">✕</span>
+                  <span>Tu restaurante queda invisible si la persona busca por voz o asistentes inteligentes.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Ahora: AEO (Answer Engine Optimization) */}
+            <div className="p-6 rounded-3xl bg-gradient-to-b from-indigo-950/50 to-slate-900 border border-indigo-500/40 shadow-xl space-y-4 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-cyan-300 uppercase">AEO & GEO (Visibilidad en Motores de IA)</span>
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">El Estándar 2026</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-200">
+                <li className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Respuesta Única:</strong> La IA recomienda tu local con nombre, plato estrella y ubicación exacta.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Grafos de Conocimiento (Knowledge Graphs):</strong> Tu marca indexada como una entidad oficial irrefutable.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Ingestión por Bots de IA:</strong> Estructura JSON-LD para que ChatGPT, Perplexity y Gemini te citen.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Captura de Alta Intención:</strong> Comensales que ya decidieron salir a comer y confían en la recomendación de la IA.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. TEMARIO Y METODOLOGÍA PROFUNDA EN AEO & MOTORES DE IA ── */}
       <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest">
-            Programa de 4 Horas Intensivas
-          </span>
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white">
-            Temario del Taller Práctico
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-mono font-bold text-cyan-300">
+            <Bot className="w-3.5 h-3.5 text-cyan-400" />
+            <span>METODOLOGÍA EXCLUSIVA: AEO & GENERATIVE ENGINE OPTIMIZATION</span>
+          </div>
+          <h2 className="font-heading text-3xl sm:text-5xl font-extrabold text-white">
+            Temario del Taller Práctico Presencial
           </h2>
-          <p className="text-sm text-slate-400">
-            Aprenderás haciendo. Cada módulo incluye configuración en tiempo real sobre tu propia computadora.
+          <p className="text-sm text-slate-300 leading-relaxed">
+            Un programa técnico y estratégico de 4 horas intensivas diseñado para que salgas del evento con tu negocio optimizado, indexado y siendo recomendado por motores de IA.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Bloque 1 */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-slate-800 relative overflow-hidden space-y-4">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 to-indigo-500" />
+          
+          {/* Bloque 1: Fundamentos de AEO y Cómo Piensan los LLMs */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-sky-500/30 relative overflow-hidden space-y-4 shadow-lg">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-400 to-indigo-500" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-sky-400">BLOQUE 01 (60 MIN)</span>
-              <span className="text-[11px] font-mono text-slate-500">AEO & ESTRUCTURA</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20">AEO & CÓMO PIENSAN LOS LLMS</span>
             </div>
-            <h3 className="text-lg font-bold text-white">
-              Arquitectura para Motores de IA & Indexación
+            
+            <h3 className="text-lg font-bold text-white leading-snug">
+              Fundamentos de AEO: Cómo ChatGPT, Gemini y Perplexity Eligen a Quién Recomendar
             </h3>
+            
             <ul className="space-y-2.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Cómo indexar tu sitio web en Google Search Console para aparecer en minutos.</span>
+                <span><strong>Anatomía de los Motores de Respuesta (AEO/GEO):</strong> Diferencias operativas entre ChatGPT Search, Perplexity AI, Google AI Overviews y Apple Intelligence.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Creación y configuración del archivo <strong>robots.txt</strong> y <strong>sitemap.xml</strong>.</span>
+                <span><strong>De Keywords a Entidades Semánticas:</strong> Cómo los LLMs construyen su grafo de conocimiento sobre la gastronomía y comercio de Mérida.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Microdatos <strong>Schema.org (JSON-LD)</strong> para que ChatGPT y Gemini recomienden tu local.</span>
+                <span><strong>Vectores de Confianza & Citación:</strong> Qué fuentes consulta la IA en milisegundos antes de responderle a un usuario.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <span><strong>Auditoría Inicial en Vivo:</strong> Diagnosticaremos en tiempo real qué sabe y qué dice la IA hoy sobre tu restaurante.</span>
               </li>
             </ul>
           </div>
 
-          {/* Bloque 2 */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-slate-800 relative overflow-hidden space-y-4">
+          {/* Bloque 2: Arquitectura Técnica, Bots de IA y Schema.org */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-indigo-500/30 relative overflow-hidden space-y-4 shadow-lg">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-fuchsia-500" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-indigo-400">BLOQUE 02 (60 MIN)</span>
-              <span className="text-[11px] font-mono text-slate-500">MAPS & ANALÍTICA</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">CÓDIGO & ESTRUCTURA PARA IA</span>
             </div>
-            <h3 className="text-lg font-bold text-white">
-              Dominio de Google Maps & Métricas GA4
+            
+            <h3 className="text-lg font-bold text-white leading-snug">
+              Arquitectura Web para Rastreadores de IA, Schema.org & Indexación Técnica
             </h3>
+            
             <ul className="space-y-2.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                <span>Factores reales de posicionamiento en Google Maps para estar en el Top 3 local.</span>
+                <span><strong>Configuración de robots.txt para IA:</strong> Habilitar y optimizar el rastreo de <code>GPTBot</code>, <code>PerplexityBot</code>, <code>Google-Extended</code> y <code>ClaudeBot</code>.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                <span>Incorporación del código de <strong>Google Analytics 4 (GA4)</strong> para medir visitantes reales.</span>
+                <span><strong>Microdatos Schema.org (JSON-LD):</strong> Marcado estructurado de <code>Restaurant</code>, <code>Menu</code>, <code>MenuItem</code>, <code>PriceRange</code>, <code>GeoCoordinates</code> y <code>OpeningHours</code>.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                <span>Geolocalización técnica de platos y cartas en alta resolución.</span>
+                <span><strong>Atributo sameAs & Entidad Canónica:</strong> Vinculación de tu web con Google Maps, Cámara Gastronómica, ULA y redes sociales para blindar tu autoridad.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                <span><strong>Sitemap XML & Google Search Console:</strong> Protocolo de indexación forzada para aparecer en motores de búsqueda e IA en minutos.</span>
               </li>
             </ul>
           </div>
 
-          {/* Bloque 3 */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-slate-800 relative overflow-hidden space-y-4">
+          {/* Bloque 3: Google Maps Top 3, Reseñas Contextuales y Analítica */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-fuchsia-500/30 relative overflow-hidden space-y-4 shadow-lg">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-fuchsia-500 to-pink-500" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-fuchsia-400">BLOQUE 03 (50 MIN)</span>
-              <span className="text-[11px] font-mono text-slate-500">HERRAMIENTAS & BONUSES</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">MAPS, RESEÑAS & CITACIONES</span>
             </div>
-            <h3 className="text-lg font-bold text-white">
-              Clarity, GEMS Asesor & Embudos WhatsApp
+            
+            <h3 className="text-lg font-bold text-white leading-snug">
+              Google Maps Top 3, Densidad Semántica en Reseñas & Analítica de Tráfico IA
             </h3>
+            
             <ul className="space-y-2.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
-                <span>Configuración de <strong>Microsoft Clarity</strong> para auditar la experiencia del comensal.</span>
+                <span><strong>Factores de Ranking Local:</strong> Proximidad, Relevancia y Prominencia para liderar el Top 3 del mapa en Mérida.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
-                <span>Creación y calibración de tu <strong>Agente GEMS</strong> personalizado de marketing.</span>
+                <span><strong>Estrategia de Reseñas para LLMs:</strong> Cómo lograr que tus comensales dejen menciones ricas en palabras clave de platos que la IA indexa como verdad.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
-                <span>Flujo de captura de pedidos directos y reseñas 5 estrellas por WhatsApp.</span>
+                <span><strong>Optimización Visual para IA:</strong> Georreferenciación de fotos de platos y cartas para reconocimiento en Google Lens y Gemini Vision.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
+                <span><strong>Métricas GA4 & Microsoft Clarity:</strong> Medición del tráfico proveniente de motores de IA y auditoría de mapas de calor sobre tu menú digital.</span>
               </li>
             </ul>
           </div>
 
-          {/* Bloque 4 */}
-          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-slate-800 relative overflow-hidden space-y-4">
+          {/* Bloque 4: Laboratorio en Laptop, Agente GEMS & Certificación */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-emerald-500/30 relative overflow-hidden space-y-4 shadow-lg">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-emerald-400">BLOQUE 04 (70 MIN)</span>
-              <span className="text-[11px] font-mono text-slate-500">LABORATORIO EN VIVO</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">LABORATORIO 100% PRÁCTICO</span>
             </div>
-            <h3 className="text-lg font-bold text-white">
-              Laboratorio Guiado en tu Laptop & Certificación
+            
+            <h3 className="text-lg font-bold text-white leading-snug">
+              Laboratorio Guiado en tu Laptop, Creación de tu Agente GEMS & Certificación
             </h3>
+            
             <ul className="space-y-2.5 text-xs text-slate-300">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Configuración en vivo de tu negocio con la supervisión directa de Julio Daza.</span>
+                <span><strong>Implementación Asistida en Vivo:</strong> Escribirás, validarás y subirás tu código JSON-LD y robots.txt con la supervisión directa de Julio Daza.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Auditoría individual y entrega del informe de oportunidades para tu marca.</span>
+                <span><strong>Construcción de tu Agente GEMS:</strong> Calibración de tu propio asesor de marketing gastronómico 24/7 entrenado con los datos de tu local.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Coffee Break ejecutivo, networking y entrega de certificado con código QR.</span>
+                <span><strong>Verificación Final de Respuesta de IA:</strong> Prueba en vivo para corroborar que los motores de IA ya citan y estructuran la información de tu marca.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span><strong>Coffee Break & Networking:</strong> Conexión con otros dueños de negocios en Mérida y entrega del Certificado Oficial con QR.</span>
               </li>
             </ul>
           </div>
+
         </div>
       </section>
 
