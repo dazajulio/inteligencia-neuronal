@@ -39,6 +39,8 @@ import {
   LineChart,
   Smartphone,
   Loader2,
+  Upload,
+  FileCheck,
 } from "lucide-react";
 
 export default function CursoLandingPage() {
@@ -51,6 +53,8 @@ export default function CursoLandingPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [organizationOrId, setOrganizationOrId] = useState("");
+  const [carnetFileName, setCarnetFileName] = useState("");
+  const [carnetBase64, setCarnetBase64] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"lemon" | "pagomovil">("pagomovil");
   
   // Datos específicos de confirmación Pago Móvil
@@ -58,7 +62,6 @@ export default function CursoLandingPage() {
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
   const [paymentReference, setPaymentReference] = useState("");
   const [paidAmountBs, setPaidAmountBs] = useState("");
-  const [includeAcademyAddon, setIncludeAcademyAddon] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Datos dinámicos de pasarelas y BCV
@@ -122,7 +125,7 @@ export default function CursoLandingPage() {
       case "general":
         return 25;
       case "online":
-        return 17;
+        return 25;
       default:
         return 25;
     }
@@ -159,9 +162,7 @@ export default function CursoLandingPage() {
   };
 
   const calculateTotal = () => {
-    const base = getTierPrice(selectedTier);
-    const addon = includeAcademyAddon && selectedTier !== "online" ? 10 : 0;
-    return base + addon;
+    return getTierPrice(selectedTier);
   };
 
   const totalUSD = calculateTotal();
@@ -180,6 +181,22 @@ export default function CursoLandingPage() {
     navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2500);
+  };
+
+  const handleCarnetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setErrorMessage("La imagen o documento del carnet no debe superar los 5MB.");
+        return;
+      }
+      setCarnetFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCarnetBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Manejar el submit del paso 1 (Formulario)
@@ -202,6 +219,11 @@ export default function CursoLandingPage() {
       return;
     }
 
+    if (selectedTier === "camara" && !organizationOrId.trim()) {
+      setErrorMessage("Por favor indica el nombre del Restaurante o Comercio Afiliado a la Cámara.");
+      return;
+    }
+
     if (paymentMethod === "lemon") {
       // Registrar Lead y Redirigir a Lemon Squeezy
       setIsSubmitting(true);
@@ -215,12 +237,12 @@ export default function CursoLandingPage() {
             phone,
             tier: selectedTier,
             tierLabel: getTierName(selectedTier),
-            organizationOrId: organizationOrId || "No especificado",
+            organizationOrId: organizationOrId || (selectedTier === "ula" ? (carnetFileName ? `Carnet ULA: ${carnetFileName}` : "Estudiante ULA") : "No especificado"),
             modality: selectedTier === "online" ? "online_academy" : "presencial",
             amount: `$${totalUSD} USD`,
             paymentMethod: "Lemon Squeezy (Tarjeta Internacional / Apple Pay)",
             paymentReference: "Checkout Lemon Squeezy",
-            notes: includeAcademyAddon ? "Incluye Add-on Campus Academy (+10 USD)" : "",
+            notes: carnetFileName ? `Carnet ULA adjuntado: ${carnetFileName}` : "",
           }),
         });
 
@@ -263,12 +285,12 @@ export default function CursoLandingPage() {
           phone,
           tier: selectedTier,
           tierLabel: getTierName(selectedTier),
-          organizationOrId: organizationOrId || "No especificado",
+          organizationOrId: organizationOrId || (selectedTier === "ula" ? (carnetFileName ? `Carnet ULA: ${carnetFileName}` : "Estudiante ULA") : "No especificado"),
           modality: selectedTier === "online" ? "online_academy" : "presencial",
           amount: `$${totalUSD} USD (Bs. ${paidAmountBs || calculatedTotalBs})`,
           paymentMethod: `Pago Móvil - ${paymentSettings.pagoMovil.banco} (Emisor: ${originBank})`,
           paymentReference: paymentReference.trim(),
-          notes: `Fecha: ${paymentDate} | Tasa BCV: Bs. ${bcvRate} | ${includeAcademyAddon ? "Incluye Add-on Campus Academy (+10 USD)" : ""}`,
+          notes: `Fecha: ${paymentDate} | Tasa BCV: Bs. ${bcvRate} ${carnetFileName ? `| Carnet ULA: ${carnetFileName}` : ""}`,
         }),
       });
 
@@ -279,7 +301,7 @@ export default function CursoLandingPage() {
         setRegisteredFolio(generatedFolio);
         
         const cleanWhatsApp = (paymentSettings.pagoMovil.whatsapp || "584148817137").replace(/\D/g, "");
-        const message = `👋 Hola Julio, acabo de registrar mi Pago Móvil para el taller *Dominio Local: AEO & SEO* en Mérida.\n\n*Datos del Alumno:*\n• Folio: *${generatedFolio}*\n• Nombre: ${fullName}\n• Correo: ${email}\n• WhatsApp: ${phone}\n• Entrada: ${getTierName(selectedTier)} ($${totalUSD} USD / ${paidAmountBs || "Bs. " + calculatedTotalBs})\n• Banco Emisor: ${originBank}\n• Nro. Referencia: ${paymentReference}\n\nAdjunto capture del comprobante. ¡Nos vemos en el taller!`;
+        const message = `👋 Hola Julio, acabo de registrar mi Pago Móvil para el taller *Dominio Local: AEO & SEO* en Mérida.\n\n*Datos del Alumno:*\n• Folio: *${generatedFolio}*\n• Nombre: ${fullName}\n• Correo: ${email}\n• WhatsApp: ${phone}\n• Entrada: ${getTierName(selectedTier)} ($${totalUSD} USD / ${paidAmountBs || "Bs. " + calculatedTotalBs})\n• Banco Emisor: ${originBank}\n• Nro. Referencia: ${paymentReference}${carnetFileName ? `\n• Carnet ULA: ${carnetFileName}` : ""}\n\nAdjunto capture del comprobante. ¡Nos vemos en el taller!`;
         
         setWhatsappLink(`https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`);
         setCheckoutStep("success");
@@ -477,7 +499,7 @@ export default function CursoLandingPage() {
               onClick={() => scrollToForm("online")}
               className="px-6 py-4 rounded-xl text-sm font-bold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 transition-all cursor-pointer"
             >
-              Ver Versión Online ($17 USD)
+              Ver Versión Online ($25 USD)
             </button>
           </div>
 
@@ -662,7 +684,7 @@ export default function CursoLandingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span><strong>De Keywords a Entidades Semánticas:</strong> Cómo los LLMs construyen su grafo de conocimiento sobre la gastronomía y comercio de Mérida.</span>
+                <span><strong>De Keywords a Entidades Semánticas:</strong> Cómo los LLMs construyen su grafo de conocimiento sobre la gastronomía y comercio.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
@@ -766,7 +788,7 @@ export default function CursoLandingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span><strong>Coffee Break & Networking:</strong> Conexión con otros dueños de negocios en Mérida y entrega del Certificado Oficial con QR.</span>
+                <span><strong>Certificación Oficial:</strong> Entrega del Certificado Oficial con QR de validación.</span>
               </li>
             </ul>
           </div>
@@ -998,7 +1020,7 @@ export default function CursoLandingPage() {
 
           <div className="flex flex-col items-center sm:items-end gap-3 shrink-0">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black text-cyan-300 font-heading">$17</span>
+              <span className="text-3xl font-black text-cyan-300 font-heading">$25</span>
               <span className="text-xs text-slate-400 font-mono">USD (Acceso Inmediato)</span>
             </div>
             <button
@@ -1006,7 +1028,7 @@ export default function CursoLandingPage() {
               onClick={() => scrollToForm("online")}
               className="px-6 py-3 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-extrabold transition-all shadow-lg shadow-cyan-500/20 cursor-pointer"
             >
-              Inscribirme en Versión Online ($17)
+              Inscribirme en Versión Online ($25)
             </button>
           </div>
         </div>
@@ -1065,7 +1087,7 @@ export default function CursoLandingPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedTier("ula")}
-                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer ${
                     selectedTier === "ula"
                       ? "bg-sky-50 border-sky-600 text-sky-950 ring-2 ring-sky-600/20"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
@@ -1078,7 +1100,7 @@ export default function CursoLandingPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedTier("camara")}
-                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer ${
                     selectedTier === "camara"
                       ? "bg-fuchsia-50 border-fuchsia-600 text-fuchsia-950 ring-2 ring-fuchsia-600/20"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
@@ -1091,7 +1113,7 @@ export default function CursoLandingPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedTier("general")}
-                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer ${
                     selectedTier === "general"
                       ? "bg-indigo-50 border-indigo-600 text-indigo-950 ring-2 ring-indigo-600/20"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
@@ -1104,14 +1126,14 @@ export default function CursoLandingPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedTier("online")}
-                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
+                  className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer ${
                     selectedTier === "online"
                       ? "bg-cyan-50 border-cyan-600 text-cyan-950 ring-2 ring-cyan-600/20"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
                   <div className="text-[9px] text-cyan-700 font-mono">DIGITAL</div>
-                  <div className="text-xs">Online ($17)</div>
+                  <div className="text-xs">Online ($25)</div>
                 </button>
               </div>
             </div>
@@ -1173,47 +1195,99 @@ export default function CursoLandingPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
-                      {selectedTier === "ula"
-                        ? "Cédula / Carnet ULA (Opcional)"
-                        : selectedTier === "camara"
-                        ? "Nombre del Restaurante / Comercio Afiliado"
-                        : "Nombre de tu Proyecto o Negocio (Opcional)"}
-                    </label>
-                    <input
-                      type="text"
-                      value={organizationOrId}
-                      onChange={(e) => setOrganizationOrId(e.target.value)}
-                      placeholder={
-                        selectedTier === "ula"
-                          ? "V-26.123.456 (Escuela Gastronomía/FACES)"
-                          : selectedTier === "camara"
-                          ? "Ej: Café Andino C.A."
-                          : "Ej: Mi Negocio"
-                      }
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
-                    />
-                  </div>
-
-                  {/* Add-on Opcional */}
-                  {selectedTier !== "online" && (
-                    <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-200/80 flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="addon-checkout"
-                        checked={includeAcademyAddon}
-                        onChange={(e) => setIncludeAcademyAddon(e.target.checked)}
-                        className="mt-0.5 rounded text-indigo-600 focus:ring-0 cursor-pointer"
-                      />
-                      <label htmlFor="addon-checkout" className="text-xs cursor-pointer">
-                        <span className="font-bold text-indigo-950">
-                          Añadir acceso vitalicio a las grabaciones en el Campus Virtual (+ $10 USD)
+                  {/* Campos Condicionales según Tarifa */}
+                  {selectedTier === "ula" ? (
+                    <div className="space-y-3 p-4 rounded-2xl bg-sky-50/70 border border-sky-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono font-bold text-sky-950 uppercase flex items-center gap-1.5">
+                          <GraduationCap className="w-4 h-4 text-sky-700" />
+                          Validación Estudiante ULA (Tarifa $15)
                         </span>
-                        <p className="text-indigo-800 text-[11px] mt-0.5">
-                          Incluye todas las clases en video HD, actualizaciones y recursos descargables para repasar cuando quieras.
-                        </p>
+                        <span className="text-[10px] font-mono text-sky-700 bg-sky-100 px-2 py-0.5 rounded">Requerido</span>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                          Cédula de Identidad / Escuela ULA *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={organizationOrId}
+                          onChange={(e) => setOrganizationOrId(e.target.value)}
+                          placeholder="Ej: V-26.123.456 (Escuela Gastronomía / FACES / Sistemas)"
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 placeholder-slate-400 focus:border-sky-600 focus:outline-none transition-all"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-mono font-bold text-slate-700 uppercase mb-1">
+                          Adjuntar Foto de Carnet o Constancia ULA (Opcional pero recomendado)
+                        </label>
+                        
+                        {carnetFileName ? (
+                          <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-emerald-300 text-xs">
+                            <div className="flex items-center gap-2 text-emerald-800 font-mono truncate">
+                              <FileCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <span className="truncate">{carnetFileName}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCarnetFileName("");
+                                setCarnetBase64("");
+                              }}
+                              className="text-xs text-rose-600 hover:text-rose-800 font-bold ml-2 shrink-0 cursor-pointer"
+                            >
+                              Cambiar
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-sky-300 bg-white hover:bg-sky-50/50 cursor-pointer transition-colors text-center">
+                            <Upload className="w-5 h-5 text-sky-600 mb-1" />
+                            <span className="text-xs font-semibold text-slate-700">
+                              Haz clic para subir foto del carnet o constancia
+                            </span>
+                            <span className="text-[10px] text-slate-400 mt-0.5">
+                              Formatos permitidos: JPG, PNG, PDF (Máx 5MB)
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={handleCarnetFileChange}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  ) : selectedTier === "camara" ? (
+                    <div>
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
+                        <span>Nombre del Restaurante / Comercio Afiliado *</span>
+                        <span className="text-[10px] text-fuchsia-600 font-bold">Tarifa Gremial</span>
                       </label>
+                      <input
+                        type="text"
+                        required
+                        value={organizationOrId}
+                        onChange={(e) => setOrganizationOrId(e.target.value)}
+                        placeholder="Ej: Café Andino C.A. / Pizzería Da Enzo"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-fuchsia-600 focus:outline-none transition-all"
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">
+                        Nombre de tu Proyecto o Negocio (Opcional)
+                      </label>
+                      <input
+                        type="text"
+                        value={organizationOrId}
+                        onChange={(e) => setOrganizationOrId(e.target.value)}
+                        placeholder="Ej: Mi Restaurante / Agencia"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none transition-all"
+                      />
                     </div>
                   )}
                 </div>
