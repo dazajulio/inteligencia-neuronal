@@ -47,6 +47,10 @@ import {
   CheckSquare,
   Sliders,
   Copy,
+  MessageCircle,
+  CheckCircle2,
+  XCircle,
+  Coffee,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -183,7 +187,7 @@ export interface OrderSaleItem {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits' | 'workshop'>('overview');
   const [syncingN8n, setSyncingN8n] = useState(false);
   const [syncingCourses, setSyncingCourses] = useState(false);
   const [syncingResources, setSyncingResources] = useState(false);
@@ -203,6 +207,23 @@ export default function AdminDashboard() {
   // ── 0. VENTAS & ÓRDENES STATE (DATOS REALES) ──
   const [ordersList, setOrdersList] = useState<OrderSaleItem[]>([]);
   const [selectedOrderForModal, setSelectedOrderForModal] = useState<OrderSaleItem | null>(null);
+
+  // ── 0.1 WORKSHOP IA REGISTRATIONS STATE (DATOS REALES) ──
+  const [workshopList, setWorkshopList] = useState<any[]>([]);
+  const [workshopStats, setWorkshopStats] = useState({
+    total: 0,
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+    capacity: 25,
+    available: 25,
+    revenueUsd: 0,
+  });
+  const [workshopFilterStatus, setWorkshopFilterStatus] = useState<string>('all');
+  const [workshopSearch, setWorkshopSearch] = useState<string>('');
+  const [workshopUpdatingId, setWorkshopUpdatingId] = useState<string | null>(null);
+  const [selectedWorkshopForModal, setSelectedWorkshopForModal] = useState<any | null>(null);
+  const [workshopSuccessMsg, setWorkshopSuccessMsg] = useState<string | null>(null);
 
   // ── 1. NOTIFICACIONES & AUDITORÍAS STATE (DATOS REALES) ──
   const [notifications, setNotifications] = useState<AuditNotification[]>([]);
@@ -345,6 +366,23 @@ export default function AdminDashboard() {
         }
       })
       .catch((e) => console.warn('API students fetch fallback', e));
+
+    // 6. Inscritos Workshop IA (Mérida Fullcowork)
+    fetchWorkshopData();
+  };
+
+  const fetchWorkshopData = () => {
+    fetch('/api/course-register')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.registrations)) {
+          setWorkshopList(data.registrations);
+          if (data.stats) {
+            setWorkshopStats(data.stats);
+          }
+        }
+      })
+      .catch((e) => console.warn('API course-register fetch fallback', e));
   };
 
   useEffect(() => {
@@ -2128,6 +2166,101 @@ export default function AdminDashboard() {
     document.body.removeChild(link);
   };
 
+  // ── WORKSHOP ACTIONS & CSV EXPORT ──
+  const handleValidateWorkshopPayment = async (item: any) => {
+    setWorkshopUpdatingId(item.id || item.folio);
+    try {
+      const res = await fetch('/api/course-register', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: item.id,
+          folio: item.folio,
+          status: 'confirmado',
+          sendEmailNotification: true,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWorkshopSuccessMsg(`¡Pago validado exitosamente para ${item.full_name}! Se envió correo oficial.`);
+        setTimeout(() => setWorkshopSuccessMsg(null), 4000);
+        fetchWorkshopData();
+      }
+    } catch (err) {
+      console.error('[Validate Workshop Error]', err);
+    } finally {
+      setWorkshopUpdatingId(null);
+    }
+  };
+
+  const handleRejectWorkshopPayment = async (item: any) => {
+    if (!confirm(`¿Deseas marcar como cancelada la inscripción de ${item.full_name}?`)) return;
+    setWorkshopUpdatingId(item.id || item.folio);
+    try {
+      const res = await fetch('/api/course-register', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: item.id,
+          folio: item.folio,
+          status: 'cancelado',
+          sendEmailNotification: false,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchWorkshopData();
+      }
+    } catch (err) {
+      console.error('[Reject Workshop Error]', err);
+    } finally {
+      setWorkshopUpdatingId(null);
+    }
+  };
+
+  const handleDeleteWorkshopRegistration = async (item: any) => {
+    if (!confirm(`¿Eliminar permanentemente el registro de ${item.full_name} (${item.folio})?`)) return;
+    setWorkshopUpdatingId(item.id || item.folio);
+    try {
+      const res = await fetch(`/api/course-register?id=${item.id || ''}&folio=${item.folio || ''}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchWorkshopData();
+      }
+    } catch (err) {
+      console.error('[Delete Workshop Error]', err);
+    } finally {
+      setWorkshopUpdatingId(null);
+    }
+  };
+
+  const exportWorkshopCSV = () => {
+    const headers = ['Folio', 'Alumno', 'Email', 'WhatsApp', 'Tarifa', 'Monto', 'Metodo_Pago', 'Referencia', 'Banco_Origen', 'Estado', 'Fecha_Registro'];
+    const rows = workshopList.map((w) => [
+      w.folio || w.id,
+      `"${(w.full_name || '').replace(/"/g, '""')}"`,
+      w.email,
+      w.phone_whatsapp || '',
+      `"${(w.tier_label || w.tier || '').replace(/"/g, '""')}"`,
+      `"${(w.amount || '').replace(/"/g, '""')}"`,
+      `"${(w.payment_method || '').replace(/"/g, '""')}"`,
+      w.payment_reference || '',
+      `"${(w.origin_bank || '').replace(/"/g, '""')}"`,
+      w.status || 'pendiente_verificacion',
+      w.created_at || '',
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'inscritos_workshop_ia_gastronomia_merida.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-[#EA0C7F] selection:text-white">
       
@@ -2155,6 +2288,7 @@ export default function AdminDashboard() {
           <nav className="flex lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             {[
               { id: 'overview', label: 'Métricas Generales', icon: LayoutDashboard, color: '#1DACE3' },
+              { id: 'workshop', label: 'Inscritos Workshop IA', icon: Sparkles, badge: workshopStats.pending > 0 ? `${workshopStats.pending} Ptes` : (workshopList.length > 0 ? workshopList.length.toString() : undefined), color: '#FEAD2B' },
               { id: 'sales', label: 'Ventas & Órdenes', icon: DollarSign, badge: ordersList.length > 0 ? ordersList.length.toString() : undefined, color: '#86C537' },
               { id: 'courses', label: 'Gestor de Cursos', icon: GraduationCap, badge: coursesList.length.toString(), color: '#EA0C7F' },
               { id: 'resources', label: 'Gestor de Recursos', icon: FolderDown, badge: resourcesList.length.toString(), color: '#FEAD2B' },
@@ -2228,6 +2362,7 @@ export default function AdminDashboard() {
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
               {activeTab === 'overview' && 'Métricas Generales & Telemetría'}
+              {activeTab === 'workshop' && 'Inscritos Workshop IA: Del Concepto al Ecosistema (Mérida)'}
               {activeTab === 'sales' && 'Gestor de Ventas & Órdenes en Tiempo Real'}
               {activeTab === 'courses' && 'Gestor de Cursos & Campus Virtual'}
               {activeTab === 'resources' && 'Gestor de Recursos & Toolkit'}
@@ -3659,6 +3794,403 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {/* ── TAB: WORKSHOP IA (INSCRITOS & VALIDACIÓN DE PAGOS) ── */}
+          {activeTab === 'workshop' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+              
+              {workshopSuccessMsg && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs animate-in fade-in">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{workshopSuccessMsg}</span>
+                  </div>
+                  <button onClick={() => setWorkshopSuccessMsg(null)} className="text-emerald-700 hover:text-emerald-950">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Header de la Pestaña */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#FEAD2B]" />
+                    <span>Inscripciones Workshop IA Gastronomía</span>
+                  </h2>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Mérida • Salón VIP Fullcowork (Viernes 23 de Octubre - 8:00 AM) • Control de cupos (25 máx) y validación de Pago Móvil
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <Link
+                    href="/ia"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-[#1DACE3]" />
+                    <span>Ver Landing /ia</span>
+                  </Link>
+
+                  <button
+                    onClick={exportWorkshopCSV}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs cursor-pointer"
+                  >
+                    <DownloadCloud className="w-3.5 h-3.5 text-zinc-600" />
+                    <span>Exportar Asistencia CSV</span>
+                  </button>
+
+                  <button
+                    onClick={fetchWorkshopData}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition-all shadow-xs cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-[#FEAD2B]" />
+                    <span>Actualizar</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* KPI Cards Superiores */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* 1. Cupos Ocupados */}
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between text-zinc-500 text-xs font-bold">
+                    <span>Cupos Ocupados</span>
+                    <span className="font-mono text-zinc-400">Máx 25</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-2xl font-black text-zinc-900 font-mono">
+                      {workshopStats.total} / 25
+                    </span>
+                    <span className="text-xs font-bold text-amber-600">
+                      {workshopStats.available} libres
+                    </span>
+                  </div>
+                  <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-amber-400 to-[#EA0C7F] h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, (workshopStats.total / 25) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Pagos Pendientes de Validar */}
+                <div className="p-5 rounded-2xl bg-white border border-amber-200 shadow-xs space-y-2 bg-gradient-to-br from-white to-amber-50/40">
+                  <div className="flex items-center justify-between text-amber-700 text-xs font-bold">
+                    <span>Por Validar (Pago Móvil)</span>
+                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  </div>
+                  <div className="text-2xl font-black text-amber-800 font-mono">
+                    {workshopStats.pending}
+                  </div>
+                  <span className="text-[11px] text-amber-700 block">
+                    Comprobantes pendientes de revisión
+                  </span>
+                </div>
+
+                {/* 3. Pagos Validados / Confirmados */}
+                <div className="p-5 rounded-2xl bg-white border border-emerald-200 shadow-xs space-y-2 bg-gradient-to-br from-white to-emerald-50/40">
+                  <div className="flex items-center justify-between text-emerald-700 text-xs font-bold">
+                    <span>Pagos Confirmados</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="text-2xl font-black text-emerald-800 font-mono">
+                    {workshopStats.confirmed}
+                  </div>
+                  <span className="text-[11px] text-emerald-700 block">
+                    Cupos VIP 100% asegurados
+                  </span>
+                </div>
+
+                {/* 4. Recaudación Confirmada */}
+                <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-2">
+                  <div className="flex items-center justify-between text-zinc-500 text-xs font-bold">
+                    <span>Recaudación Confirmada</span>
+                    <DollarSign className="w-4 h-4 text-[#1DACE3]" />
+                  </div>
+                  <div className="text-2xl font-black text-zinc-900 font-mono">
+                    ${workshopStats.revenueUsd.toFixed(2)} <span className="text-xs font-normal text-zinc-400">USD</span>
+                  </div>
+                  <span className="text-[11px] text-zinc-500 block">
+                    Liquidado a Tasa Oficial BCV
+                  </span>
+                </div>
+
+              </div>
+
+              {/* Barra de Filtros & Búsqueda */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-zinc-200 shadow-xs">
+                
+                {/* Filtros por Estado */}
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs">
+                  {[
+                    { id: 'all', label: `Todos (${workshopList.length})` },
+                    { id: 'pendiente_verificacion', label: `Pendientes (${workshopStats.pending})` },
+                    { id: 'confirmado', label: `Confirmados (${workshopStats.confirmed})` },
+                    { id: 'cancelado', label: `Cancelados (${workshopStats.cancelled})` },
+                  ].map((filter) => (
+                    <button
+                      key={filter.id}
+                      onClick={() => setWorkshopFilterStatus(filter.id)}
+                      className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
+                        workshopFilterStatus === filter.id
+                          ? 'bg-zinc-900 text-white shadow-xs'
+                          : 'text-zinc-600 hover:bg-zinc-100'
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Buscador */}
+                <div className="relative min-w-[220px]">
+                  <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={workshopSearch}
+                    onChange={(e) => setWorkshopSearch(e.target.value)}
+                    placeholder="Buscar alumno, email, folio, ref..."
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-[#FEAD2B]"
+                  />
+                </div>
+
+              </div>
+
+              {/* Tabla de Inscritos & Validación */}
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-zinc-200 bg-zinc-50/80 text-zinc-500 font-mono text-[11px] uppercase">
+                        <th className="py-3 px-4">Folio / Fecha</th>
+                        <th className="py-3 px-4">Alumno</th>
+                        <th className="py-3 px-4">Tarifa / Entrada</th>
+                        <th className="py-3 px-4">Pago Móvil (Ref & Banco)</th>
+                        <th className="py-3 px-4">Monto</th>
+                        <th className="py-3 px-4">Estado</th>
+                        <th className="py-3 px-4 text-right">Acciones de Validación</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {workshopList
+                        .filter((item) => {
+                          if (workshopFilterStatus !== 'all' && item.status?.toLowerCase() !== workshopFilterStatus.toLowerCase()) {
+                            return false;
+                          }
+                          if (workshopSearch.trim()) {
+                            const q = workshopSearch.toLowerCase();
+                            return (
+                              item.full_name?.toLowerCase().includes(q) ||
+                              item.email?.toLowerCase().includes(q) ||
+                              item.folio?.toLowerCase().includes(q) ||
+                              item.payment_reference?.toLowerCase().includes(q) ||
+                              item.phone_whatsapp?.toLowerCase().includes(q)
+                            );
+                          }
+                          return true;
+                        })
+                        .map((w: any) => {
+                          const isUpdating = workshopUpdatingId === (w.id || w.folio);
+                          const isPending = w.status === 'pendiente_verificacion';
+                          const isConfirmed = w.status === 'confirmado';
+                          const cleanPhone = (w.phone_whatsapp || '').replace(/[^0-9]/g, '');
+                          const waConfirmMessage = `👋 Hola ${w.full_name}, te escribe Julio Daza de Inteligencia Neuronal. Confirmamos la recepción de tu pago para el *IA Gastronomía Workshop* en Mérida (Fullcowork, Viernes 23 de Octubre).\n\n• Folio: *${w.folio}*\n• Estado: *PAGO VALIDADO & CUPO CONFIRMADO*.\n\n¡Nos vemos el viernes a las 8:00 AM! Recuerda traer tu laptop con cargador.`;
+
+                          return (
+                            <tr key={w.id || w.folio} className="hover:bg-zinc-50/60 transition-colors">
+                              {/* Folio & Fecha */}
+                              <td className="py-3.5 px-4 font-mono">
+                                <span className="font-bold text-zinc-900 block">{w.folio}</span>
+                                <span className="text-[10px] text-zinc-400">
+                                  {new Date(w.created_at || Date.now()).toLocaleDateString('es-VE')}
+                                </span>
+                              </td>
+
+                              {/* Alumno */}
+                              <td className="py-3.5 px-4">
+                                <strong className="text-zinc-900 block">{w.full_name}</strong>
+                                <span className="text-zinc-500 text-[11px] block">{w.email}</span>
+                                {cleanPhone && (
+                                  <a
+                                    href={`https://wa.me/${cleanPhone}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-emerald-600 hover:text-emerald-700 font-mono text-[11px] font-bold inline-flex items-center gap-1 mt-0.5"
+                                  >
+                                    <Phone className="w-3 h-3" /> {w.phone_whatsapp}
+                                  </a>
+                                )}
+                              </td>
+
+                              {/* Tarifa */}
+                              <td className="py-3.5 px-4">
+                                <span
+                                  className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${
+                                    w.tier === 'ula'
+                                      ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                      : w.tier === 'camara'
+                                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                      : 'bg-purple-100 text-purple-800 border border-purple-200'
+                                  }`}
+                                >
+                                  {w.tier_label || w.tier}
+                                </span>
+                                {w.organization_or_id && w.organization_or_id !== 'No especificado' && (
+                                  <span className="text-[10px] text-zinc-500 block mt-0.5 truncate max-w-[150px]">
+                                    {w.organization_or_id}
+                                  </span>
+                                )}
+                              </td>
+
+                              {/* Pago Móvil */}
+                              <td className="py-3.5 px-4">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono font-bold text-zinc-900 text-xs">
+                                    Ref: {w.payment_reference || 'S/R'}
+                                  </span>
+                                  {w.payment_reference && (
+                                    <button
+                                      onClick={() => copySaleReference(w.payment_reference, `w-${w.folio}`)}
+                                      className="text-zinc-400 hover:text-zinc-600 p-0.5 cursor-pointer"
+                                      title="Copiar referencia"
+                                    >
+                                      {copiedRef === `w-${w.folio}` ? (
+                                        <Check className="w-3 h-3 text-emerald-600" />
+                                      ) : (
+                                        <Copy className="w-3 h-3" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                                <span className="text-[11px] text-zinc-500 block">
+                                  {w.origin_bank || 'Banco de Venezuela'}
+                                </span>
+                              </td>
+
+                              {/* Monto */}
+                              <td className="py-3.5 px-4 font-mono">
+                                <strong className="text-zinc-900 block">{w.amount}</strong>
+                                {w.amount_bs && (
+                                  <span className="text-[10px] text-zinc-500 block">{w.amount_bs}</span>
+                                )}
+                              </td>
+
+                              {/* Estado */}
+                              <td className="py-3.5 px-4">
+                                {isPending && (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                    <span>Pendiente Validación</span>
+                                  </span>
+                                )}
+                                {isConfirmed && (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                                    <span>Confirmado (VIP)</span>
+                                  </span>
+                                )}
+                                {w.status === 'cancelado' && (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                                    <X className="w-3 h-3 text-red-600" />
+                                    <span>Cancelado</span>
+                                  </span>
+                                )}
+                              </td>
+
+                              {/* Acciones */}
+                              <td className="py-3.5 px-4 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {/* Botón Validar Pago (1-Click) */}
+                                  {isPending && (
+                                    <button
+                                      disabled={isUpdating}
+                                      onClick={() => handleValidateWorkshopPayment(w)}
+                                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                                      title="Validar Pago y Enviar Confirmación por Email"
+                                    >
+                                      <CheckCircle2 className="w-3.5 h-3.5" />
+                                      <span>Validar Pago</span>
+                                    </button>
+                                  )}
+
+                                  {/* Botón WhatsApp */}
+                                  {cleanPhone && (
+                                    <a
+                                      href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(waConfirmMessage)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
+                                      title="Abrir WhatsApp con mensaje personalizado"
+                                    >
+                                      <MessageCircle className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+
+                                  {/* Botón Ficha Detalle */}
+                                  <button
+                                    onClick={() => setSelectedWorkshopForModal(w)}
+                                    className="p-1.5 rounded-xl border border-zinc-200 hover:bg-zinc-100 text-zinc-600 transition-colors cursor-pointer"
+                                    title="Ver Ficha Completa"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  {/* Botón Rechazar / Cancelar */}
+                                  {isPending && (
+                                    <button
+                                      disabled={isUpdating}
+                                      onClick={() => handleRejectWorkshopPayment(w)}
+                                      className="p-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                      title="Rechazar Comprobante"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+
+                                  {/* Botón Eliminar */}
+                                  <button
+                                    disabled={isUpdating}
+                                    onClick={() => handleDeleteWorkshopRegistration(w)}
+                                    className="p-1.5 rounded-xl text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                    title="Eliminar Registro"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+
+                      {workshopList.length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="py-12 text-center">
+                            <Sparkles className="w-8 h-8 text-amber-400 mx-auto mb-2 opacity-50" />
+                            <h4 className="text-sm font-bold text-zinc-700">Aún no hay inscripciones registradas</h4>
+                            <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+                              Las personas que se inscriban en la landing oficial <code>/ia</code> aparecerán aquí en tiempo real para validar su pago móvil.
+                            </p>
+                            <Link
+                              href="/ia"
+                              target="_blank"
+                              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition-all shadow-xs"
+                            >
+                              <span>Abrir Landing de Inscripción (/ia)</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </Link>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </motion.div>
           )}
 
@@ -5250,6 +5782,154 @@ export default function AdminDashboard() {
                     className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-sm transition-colors cursor-pointer"
                   >
                     Cerrar Ficha
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL: FICHA DETALLADA DE INSCRIPCIÓN AL WORKSHOP IA ── */}
+        {selectedWorkshopForModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-xl rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-zinc-900">
+              
+              {/* Header Modal */}
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-[#EA0C7F] text-white flex items-center justify-center shadow-md">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-zinc-900">
+                      Ficha de Inscripción al Workshop
+                    </h3>
+                    <span className="font-mono text-xs text-amber-600 font-bold">
+                      Folio: {selectedWorkshopForModal.folio}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedWorkshopForModal(null)}
+                  className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-xl hover:bg-zinc-100 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Contenido Ficha */}
+              <div className="space-y-4 text-xs">
+                
+                {/* Datos del Alumno */}
+                <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-zinc-500 uppercase block">
+                    Datos del Alumno
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-zinc-400 block text-[10px]">Nombre:</span>
+                      <strong className="text-zinc-900 text-sm">{selectedWorkshopForModal.full_name}</strong>
+                    </div>
+                    <div>
+                      <span className="text-zinc-400 block text-[10px]">Correo:</span>
+                      <span className="text-zinc-800 font-mono">{selectedWorkshopForModal.email}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-400 block text-[10px]">WhatsApp:</span>
+                      <span className="text-zinc-800 font-mono">{selectedWorkshopForModal.phone_whatsapp}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-400 block text-[10px]">Tarifa:</span>
+                      <strong className="text-zinc-900">{selectedWorkshopForModal.tier_label || selectedWorkshopForModal.tier}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Datos del Pago Móvil */}
+                <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200 space-y-2">
+                  <span className="font-mono text-[10px] font-bold text-amber-800 uppercase block">
+                    Comprobante de Pago Móvil
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-zinc-500 block text-[10px]">Número de Referencia:</span>
+                      <strong className="text-zinc-900 font-mono text-sm">{selectedWorkshopForModal.payment_reference || 'S/R'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 block text-[10px]">Banco Emisor:</span>
+                      <span className="text-zinc-800">{selectedWorkshopForModal.origin_bank || 'Banco de Venezuela'}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 block text-[10px]">Monto:</span>
+                      <strong className="text-emerald-700 font-mono">{selectedWorkshopForModal.amount}</strong>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 block text-[10px]">Estado Actual:</span>
+                      <span className="font-bold uppercase text-zinc-900">{selectedWorkshopForModal.status}</span>
+                    </div>
+                  </div>
+                  {selectedWorkshopForModal.notes && (
+                    <div className="border-t border-amber-200/60 pt-2 mt-2">
+                      <span className="text-zinc-500 block text-[10px]">Notas / Detalles:</span>
+                      <span className="text-zinc-700">{selectedWorkshopForModal.notes}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Evento & Ubicación */}
+                <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 text-zinc-600 text-[11px] leading-relaxed">
+                  📅 <strong>Viernes 23 de Octubre de 2026</strong> — 8:00 AM a 12:00 PM<br />
+                  📍 <strong>Edificio Fullcowork</strong>, Salón VIP (Calle 34 entre Av 4 y Don Tulio, Mérida)
+                </div>
+
+              </div>
+
+              {/* Botones de Acción */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-100">
+                <div className="flex items-center gap-2">
+                  {selectedWorkshopForModal.status !== 'confirmado' ? (
+                    <button
+                      onClick={async () => {
+                        await handleValidateWorkshopPayment(selectedWorkshopForModal);
+                        setSelectedWorkshopForModal(null);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Validar Pago y Confirmar</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        await handleRejectWorkshopPayment(selectedWorkshopForModal);
+                        setSelectedWorkshopForModal(null);
+                      }}
+                      className="px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs transition-colors cursor-pointer"
+                    >
+                      <span>Marcar como Cancelado</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {selectedWorkshopForModal.phone_whatsapp && (
+                    <a
+                      href={`https://wa.me/${selectedWorkshopForModal.phone_whatsapp.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(selectedWorkshopForModal.full_name)}%2C%20te%20escribimos%20de%20Inteligencia%20Neuronal%20respecto%20al%20IA%20Gastronom%C3%ADa%20Workshop%20(Folio%3A%20${selectedWorkshopForModal.folio})`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs transition-colors inline-flex items-center gap-1.5"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
+
+                  <button
+                    onClick={() => setSelectedWorkshopForModal(null)}
+                    className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                  >
+                    Cerrar
                   </button>
                 </div>
               </div>

@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: PaymentSettings = {
   pagoMovil: {
     banco: "Banco de Venezuela",
     bancoCodigo: "0102",
-    cedulaRif: "V-12.517.086",
+    cedulaRif: "V-12517086",
     telefono: "0414-881-7137",
     whatsapp: "584148817137",
     tasaInfo: "Calculado a Tasa Oficial BCV del día",

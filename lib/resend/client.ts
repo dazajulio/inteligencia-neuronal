@@ -823,3 +823,111 @@ export async function sendAdminCourseRegistrationAlertEmail(payload: {
   }
 }
 
+/**
+ * 8. Notificación al Alumno cuando su Pago ha sido Validado por el Admin
+ */
+export async function sendCoursePaymentValidatedEmail(payload: {
+  to: string;
+  fullName: string;
+  courseTitle?: string;
+  folio: string;
+  tierLabel?: string;
+  amount?: string;
+  eventDate?: string;
+  eventTime?: string;
+  eventLocation?: string;
+}) {
+  const resend = getResendClient();
+  if (!resend) return;
+
+  const {
+    to,
+    fullName,
+    courseTitle = "IA Gastronomía Workshop: Del Concepto al Ecosistema Digital Completo",
+    folio,
+    tierLabel = "Entrada Oficial",
+    amount = "$25 USD",
+    eventDate = "Viernes 23 de Octubre de 2026",
+    eventTime = "8:00 AM a 12:00 PM (4 Horas Prácticas)",
+    eventLocation = "Edificio Fullcowork, Calle 34 entre Av 4 y Don Tulio # 4-32, Salón VIP, Mérida",
+  } = payload;
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>¡Pago Validado! Tu Cupo Está Confirmado — ${folio}</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; }
+    .wrapper { width: 100%; max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .header { background-color: #1F242D; padding: 32px; border-bottom: 4px solid #86C537; text-align: left; }
+    .brand-logo { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+    .brand-accent { background: linear-gradient(90deg, #1DACE3, #971B8D, #EA0C7F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .badge-success { display: inline-block; padding: 6px 14px; background-color: rgba(134, 197, 55, 0.2); border: 1px solid #86C537; color: #86C537; border-radius: 9999px; font-size: 12px; font-weight: 800; font-family: monospace; margin-top: 10px; }
+    .body-content { padding: 36px 32px; }
+    .greeting { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+    .intro-text { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+    .card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 24px; font-size: 13px; }
+    .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #edf2f7; }
+    .row:last-child { border-bottom: none; }
+    .label { color: #64748b; font-weight: 600; }
+    .value { color: #0f172a; font-weight: 700; }
+    .logistics { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 20px; margin-bottom: 24px; font-size: 13px; line-height: 1.6; color: #166534; }
+    .btn { display: block; width: 100%; box-sizing: border-box; text-align: center; background-color: #22c55e; color: #ffffff !important; font-size: 14px; font-weight: 800; text-decoration: none; padding: 14px; border-radius: 12px; }
+    .footer { background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 11px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="brand-logo">Inteligencia <span class="brand-accent">Neuronal</span></div>
+      <div><span class="badge-success">✓ PAGO VALIDADO & CUPO CONFIRMADO</span></div>
+    </div>
+    <div class="body-content">
+      <div class="greeting">¡Excelente, ${fullName}! 🎉</div>
+      <p class="intro-text">
+        Tu pago ha sido validado exitosamente por nuestro equipo administrativo. Tu cupo para el <strong>${courseTitle}</strong> está 100% reservado.
+      </p>
+
+      <div class="card">
+        <div class="row"><span class="label">Folio Oficial:</span><span class="value font-mono">${folio}</span></div>
+        <div class="row"><span class="label">Entrada:</span><span class="value">${tierLabel}</span></div>
+        <div class="row"><span class="label">Inversión:</span><span class="value">${amount}</span></div>
+        <div class="row"><span class="label">Estado:</span><span class="value" style="color: #16a34a;">CONFIRMADO (VIP)</span></div>
+      </div>
+
+      <div class="logistics">
+        <strong>📍 Coordenadas del Taller Presencial:</strong><br>
+        📅 <strong>Fecha:</strong> ${eventDate}<br>
+        ⏰ <strong>Horario:</strong> ${eventTime}<br>
+        🏢 <strong>Lugar:</strong> ${eventLocation}<br>
+        💻 <strong>Importante:</strong> Traer tu laptop con cargador para el laboratorio práctico en vivo.<br>
+        ☕ <strong>Incluye:</strong> Refrigerio ejecutivo y certificado digital con código QR.
+      </div>
+
+      <a href="https://wa.me/584148817137?text=Hola%20Julio%2C%20recibí%20la%20confirmación%20de%20mi%20pago%20para%20el%20workshop%20del%2023%20de%20Octubre.%20Mi%20folio%20es%20${folio}" class="btn" target="_blank">
+        💬 Confirmar por WhatsApp (+58 414-8817137)
+      </a>
+    </div>
+    <div class="footer">
+      © 2026 Inteligencia Neuronal — Mérida, Venezuela.
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [to],
+      subject: `✅ ¡Pago Validado! Tu Cupo está Confirmado para el Workshop [${folio}]`,
+      html: htmlContent,
+    });
+  } catch (err) {
+    console.warn("[Resend Course Payment Validated Email Error]", err);
+  }
+}
+
+
