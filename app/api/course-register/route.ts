@@ -50,9 +50,9 @@ export async function GET(req: NextRequest) {
           const key = o.folio || o.id || o.customer_email;
           if (key && !map.has(key)) {
             const isUla = o.course_title?.toLowerCase().includes("ula");
-            const isCamara = o.course_title?.toLowerCase().includes("cámara") || o.course_title?.toLowerCase().includes("camara");
+            const isCamara = o.course_title?.toLowerCase().includes("cámara") || o.course_title?.toLowerCase().includes("camara") || o.course_title?.toLowerCase().includes("turismo");
             const tier = isUla ? "ula" : isCamara ? "camara" : "general";
-            const tierLabel = isUla ? "Estudiantes ULA ($15)" : isCamara ? "Agremiados Cámara Gastronómica ($20)" : "Público General ($25)";
+            const tierLabel = isUla ? "Estudiantes ULA ($15)" : isCamara ? "Agremiados Cámara Gastronómica y Cámara de Turismo ($20)" : "Público General ($25)";
             const org = o.course_title?.includes("(") ? o.course_title.split("(")[1]?.split(")")[0] : "No especificado";
 
             map.set(key, {

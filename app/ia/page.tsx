@@ -127,7 +127,7 @@ export default function WorkshopIaLandingPage() {
       case "ula":
         return "Estudiantes ULA ($15 USD)";
       case "camara":
-        return "Agremiados Cámara Gastronómica ($20 USD)";
+        return "Agremiados Cámara Gastronómica y Cámara de Turismo ($20 USD)";
       case "general":
         return "Público General / Freelancers ($25 USD)";
       default:
@@ -190,7 +190,7 @@ export default function WorkshopIaLandingPage() {
     }
 
     if (selectedTier === "camara" && !organizationOrId.trim()) {
-      setErrorMessage("Por favor indica el nombre de tu restaurante o comercio afiliado a la Cámara.");
+      setErrorMessage("Por favor indica el nombre de tu restaurante, empresa o comercio afiliado a la Cámara Gastronómica o Cámara de Turismo.");
       return;
     }
 
@@ -339,8 +339,8 @@ export default function WorkshopIaLandingPage() {
       a: "Sí, absolutamente. El Edificio Fullcowork (Salón VIP) cuenta con respaldo 100% de planta eléctrica y conexión de fibra óptica simétrica de alta velocidad.",
     },
     {
-      q: "¿Cómo aplico a la tarifa de Estudiante ULA o Agremiado a la Cámara?",
-      a: "Al llenar el formulario, selecciona la categoría correspondiente. Si eres estudiante ULA puedes adjuntar tu carnet en el formulario o presentarlo al ingresar. Si eres de la Cámara Gastronómica, solo indica el nombre de tu comercio afiliado.",
+      q: "¿Cómo aplico a la tarifa de Estudiante ULA o Agremiado a la Cámara Gastronómica / Cámara de Turismo?",
+      a: "Al llenar el formulario, selecciona la categoría correspondiente. Si eres estudiante ULA puedes adjuntar tu carnet en el formulario o presentarlo al ingresar. Si eres agremiado de la Cámara Gastronómica o de la Cámara de Turismo, solo indica el nombre de tu restaurante, empresa o comercio afiliado.",
     },
     {
       q: "¿Cómo se calcula el monto en Bolívares?",
@@ -547,7 +547,7 @@ export default function WorkshopIaLandingPage() {
                       <span className="text-lg font-black text-emerald-400 font-mono">$15 USD</span>
                     </div>
                     <div className="flex items-baseline justify-between">
-                      <span className="text-sm font-bold text-white">Cámara Gastronómica</span>
+                      <span className="text-sm font-bold text-white">Cámara Gastronómica / Turismo</span>
                       <span className="text-lg font-black text-emerald-400 font-mono">$20 USD</span>
                     </div>
                     <div className="flex items-baseline justify-between border-t border-white/10 pt-2">
@@ -795,7 +795,7 @@ export default function WorkshopIaLandingPage() {
               </button>
             </div>
 
-            {/* Tarifa 2: Agremiados Cámara Gastronómica */}
+            {/* Tarifa 2: Agremiados Cámara Gastronómica y Cámara de Turismo */}
             <div
               onClick={() => setSelectedTier("camara")}
               className={`rounded-3xl p-6 transition-all cursor-pointer relative border-2 flex flex-col justify-between ${
@@ -812,9 +812,9 @@ export default function WorkshopIaLandingPage() {
                   <Store className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Cámara Gastronómica</h3>
+                  <h3 className="text-xl font-bold text-white">Cámara Gastronómica y Cámara de Turismo</h3>
                   <p className="text-xs text-zinc-400 mt-1">
-                    Exclusivo para restaurantes, cafés y comercios afiliados a la Cámara de Mérida.
+                    Exclusivo para restaurantes, cafés, posadas, hoteles y empresas afiliadas a la Cámara Gastronómica y la Cámara de Turismo de Mérida.
                   </p>
                 </div>
                 <div className="space-y-1 pt-2">
@@ -990,7 +990,13 @@ export default function WorkshopIaLandingPage() {
                             : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
                         }`}
                       >
-                        <span className="capitalize">{tierKey === "ula" ? "Estudiante ULA" : tierKey === "camara" ? "Cámara Gastr." : "General"}</span>
+                        <span>
+                          {tierKey === "ula"
+                            ? "Estudiante ULA"
+                            : tierKey === "camara"
+                            ? "Cámara Gastronómica / Cámara de Turismo"
+                            : "General"}
+                        </span>
                         <span className="font-mono text-emerald-400 mt-1">${getTierPrice(tierKey)} USD</span>
                       </button>
                     ))}
@@ -1045,18 +1051,18 @@ export default function WorkshopIaLandingPage() {
                   />
                 </div>
 
-                {/* Campo condicional para Cámara Gastronómica */}
+                {/* Campo condicional para Cámara Gastronómica y Cámara de Turismo */}
                 {selectedTier === "camara" && (
                   <div>
                     <label className="block text-xs font-bold text-amber-300 uppercase tracking-wider mb-2">
-                      5. Nombre del Restaurante / Comercio Afiliado a la Cámara *
+                      5. Nombre del Restaurante / Empresa Afiliada (Cámara Gastronómica o Cámara de Turismo) *
                     </label>
                     <input
                       type="text"
                       required
                       value={organizationOrId}
                       onChange={(e) => setOrganizationOrId(e.target.value)}
-                      placeholder="Ej. Pizzería Bella Vista / Café Tulio"
+                      placeholder="Ej. Pizzería Bella Vista / Posada Los Andes"
                       className="w-full bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400 transition-colors"
                     />
                   </div>
