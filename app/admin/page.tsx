@@ -51,6 +51,9 @@ import {
   CheckCircle2,
   XCircle,
   Coffee,
+  Award,
+  Printer,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -187,7 +190,7 @@ export interface OrderSaleItem {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits' | 'workshop'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'courses' | 'resources' | 'leads' | 'billing' | 'agents' | 'audits' | 'workshop' | 'certificates'>('overview');
   const [syncingN8n, setSyncingN8n] = useState(false);
   const [syncingCourses, setSyncingCourses] = useState(false);
   const [syncingResources, setSyncingResources] = useState(false);
@@ -220,6 +223,24 @@ export default function AdminDashboard() {
     revenueUsd: 0,
   });
   const [workshopFilterStatus, setWorkshopFilterStatus] = useState<string>('all');
+  const [selectedCertForModal, setSelectedCertForModal] = useState<any | null>(null);
+  const [searchCert, setSearchCert] = useState('');
+  const [copiedCertMsg, setCopiedCertMsg] = useState<string | null>(null);
+
+  const workshopCertificates = [
+    { name: "Anthony Gabriel Hernández Pérez", ci: "V-31.372.316", code: "IN-IA-2026-31372" },
+    { name: "Yaely González", ci: "V-13.447.937", code: "IN-IA-2026-13447" },
+    { name: "Marisabel Prieto", ci: "V-14.255.833", code: "IN-IA-2026-14255" },
+    { name: "Gabriela Marquina", ci: "V-27.507.368", code: "IN-IA-2026-27507" },
+    { name: "Mary Giovanna Vera", ci: "V-9.474.798", code: "IN-IA-2026-09474" },
+    { name: "Edixon Reyes", ci: "V-18.796.632", code: "IN-IA-2026-18796" },
+    { name: "Julio Andrés Daza", ci: "V-32.451.218", code: "IN-IA-2026-32451" },
+    { name: "Andreina Ramírez", ci: "V-11.953.787", code: "IN-IA-2026-11953" },
+    { name: "Alexander Rangel", ci: "", code: "IN-IA-2026-AR09" },
+    { name: "Hilda Yennibeth Rincón Serrano", ci: "V-10.749.466", code: "IN-IA-2026-10749" },
+    { name: "Reynold Antonio Etchegoyen Dávila", ci: "V-34.225.184", code: "IN-IA-2026-34225" },
+    { name: "Ariana Mileny Montoya Puente", ci: "V-23.390.865", code: "IN-IA-2026-23390" }
+  ];
   const [workshopSearch, setWorkshopSearch] = useState<string>('');
   const [workshopUpdatingId, setWorkshopUpdatingId] = useState<string | null>(null);
   const [selectedWorkshopForModal, setSelectedWorkshopForModal] = useState<any | null>(null);
@@ -2261,7 +2282,17 @@ export default function AdminDashboard() {
     document.body.removeChild(link);
   };
 
-  return (
+    const handleCopyCertWhatsApp = (cert: { name: string; ci: string; code: string }) => {
+    const url = `https://www.inteligencianeuronal.com/certificados/${cert.code}`;
+    const ciLine = cert.ci ? `\n• *Cédula de Identidad:* ${cert.ci}` : '';
+    const msg = `🎓 *¡Felicitaciones, ${cert.name}!*\n\nTe hacemos entrega oficial de tu *Certificado Digital de Participación y Asistencia* en el *IA Gastronomía Workshop: Del Concepto al Ecosistema Digital Completo*, dictado este viernes 23 de octubre de 2026 en el Salón VIP de Fullcowork Mérida.\n\n📜 *Detalles de tu Acreditación:*${ciLine}\n• *Carga Académica:* 4 Horas Prácticas\n• *Código Único de Validación:* \`${cert.code}\`\n• *Verificación en Línea y Descarga de Diploma en Alta Resolución:*\n${url}\n\nAgradecemos tu valiosa presencia y compromiso hacia la modernización tecnológica de la gastronomía. ¡Mucho éxito en la ejecución de tus proyectos! 🚀✨`;
+
+    navigator.clipboard.writeText(msg);
+    setCopiedCertMsg(`Mensaje de ${cert.name} copiado al portapapeles`);
+    setTimeout(() => setCopiedCertMsg(null), 3000);
+  };
+
+return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-[#EA0C7F] selection:text-white">
       
       {/* ── BARRA LATERAL (DARK SIDEBAR CONTRAST #1F242D) ── */}
@@ -2288,6 +2319,7 @@ export default function AdminDashboard() {
           <nav className="flex lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
             {[
               { id: 'overview', label: 'Métricas Generales', icon: LayoutDashboard, color: '#1DACE3' },
+              { id: 'certificates', label: 'CERTIFICADOS', icon: Award, badge: '12', color: '#1DACE3' },
               { id: 'workshop', label: 'Inscritos Workshop IA', icon: Sparkles, badge: workshopStats.pending > 0 ? `${workshopStats.pending} Ptes` : (workshopList.length > 0 ? workshopList.length.toString() : undefined), color: '#FEAD2B' },
               { id: 'sales', label: 'Ventas & Órdenes', icon: DollarSign, badge: ordersList.length > 0 ? ordersList.length.toString() : undefined, color: '#86C537' },
               { id: 'courses', label: 'Gestor de Cursos', icon: GraduationCap, badge: coursesList.length.toString(), color: '#EA0C7F' },
@@ -2362,6 +2394,7 @@ export default function AdminDashboard() {
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
               {activeTab === 'overview' && 'Métricas Generales & Telemetría'}
+              {activeTab === 'certificates' && 'Acreditación Oficial & Certificados del Workshop'}
               {activeTab === 'workshop' && 'Inscritos Workshop IA: Del Concepto al Ecosistema (Mérida)'}
               {activeTab === 'sales' && 'Gestor de Ventas & Órdenes en Tiempo Real'}
               {activeTab === 'courses' && 'Gestor de Cursos & Campus Virtual'}
@@ -4194,6 +4227,172 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
+          {/* ── TAB: CERTIFICADOS (12 ASISTENTES WORKSHOP IA) ── */}
+          {activeTab === 'certificates' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+              
+              {copiedCertMsg && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-xs animate-in fade-in">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{copiedCertMsg}</span>
+                  </div>
+                  <button onClick={() => setCopiedCertMsg(null)} className="text-emerald-700 hover:text-emerald-950">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Header de la Pestaña */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-black text-zinc-900 flex items-center gap-2">
+                    <Award className="w-6 h-6 text-[#1DACE3]" />
+                    <span>Certificados Oficiales del Workshop IA Gastronomía</span>
+                  </h2>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Mérida • Salón VIP Fullcowork (Viernes 23 de Octubre de 2026) • Acreditación oficial y descarga de diplomas PDF uno a uno
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 font-mono text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>12 Diplomas Disponibles</span>
+                  </span>
+                  
+                  <Link
+                    href="/ia"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 text-xs font-bold text-zinc-800 transition-all shadow-xs"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-[#1DACE3]" />
+                    <span>Ver Landing /ia</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* KPI Cards Superiores */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-bold">Total Asistentes</span>
+                  <div className="text-2xl font-black text-zinc-900 font-mono">12</div>
+                  <span className="text-[11px] text-emerald-600 font-bold block">100% Acreditados</span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-bold">Carga Académica</span>
+                  <div className="text-2xl font-black text-[#1DACE3] font-mono">4 Horas</div>
+                  <span className="text-[11px] text-zinc-500 block">Laboratorio Práctico</span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-bold">Fecha Oficial</span>
+                  <div className="text-base font-bold text-zinc-900">23 Octubre 2026</div>
+                  <span className="text-[11px] text-zinc-500 block">Sede Fullcowork Mérida</span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-bold">Facilitador / Emisor</span>
+                  <div className="text-sm font-bold text-zinc-900 truncate">Julio Alberto Daza Celis</div>
+                  <span className="text-[10px] text-zinc-500 truncate block">CEO IN Academy • Pte Cámara Gastronómica</span>
+                </div>
+              </div>
+
+              {/* Buscador de Alumnos */}
+              <div className="bg-white p-4 rounded-2xl border border-zinc-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="relative w-full sm:w-80">
+                  <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchCert}
+                    onChange={(e) => setSearchCert(e.target.value)}
+                    placeholder="Buscar por nombre, cédula o código..."
+                    className="w-full bg-slate-50 border border-zinc-300 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-zinc-900 focus:outline-none focus:border-[#1DACE3]"
+                  />
+                </div>
+                <div className="text-xs text-zinc-500 font-mono">
+                  Certificados oficiales disponibles para descarga individual en PDF
+                </div>
+              </div>
+
+              {/* Tabla de Certificados con Descarga 1 a 1 */}
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 text-zinc-500 font-mono uppercase text-[10px] border-b border-zinc-200">
+                      <tr>
+                        <th className="py-3.5 px-4 font-bold">#</th>
+                        <th className="py-3.5 px-4 font-bold">Nombre del Asistente</th>
+                        <th className="py-3.5 px-4 font-bold">Cédula / Documento</th>
+                        <th className="py-3.5 px-4 font-bold">Código de Validación</th>
+                        <th className="py-3.5 px-4 font-bold">Estado</th>
+                        <th className="py-3.5 px-4 font-bold text-right">Descarga & Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {workshopCertificates
+                        .filter((c) =>
+                          c.name.toLowerCase().includes(searchCert.toLowerCase()) ||
+                          c.code.toLowerCase().includes(searchCert.toLowerCase()) ||
+                          c.ci.toLowerCase().includes(searchCert.toLowerCase())
+                        )
+                        .map((cert, idx) => (
+                          <tr key={cert.code} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="py-3 px-4 font-mono font-bold text-zinc-400">{idx + 1}</td>
+                            <td className="py-3 px-4 font-bold text-zinc-900">{cert.name}</td>
+                            <td className="py-3 px-4 font-mono font-semibold text-zinc-600">{cert.ci || 'No indicada'}</td>
+                            <td className="py-3 px-4 font-mono font-extrabold text-[#0284c7]">{cert.code}</td>
+                            <td className="py-3 px-4">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-mono font-bold">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>OFICIAL</span>
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {/* Botón Ver Diploma / Modal en Admin */}
+                                <button
+                                  onClick={() => setSelectedCertForModal(cert)}
+                                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-zinc-800 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs border border-zinc-200"
+                                  title="Previsualizar Diploma"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-zinc-600" />
+                                  <span>Ver</span>
+                                </button>
+
+                                {/* Botón Descargar / Imprimir PDF Oficial */}
+                                <a
+                                  href={`/certificados/${cert.code}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] hover:opacity-95 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                                  title="Descargar / Imprimir Diploma PDF"
+                                >
+                                  <Printer className="w-3.5 h-3.5" />
+                                  <span>Descargar PDF</span>
+                                </a>
+
+                                {/* Botón Copiar WhatsApp */}
+                                <button
+                                  onClick={() => handleCopyCertWhatsApp(cert)}
+                                  className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors cursor-pointer"
+                                  title="Copiar mensaje WhatsApp para el alumno"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </motion.div>
+          )}
+
         </AnimatePresence>
 
         {/* ── MODAL: CREAR / EDITAR CURSO CON CREADOR DE MÓDULOS & QUIZES APROBATORIOS ── */}
@@ -5932,6 +6131,139 @@ export default function AdminDashboard() {
                     Cerrar
                   </button>
                 </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL: PREVISUALIZACIÓN Y DESCARGA DE DIPLOMA ── */}
+        {selectedCertForModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="w-full max-w-4xl rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-2xl space-y-6 text-zinc-900 max-h-[92vh] flex flex-col justify-between overflow-y-auto">
+              
+              {/* Header Modal */}
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-4 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1DACE3] to-[#0284c7] text-white flex items-center justify-center shadow-md">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-zinc-900">
+                      Certificado Oficial: {selectedCertForModal.name}
+                    </h3>
+                    <p className="text-xs text-zinc-500 font-mono">
+                      Código: {selectedCertForModal.code} {selectedCertForModal.ci ? `• C.I. ${selectedCertForModal.ci}` : ''}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedCertForModal(null)}
+                  className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-xl hover:bg-zinc-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Vista Previa del Diploma */}
+              <div className="relative rounded-2xl p-6 sm:p-8 border-4 border-[#C59B27] bg-[#FFFFFF] shadow-lg text-center space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                  <div className="flex items-center gap-2.5 text-left">
+                    <img src="/logo-in.png" alt="Logo" className="w-10 h-10 object-contain" />
+                    <div>
+                      <span className="font-serif font-bold text-sm tracking-wider text-slate-900 block leading-tight">
+                        INTELIGENCIA NEURONAL
+                      </span>
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-slate-500 block">
+                        ACADEMY // DIVISIÓN DE EDUCACIÓN EJECUTIVA
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-[#b47714] bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full uppercase">
+                    ACREDITACIÓN OFICIAL VERIFICADA
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs font-mono font-bold text-[#971B8D] uppercase tracking-widest block">
+                    CERTIFICADO DE PARTICIPACIÓN Y ASISTENCIA
+                  </span>
+                  <p className="text-xs text-slate-600 font-serif italic">
+                    Por cuanto ha demostrado dedicación y competencia técnica en Workshop presencial, se confiere el presente reconocimiento a:
+                  </p>
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 py-1">
+                    {selectedCertForModal.name}
+                  </h2>
+                  {selectedCertForModal.ci && (
+                    <span className="inline-block px-3 py-0.5 rounded-full bg-slate-100 border border-slate-300 text-xs font-mono text-slate-700">
+                      Cédula de Identidad: <strong>{selectedCertForModal.ci}</strong>
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-0.5">
+                  <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#0284c7] via-[#971B8D] to-[#EA0C7F] uppercase font-serif">
+                    IA GASTRONOMÍA WORKSHOP
+                  </h3>
+                  <span className="block text-xs font-semibold text-slate-600 font-mono">
+                    Del Concepto al Ecosistema Digital Completo • 4 Horas Prácticas Presenciales
+                  </span>
+                </div>
+
+                {/* Resumen Curricular */}
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-left text-[11px] text-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>● Auditoría Digital de Marca & Velocidad Web</div>
+                  <div>● Agentes de IA con Claude & Antigravity</div>
+                  <div>● Datos Estructurados Schema.org JSON-LD</div>
+                  <div>● Posicionamiento Dual SEO & AEO (LLMs)</div>
+                  <div>● Telemetría con Microsoft Clarity y GA4</div>
+                  <div>● Automatización de Delivery Directo WhatsApp</div>
+                </div>
+
+                {/* Firma Centrada */}
+                <div className="pt-3 border-t border-slate-200 flex flex-col items-center justify-center text-center space-y-0.5">
+                  <span className="font-serif italic text-lg font-bold text-slate-900">
+                    Julio Alberto Daza Celis
+                  </span>
+                  <div className="w-48 h-0.5 bg-slate-300"></div>
+                  <strong className="text-[11px] text-slate-900 font-mono uppercase">Julio Alberto Daza Celis</strong>
+                  <span className="text-[10px] text-slate-800 font-bold">
+                    CEO Inteligencia Neuronal Academy • www.inteligencianeuronal.com
+                  </span>
+                  <span className="text-[9px] text-slate-600">
+                    Presidente Cámara Gastronómica Estado Mérida
+                  </span>
+                </div>
+              </div>
+
+              {/* Botones del Modal */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-zinc-100">
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`/certificados/${selectedCertForModal.code}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1DACE3] to-[#0284c7] hover:opacity-95 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Descargar / Imprimir Diploma PDF</span>
+                  </a>
+
+                  <button
+                    onClick={() => handleCopyCertWhatsApp(selectedCertForModal)}
+                    className="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs transition-colors flex items-center gap-1.5"
+                  >
+                    <MessageCircle className="w-4 h-4 text-emerald-600" />
+                    <span>Copiar WhatsApp</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setSelectedCertForModal(null)}
+                  className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs shadow-xs transition-colors"
+                >
+                  Cerrar
+                </button>
               </div>
 
             </div>

@@ -6,6 +6,13 @@ export const dynamic = "force-dynamic";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 
 const SKILLS_BY_PROGRAM: Record<string, string[]> = {
+  "workshop-ia-gastronomia": [
+    "Auditoría Digital de Marca & Arquitectura Asistida por IA",
+    "Despliegue de Agentes de IA para Diseño y Programación Web",
+    "Estructuración de Datos Locales Schema.org & AEO para Modelos LLM",
+    "Telemetría Web con Mapas de Calor Microsoft Clarity & Analytics",
+    "Ecosistemas de Conversión y Automatización de Delivery Directo"
+  ],
   "bootcamp-n8n": [
     "Aprovisionamiento y Hardening de Servidores Linux VPS",
     "Despliegue de Docker Compose, Volúmenes y Caddy SSL",
@@ -20,6 +27,23 @@ const SKILLS_BY_PROGRAM: Record<string, string[]> = {
     "Despliegue de Agentes Conversacionales en WhatsApp Cloud API",
     "Guardrails Antialucinación y Seguridad en Negocios Reales"
   ]
+};
+
+// Registro de Asistentes al Workshop IA Gastronomía (Mérida, 23 Octubre 2026)
+const WORKSHOP_IA_ATTENDEES: Record<string, { name: string; ci: string }> = {
+  "IN-IA-2026-31372": { name: "Anthony Gabriel Hernández Pérez", ci: "V-31.372.316" },
+  "IN-IA-2026-13447": { name: "Yaely González", ci: "V-13.447.937" },
+  "IN-IA-2026-14255": { name: "Marisabel Prieto", ci: "V-14.255.833" },
+  "IN-IA-2026-27507": { name: "Gabriela Marquina", ci: "V-27.507.368" },
+  "IN-IA-2026-09474": { name: "Mary Giovanna Vera", ci: "V-9.474.798" },
+  "IN-IA-2026-18796": { name: "Edixon Reyes", ci: "V-18.796.632" },
+  "IN-IA-2026-32451": { name: "Julio Andrés Daza", ci: "V-32.451.218" },
+  "IN-IA-2026-11953": { name: "Andreina Ramírez", ci: "V-11.953.787" },
+  "IN-IA-2026-AR09": { name: "Alexander Rangel", ci: "" },
+  "IN-IA-2026-10749": { name: "Hilda Yennibeth Rincón Serrano", ci: "V-10.749.466" },
+  "IN-IA-2026-RE11": { name: "Reynold Antonio Etchegoyen Dávila", ci: "V-34.225.184" },
+  "IN-IA-2026-34225": { name: "Reynold Antonio Etchegoyen Dávila", ci: "V-34.225.184" },
+  "IN-IA-2026-23390": { name: "Ariana Mileny Montoya Puente", ci: "V-23.390.865" },
 };
 
 export async function POST(req: NextRequest) {
@@ -110,6 +134,28 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code") || "IN-2026-OFICIAL";
     const cleanCode = code.trim().toUpperCase();
+
+    // 0. Verificar si es un certificado del Workshop IA Gastronomía
+    const workshopAttendee = WORKSHOP_IA_ATTENDEES[cleanCode];
+    if (workshopAttendee) {
+      return NextResponse.json({
+        success: true,
+        certificate: {
+          certificate_code: cleanCode,
+          student_name: workshopAttendee.name,
+          student_id: workshopAttendee.ci,
+          student_email: "",
+          course_id: "workshop-ia-gastronomia",
+          course_title: "IA Gastronomía Workshop: Del Concepto al Ecosistema Digital Completo",
+          skills_summary: SKILLS_BY_PROGRAM["workshop-ia-gastronomia"],
+          score_average: 100,
+          is_valid: true,
+          modality: "Presencial (Fullcowork Mérida)",
+          duration_hours: "4 Horas Académicas Prácticas",
+          issued_at: "2026-10-23T12:00:00.000Z",
+        }
+      });
+    }
 
     const db = getSupabaseAdmin();
     const { data: cert } = await db
